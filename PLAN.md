@@ -117,7 +117,7 @@
 
 ---
 
-## EPIC-006: Legacy Agent Compatibility
+## EPIC-006: Existing Agent Compatibility
 **Value Statement:** For **Adopters**, who **have existing agent definitions**, the **Compatibility Layer** is a **bridge** that **allows Springfield to run legacy/external agent structures**.
 
 **The "Why":** We shouldn't force a rewrite of all existing `.github/agents` definitions. We should embrace them.
@@ -127,7 +127,7 @@
 - ❌ Conversion/Migration tools
 
 **Acceptance Criteria:**
-- [ ] Springfield detects and loads agents from existing folder structures.
+- [ ] Springfield agents are primed to load from existing folder structures.
 - [ ] Repo-defined agents override defaults.
 
 **Attributes:**
@@ -135,3 +135,9 @@
 - **Complexity:** Medium
 - **Urgency:** Low
 - **Dependencies:** None
+
+---
+
+## EPIC-XXX: Continuous Improvement
+
+Allow for the system to do a retrospective after each major release to identify both technical and process improvements. This will be a recurring epic that ensures we are always iterating on our practices and tooling based on data from the agents.
