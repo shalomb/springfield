@@ -25,15 +25,16 @@
 4. Lisa creates `TODO.md` on the feature branch.
 
 ### Phase 2: Implementation (Ralph)
-1. Ralph monitors the coordination source (`main` or `coordination`).
+1. Ralph monitors the coordination source.
 2. If an Epic is `Ready`, Ralph spawns a **Git Worktree** for the specific feature branch.
 3. Ralph executes the **Ralph Wiggum Loop** inside that isolated worktree.
-4. Ralph periodically merges the coordination source into his worktree to stay in sync.
+4. Ralph marks the Epic as **`Implemented`** in the branch's `PLAN.md` when `TODO.md` is complete.
 
 ### Phase 3: Review & Verification (Bart)
-1. Bart reviews the code on the feature branch.
-2. Bart runs BDD scenarios to verify the Epic's acceptance criteria.
-3. Bart updates `FEEDBACK.md` and marks the Epic as `Verified` in the branch's `PLAN.md`.
+1. Bart takes over the worktree/branch.
+2. Bart performs adversarial review and verifies 95%+ coverage.
+3. Bart updates `FEEDBACK.md`.
+4. If satisfied, Bart marks the Epic as **`Verified`** in `PLAN.md`.
 
 ### Phase 4: Release (Lovejoy)
 1. Lovejoy submits the feature branch to a **Merge Queue** (e.g., GitHub Merge Queue).
