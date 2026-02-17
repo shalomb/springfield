@@ -18,7 +18,9 @@
 
 ### Phase 1: Planning (Lisa)
 1. Lisa updates `PLAN.md` to define a new Epic and marks it `Ready`.
-2. **Protected Environments**: Lisa commits to a `coordination` branch or opens a "Planning PR" for the roadmap update.
+2. **Protected Environments**:
+   - Lisa commits to a `coordination` branch.
+   - **Sync Trigger**: The `coordination` branch is automatically rebased on or merged with `main` whenever `main` changes. This ensures planning context is always current.
 3. Once the Plan is "Ready", Lisa (or the harness) creates a new branch `feat/epic-ID-name` from `main`.
 4. Lisa creates `TODO.md` on the feature branch.
 
@@ -40,6 +42,18 @@
 4. `main` now reflects the new code and shows the Epic as `Done` in `PLAN.md`.
 5. The feature branch and its git worktree are deleted.
 
-## 4. Conflict Resolution
-- If two epics touch the same code, the second one to merge must rebase/merge `main`.
-- `PLAN.md` conflicts are resolved by prioritizing the `main` branch's list of Epics while preserving the feature branch's status for its specific Epic.
+## 4. Roadmap Reconciliation (Shared State Management)
+
+Managing `PLAN.md` across multiple branches requires a specific strategy to avoid "merge hell":
+
+- **Main as Truth for Past**: `main` is the definitive record of **Completed** (Done) Epics.
+- **Coordination as Truth for Future**: The `coordination` branch is the source of truth for **Planned**, **Ready**, and **In-Progress** Epics.
+- **Auto-Reconciliation**:
+  1. When an Epic merges into `main`, it updates `PLAN.md` status to `Done`.
+  2. The harness immediately merges `main` into `coordination`.
+  3. Lisa reconciles the two versions of `PLAN.md`: she keeps the `Done` statuses from `main` and the `Ready/Planned` statuses from `coordination`.
+- **Atomic Commits**: Lisa should commit each Epic update as a separate, atomic commit to `PLAN.md` to make git merges easier to handle.
+
+## 5. Conflict Resolution
+- **Code Conflicts**: If two epics touch the same code, the second one to merge must rebase/merge `main` into their feature branch.
+- **Roadmap Conflicts**: Resolved by the Planning Agent (Lisa) during the sync cycle.
