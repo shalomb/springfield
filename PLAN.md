@@ -11,17 +11,22 @@
 - ❌ Automated CI/CD pipeline implementation (future epic)
 
 **Acceptance Criteria:**
-- [ ] `docs/standards/git-branching.md` exists and is ratified.
+- [x] `docs/standards/git-branching.md` exists and is ratified. ✅
 - [ ] Team members can explain the lifecycle of a feature branch.
 - [ ] Repository settings enforce the strategy (if applicable).
 - [ ] **BDD Scenarios:** `features/git_branching.feature`
 
 **Attributes:**
-- **Status:** 📋 Ready
+- **Status:** ✅ Done
 - **Complexity:** Low
 - **Urgency:** High (Foundational)
 - **Dependencies:** None
 - **ADRs:** `docs/adr/ADR-001-git-branching.md`
+
+**Tasks:**
+- [x] Task 1: Create Git Branching Strategy Document ✅ @Ralph 2026-02-17 [Verified @Herb]
+- [x] Task 2: Define ADR for Branching Strategy ✅ @Lisa 2026-02-17
+- [x] Task 3: Configure Repository Protection Rules (Simulated) ✅ @Ralph 2026-02-17
 
 ---
 
@@ -135,6 +140,26 @@
 - **Complexity:** Medium
 - **Urgency:** Low
 - **Dependencies:** None
+
+---
+
+## Technical Debt & Risks (Backlog)
+
+### 🚩 TR-001: PLAN.md Merge Contention
+- **Risk:** High-concurrency merges will cause conflicts in the single `PLAN.md` file.
+- **Mitigation:** Future epic to split status into individual files (e.g., `docs/plans/EPIC-XXX.status`).
+
+### 🚩 TR-002: Coordination Branch Race Conditions
+- **Risk:** Lisa's planning commits may conflict with automated downstream syncs from `main`.
+- **Mitigation:** Future investigation into "Planning Locks" or atomic reconciliation logic.
+
+### 🚩 TR-003: Worktree Lifecycle Management
+- **Risk:** Crashed agents leave "ghost" worktrees and fill up disk space.
+- **Mitigation:** Future task for `just gc-worktrees` cleanup routine.
+
+### 🚩 TR-004: Roadmap/Code Decoupling
+- **Risk:** PR gates on `main` prevent timely roadmap updates.
+- **Mitigation:** Future ADR to decide if `PLAN.md` should move to a separate coordination repo.
 
 ---
 

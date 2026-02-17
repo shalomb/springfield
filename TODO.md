@@ -15,3 +15,15 @@ We will adopt a Trunk-Based Development model with short-lived feature branches.
     - [x] Define branch naming conventions (feat/, fix/, chore/) ✅
     - [x] Define merge strategy (Squash & Merge) ✅
   - Success Criteria: Document exists and covers Main, Feature Branches, and Release Tags.
+
+- [x] Task 2: Define ADR for Branching Strategy ✅ @Lisa 2026-02-17
+  - Assigned to: Lisa
+  - Output: docs/adr/ADR-001-git-branching.md
+
+- [x] Task 3: Configure Repository Protection Rules (Simulated) ✅ @Ralph 2026-02-17
+  - Assigned to: Ralph
+  - Output: docs/standards/repository-protection.md
+  - Subtasks:
+    - [x] Define required approvals (Bart) ✅
+    - [x] Define required status checks (Tests, Coverage) ✅
+    - [x] Define merge restrictions (No force push, Squash only) ✅
