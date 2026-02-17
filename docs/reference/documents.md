@@ -89,6 +89,11 @@ See: scenarios.feature#anchor
 - **Unknown:** [Question] - See ADR-XXX for decision
 - **Assumption:** [What we're betting on]
 
+## Options Considered (Preserved Variability)
+- [ ] Option A: [Description] (Pros/Cons)
+- [x] Option B: [Description] (Eliminated: reason)
+- [ ] Option C: [Description] (Runner-up)
+
 ## Scope
 ✅ [In scope]
 ❌ [Out of scope - future]

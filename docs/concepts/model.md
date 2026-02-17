@@ -58,12 +58,12 @@ The protocol coordinates work across two distinct phases of diverging (exploring
 
 ### Discovery Diamond (Design Thinking)
 -   **Diverge (Investigate):** Product Agent gathers requirements, conducts Five Whys, and Gemba walks.
--   **Converge (Validate):** Planning Agent checks architectural fit and creates ADRs for unknowns.
--   **Output:** A validated **Feature Brief**.
+-   **Converge (Validate):** Planning Agent selects the best *provisional* option from the pool and creates an ADR. This is a hypothesis to be tested.
+-   **Output:** A **Feature Brief** with a Selected Option (Hypothesis).
 
 ### Delivery Diamond (Agile)
--   **Diverge (Build):** Planning Agent creates tasks; Build Agent implements via TDD.
--   **Converge (Verify):** Quality Agent conducts adversarial reviews and checks coverage gates (>95%).
+-   **Diverge (Build):** Build Agent implements the hypothesis (Option A).
+-   **Converge (Verify):** Quality Agent verifies the implementation works. **Planning Agent** then confirms the option is proven and locks the ADR as "Verified."
 -   **Output:** Verified, production-ready code.
 
 ---
