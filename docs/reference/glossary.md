@@ -1,110 +1,44 @@
-# Glossary
+# Springfield Protocol Glossary
 
-Key terms used in the Springfield Protocol.
+## Agent Roles
+- **Discovery Agent**: The "Product Owner" (e.g., product-discovery). Focuses on "What" and "Why".
+- **Planning Agent**: The "Architect/Tech Lead" (e.g., lisa, frink). Focuses on "How" and structure.
+- **Implementation Agent**: The "Developer" (e.g., ralph). Focuses on "Doing" and TDD.
+- **Review Agent**: The "Critic" (e.g., bart). Focuses on breaking things and security.
+- **Verification Agent**: The "QA" (e.g., herb). Focuses on coverage and correctness.
+- **Release Agent**: The "Publisher" (e.g., lovejoy). Focuses on versioning and changelogs.
 
-## Core Concepts
+## Core Documents & Ownership Matrix
+| Document | Primary Owner (Creator) | Contributors (Updaters) | Purpose |
+| :--- | :--- | :--- | :--- |
+| **PLAN.md** | **Planning Agent** | All Agents | **Backlog**: Epic roadmap & task status. |
+| **TODO.md** | **Planning Agent** | Implementation Agent | **Sprint**: Transient list of tasks for ONE Epic. |
+| **Feature.md** | **Discovery Agent** | Architecture, Learning | **Brief**: Problem, requirements, success criteria. |
+| **ADR** | **Architecture Agent** | Review, Planning | **Decision**: Architecture Decision Record. |
+| **scenarios.feature** | **Discovery/Build Agent** | Implementation, Testing | **Specs**: Executable BDD acceptance criteria. |
+| **FEEDBACK.md** | **Review Agent** | Verification Agent | **Review**: Code review issues and gate results. |
+| **CHANGELOG.md** | **Release Agent** | Learning Agent | **History**: Release notes and captured learning. |
 
-**Ralph Wiggum Loop**
-: A stateless resampling engine that ensures quality through persistent iteration. Each iteration starts from a clean context to prevent hallucination and context rot.
+## Document Definitions
+- **PLAN.md**: The master schedule. Tracks Epics and their states.
+- **TODO.md**: The worker's checklist. Exists only while an Epic is being implemented. Deleted upon completion.
+- **Feature.md**: The "Why" and "What". Found in `docs/features/`.
+- **ADR**: The "Why we chose X". Found in `docs/adr/`.
+- **scenarios.feature**: The "Definition of Done". Found in `features/`.
+- **FEEDBACK.md**: The "Quality Gate". Generated during PR review.
+- **CHANGELOG.md**: The "Product History".
 
-**Ephemeral Context**
-: A clean, isolated environment for each iteration (e.g., git worktree). Prevents accumulated errors across iterations.
+## Work Units
+- **Feature**: A high-level capability (e.g., "Logging"). Defined in a `Feature.md`.
+- **Epic**: A logical grouping of work delivering a **verifiable increment** (e.g., "Implement Structured Logger"). In `PLAN.md`.
+- **Task**: An atomic, executable unit of work (e.g., "Write `logger.py`"). In `TODO.md`.
 
-**Stateless Resampling**
-: Iteration without memory of previous failures. Each attempt is independent; failures inform strategy but don't accumulate.
+## Processes & Loops
+- **Ralph Wiggum Loop**: The core engine. Pick Task -> Clean Context -> Implement -> Verify.
+- **Discovery Diamond**: Diverge (Explore Options) -> Converge (Feature Brief).
+- **Delivery Diamond**: Diverge (Implement) -> Converge (Verify).
+- **Gemba Walk**: Analysis of the current codebase state.
+- **Stateless Resampling**: Starting fresh to prevent error accumulation.
 
-**PLAN.md**
-: The source of truth. Tracks epics, tasks, and their validation state. Updated after each iteration.
-
-**TODO.md**
-: Executable task list derived from PLAN.md. What agents work from.
-
-**Definition of Ready (DoR)**
-: Checklist ensuring an issue is clear enough to start work. Enforced by Wiggum.
-
-**Feature Brief**
-: Validated problem statement. Output of discovery track; input to delivery track.
-
-**Discovery Track**
-: Design thinking phase. Understand user needs, validate assumptions, document unknowns.
-
-**Delivery Track**
-: Agile execution phase. Plan, implement, verify, release.
-
-## Loops & Patterns
-
-**Sense-Plan-Act**
-: Observe → Think → Act. The foundational agent loop.
-
-**ReAct**
-: Reason + Act. Verbalize thinking before taking actions.
-
-**Tree of Thoughts (ToT)**
-: Explore multiple reasoning paths, evaluate, and prune low-scoring options.
-
-**Plan-and-Execute**
-: Break into tasks upfront, then execute sequentially.
-
-**GECR**
-: Generate → Evaluate → Critique → Refine. Iterative polishing loop.
-
-**TALAR**
-: Test → Analyze → Learn → Adjust → Retest. Experiment-driven optimization.
-
-**Manager-Worker**
-: Orchestrator (manager) coordinates specialized workers in parallel.
-
-**Dialogue Loop**
-: Two agents iterating (propose → critique → refine).
-
-## Roles & Responsibilities
-
-**Gate**
-: A decision point where a character blocks or approves progress.
-
-**Skill**
-: A character's specialized capability (e.g., "TDD Execution").
-
-**Ephemeral Agent**
-: An agent spawned for a single task with clean context, then discarded.
-
-## File Organization
-
-**PLAN.md**
-: Roadmap of epics and their state (planned, in-progress, verified, released).
-
-**TODO.md**
-: Task list for immediate execution. Derived from PLAN.md.
-
-**ADR (Architecture Decision Record)**
-: Document recording architectural decisions, rationale, and implications.
-
-**KEDB (Known Error Database)**
-: Crowdsourced troubleshooting knowledge base for common issues.
-
-## Workflow Concepts
-
-**Five Whys**
-: Questioning technique to uncover root causes (used in discovery).
-
-**Gemba Walk**
-: Investigating actual systems/docs to gather context (used in discovery).
-
-**Unknowns Map**
-: Explicit capture of what we don't know and its impact.
-
-**Zero-Change Import**
-: Brownfield import of existing infrastructure with no changes to the imported state.
-
-**Mock-First Testing**
-: Write mocks before implementation to clarify dependencies.
-
-**95%+ Coverage**
-: Herb's quality standard. Code coverage threshold for release.
-
----
-
-For more details, see the root documentation:
-- [`../START_HERE.md`](../START_HERE.md)
-- [`../QUICK_START.md`](../QUICK_START.md)
-- [`../core-principles.md`](../core-principles.md)
+## Metrics
+- **Flow Score**: `(Value + Urgency) / Effort`. Used to prioritize Epics.
