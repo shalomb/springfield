@@ -1,23 +1,22 @@
 # Springfield Protocol Glossary
 
 ## Agent Roles
-- **Discovery Agent**: The "Product Owner" (e.g., product-discovery). Focuses on "What" and "Why".
-- **Planning Agent**: The "Architect/Tech Lead" (e.g., lisa, frink). Focuses on "How" and structure.
-- **Implementation Agent**: The "Developer" (e.g., ralph). Focuses on "Doing" and TDD.
-- **Review Agent**: The "Critic" (e.g., bart). Focuses on breaking things and security.
-- **Verification Agent**: The "QA" (e.g., herb). Focuses on coverage and correctness.
-- **Release Agent**: The "Publisher" (e.g., lovejoy). Focuses on versioning and changelogs.
+- **Product Agent**: The "Product Owner" (Marge). Focuses on "What" and "Why".
+- **Planning Agent**: The "Architect/Tech Lead" (Lisa). Focuses on "How" and structure.
+- **Build Agent**: The "Developer" (Ralph). Focuses on "Doing" and TDD.
+- **Quality Agent**: The "Critic" (Bart). Focuses on breaking things and verification.
+- **Release Agent**: The "Publisher" (Lovejoy). Focuses on versioning and changelogs.
 
 ## Core Documents & Ownership Matrix
 | Document | Primary Owner (Creator) | Contributors (Updaters) | Purpose |
 | :--- | :--- | :--- | :--- |
-| **PLAN.md** | **Planning Agent** | All Agents | **Backlog**: Epic roadmap & task status. |
-| **TODO.md** | **Planning Agent** | Implementation Agent | **Sprint**: Transient list of tasks for ONE Epic. |
-| **Feature.md** | **Discovery Agent** | Architecture, Learning | **Brief**: Problem, requirements, success criteria. |
-| **ADR** | **Architecture Agent** | Review, Planning | **Decision**: Architecture Decision Record. |
-| **scenarios.feature** | **Discovery/Build Agent** | Implementation, Testing | **Specs**: Executable BDD acceptance criteria. |
-| **FEEDBACK.md** | **Review Agent** | Verification Agent | **Review**: Code review issues and gate results. |
-| **CHANGELOG.md** | **Release Agent** | Learning Agent | **History**: Release notes and captured learning. |
+| **PLAN.md** | **Planning Agent (Lisa)** | All Agents | **Backlog**: Epic roadmap & task status. |
+| **TODO.md** | **Planning Agent (Lisa)** | Build Agent | **Sprint**: Transient list of tasks for ONE Epic. |
+| **Feature.md** | **Product Agent (Marge)** | Architecture, Learning | **Brief**: Problem, requirements, success criteria. |
+| **ADR** | **Planning Agent (Lisa)** | Quality, Planning | **Decision**: Architecture Decision Record. |
+| **scenarios.feature** | **Product/Build Agent** | Build, Testing | **Specs**: Executable BDD acceptance criteria. |
+| **FEEDBACK.md** | **Quality Agent (Bart)** | Build Agent | **Review**: Code review issues and gate results. |
+| **CHANGELOG.md** | **Release Agent (Lovejoy)** | Learning Agent | **History**: Release notes and captured learning. |
 
 ## Document Definitions
 - **PLAN.md**: The master schedule. Tracks Epics and their states.
@@ -31,6 +30,7 @@
 ## Work Units
 - **Feature**: A high-level capability (e.g., "Logging"). Defined in a `Feature.md`.
 - **Epic**: A logical grouping of work delivering a **verifiable increment** (e.g., "Implement Structured Logger"). In `PLAN.md`.
+- **User Story**: Mapped to **BDD Scenarios** in `features/*.feature`. We treat stories as *executable specifications*, not just tickets.
 - **Task**: An atomic, executable unit of work (e.g., "Write `logger.py`"). In `TODO.md`.
 
 ## Processes & Loops

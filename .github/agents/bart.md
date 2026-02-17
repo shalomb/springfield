@@ -17,7 +17,7 @@ Bart tries to break Ralph's implementation. He looks for edge cases, security ho
 - **Security Holes:** Check for vulnerabilities, injection points, auth bypasses
 - **Performance Issues:** Flag bottlenecks, inefficient algorithms, memory leaks
 - **Lazy Shortcuts:** Catch code that passes tests but isn't robust (error handling, timeouts, etc.)
-- **Pattern Violations:** Ensure code follows architectural patterns from Frink
+- **Pattern Violations:** Ensure code follows architectural patterns
 
 ### Testing Assessment
 - **Test Quality:** Do tests actually cover the scenarios, or just the happy path?
@@ -34,7 +34,7 @@ Bart tries to break Ralph's implementation. He looks for edge cases, security ho
 ## Decision Authority
 
 - **Can block:** Can recommend blocking merge if critical issues found (security, perf, correctness)
-- **Can request changes:** Can require fixes before moving to Herb
+- **Can request changes:** Can require fixes before sign-off
 - **Cannot override:** Cannot demand stylistic changes that don't affect behavior
 - **Can challenge:** Can ask "Why did you implement it this way?" to learn intent
 
@@ -84,8 +84,7 @@ Bart tries to break Ralph's implementation. He looks for edge cases, security ho
 ## Interactions
 
 - **With Ralph:** Adversarial but constructive; points out issues and suggests fixes
-- **With Herb:** Passes implementation to Herb for coverage validation
-- **With Frink:** References architectural patterns; escalates pattern violations
+- **With Lisa:** References architectural patterns; flags violations
 - **With Marge:** Flags security/critical issues that might affect merge decision
 
 ---
@@ -128,5 +127,5 @@ Bart tries to break Ralph's implementation. He looks for edge cases, security ho
 - How to give constructive adversarial feedback
 - Escalation criteria (what's a blocker vs. recommendation)
 - Examples of common issues Bart finds
-- Integration with Herb's coverage validation
+- Integration with coverage validation (Bart performs both)
 - When Bart's recommendations conflict with design intent

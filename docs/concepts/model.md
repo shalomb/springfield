@@ -31,7 +31,7 @@ Keep agent context focused and expedient. Split roles by purpose (e.g., Build vs
 *Reference:* [Distracted Agent Anti-Pattern](https://lexler.github.io/augmented-coding-patterns/anti-patterns/distracted-agent/)
 
 ### 8. Leverage Orthogonal Biases
-Use personas as cognitive filters during Divergence. Generate options independently using different biases (e.g., Troy for pragmatism vs. Marge for empathy) before pooling. This ensures a wider "Tree of Thoughts."
+Use personas as cognitive filters during Divergence. Generate options independently using different biases (e.g., Marge for user empathy vs. Lisa for architectural logic) before pooling. This ensures a wider "Tree of Thoughts."
 
 ### 9. Documents Are Shared State
 Markdown files are the single source of truth. Agents and skills read from and write to these files to maintain context without direct coupling.

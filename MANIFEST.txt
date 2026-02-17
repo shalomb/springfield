@@ -38,16 +38,12 @@
    ├─ character-map.md .................. How characters interact
    └─ REFINEMENT-NOTES.md ............... Framework evolution
 
-👥 CHARACTER PROFILES (ONE FOR EACH SIMPSON):
-   ├─ lisa.md ........................... Strategic Planner
-   ├─ ralph.md .......................... TDD Executor
-   ├─ bart.md ........................... Adversarial Reviewer
-   ├─ herb.md ........................... Quality Engineer
-   ├─ marge.md .......................... Empathy & Guardrails
-   ├─ frink.md .......................... Architect
-   ├─ wiggum.md ......................... Triage Officer
-   ├─ lovejoy.md ........................ Release Master
-   └─ troy-mcclure.md ................... Special reference
+👥 CHARACTER PROFILES (5 ACTIVE AGENTS):
+   ├─ marge.md .......................... Product (What/Why)
+   ├─ lisa.md ........................... Planning (How/Structure)
+   ├─ ralph.md .......................... Build (Doing)
+   ├─ bart.md ........................... Quality (Critiquing)
+   └─ lovejoy.md ........................ Release (Ceremony)
 
 ═════════════════════════════════════════════════════════════════════════════
                            THE 3-MINUTE SUMMARY
@@ -57,10 +53,10 @@ WHAT IS THE SPRINGFIELD PROTOCOL?
 
 A character-driven framework for Agile Agentic Development that combines:
 
-1. CHARACTERS (9 Simpson personas):
-   - Each has a specialized role (Plan, Implement, Review, Verify, etc.)
+1. CHARACTERS (5 Core personas):
+   - Marge = Product, Lisa = Planner, Ralph = Build, Bart = Quality, Lovejoy = Release
+   - Each has a specialized role and mindset
    - Names are memorable and intuitive
-   - Can work together in teams or solo
 
 2. LOOPS (16+ feedback patterns):
    - Sense-Plan-Act (real-time decisions)
@@ -90,23 +86,33 @@ WHY IT WORKS:
 ✓ Context-safe: Stateless resampling prevents degradation
 
 ═════════════════════════════════════════════════════════════════════════════
-                              THE 9 CHARACTERS
+                              THE 5 CHARACTERS
 ═════════════════════════════════════════════════════════════════════════════
 
-DISCOVERY SIDE (Design Thinking):
-  Product Discovery .... Understand user needs (elicit requirements)
-  Marge Simpson ........ Empathy & guardrails (user alignment)
-  Frink Simpson ........ Architect (design & ADR)
+PRODUCT (Marge):
+  Understand user needs, elicit requirements, triage issues.
 
-DELIVERY SIDE (Agile):
-  Lisa Simpson ......... Strategic planner (break down work)
-  Ralph Wiggum ......... TDD executor (implement)
-  Bart Simpson ......... Adversarial reviewer (find bugs)
-  Herb Powell .......... Quality engineer (verify coverage)
+PLANNING (Lisa):
+  Strategic planner, break down work, architect ADRs.
 
-SUPPORT ROLES:
-  Chief Wiggum ......... Triage officer (issue → TODO bridge)
-  Reverend Lovejoy .... Release master (publish & celebrate)
+BUILD (Ralph):
+  TDD executor, persistent implementation, clean code.
+
+QUALITY (Bart):
+  Adversarial reviewer, find bugs, verify coverage & standards.
+
+RELEASE (Lovejoy):
+  Release master, publish, celebrate, capture learning.
+
+═════════════════════════════════════════════════════════════════════════════
+                              RETIRED CHARACTERS
+═════════════════════════════════════════════════════════════════════════════
+
+The following personas are consolidated into the core 5-agent team:
+- Troy McClure & Wiggum → Merged into Product (Marge)
+- Frink → Merged into Planning (Lisa)
+- Herb Powell → Merged into Quality (Bart)
+- Homer → Merged into Build (Ralph)
 
 ═════════════════════════════════════════════════════════════════════════════
                             THE 16+ AGENTIC LOOPS
@@ -147,26 +153,22 @@ GOVERNANCE (System-level):
 ═════════════════════════════════════════════════════════════════════════════
 
 FEATURE IMPLEMENTATION:
-  1. Product Discovery → Feature Brief
+  1. Marge → Product Discovery & Feature Brief
   2. Lisa → Plan & TODO.md
-  3. Ralph Wiggum Loop → Implementation
-  4. Bart → Adversarial review
-  5. Herb → Quality verification
-  6. Marge → User alignment
-  7. Lovejoy → Release & publish
+  3. Ralph → Implementation (Ralph Wiggum Loop)
+  4. Bart → Adversarial review & Verification
+  5. Marge → User alignment
+  6. Lovejoy → Release & publish
 
 DEBUGGING AN ISSUE:
-  1. Wiggum → Triage & investigate
+  1. Marge → Triage & investigate
   2. Search KEDB for known solutions
-  3. IF found → Document & close
-  4. IF not → Launch feature workflow
-  5. KEDB → Document new solution
+  3. IF not → Launch feature workflow
 
 ARCHITECTURE DECISION:
-  1. Frink → Create ADR
+  1. Lisa → Create ADR
   2. Bart → Poke holes in design
-  3. Frink → Refine based on feedback
-  4. Document pattern for reuse
+  3. Lisa → Refine based on feedback
 
 ═════════════════════════════════════════════════════════════════════════════
                             STATISTICS & METRICS
@@ -252,10 +254,10 @@ FEEDBACK LOOPS
 1. Read START_HERE.md (10 min) ......... Get oriented
 2. Read QUICK_START.md (20 min) ....... Understand key concepts
 3. Pick your role:
-   - Developer? → Read ralph.md, bart.md, herb.md
-   - Manager? → Read all character profiles
-   - Architect? → Read frink.md, LOOP_CATALOG.md
-   - PM? → Read product-discovery, marge.md, lisa.md
+   - Developer? → Read ralph.md, bart.md
+   - Manager? → Read Lisa, Marge
+   - Architect? → Read Lisa, LOOP_CATALOG.md
+   - PM? → Read Marge, Lisa
 4. Try a workflow (1-2 hours) ......... Implement something small
 5. Adapt to your context ............. Customize as needed
 

@@ -9,7 +9,7 @@ A concise reference for using the Springfield Protocol framework and its loops a
 **The Springfield Protocol** is a character-driven framework for Agile Agentic Development. It combines:
 
 1. **The Ralph Wiggum Loop** - A stateless resampling engine that ensures quality through persistent iteration
-2. **Character Skills** - Specialized agents (Lisa, Ralph, Bart, Herb, etc.) that handle specific roles
+2. **Character Skills** - Specialized agents (Marge, Lisa, Ralph, Bart, Lovejoy) that handle specific roles
 3. **Agentic Loops** - Feedback patterns (Tree of Thoughts, ReAct, Plan-and-Execute, etc.) for different problems
 
 ---
@@ -36,8 +36,8 @@ A concise reference for using the Springfield Protocol framework and its loops a
                │
         ┌──────▼──────────┐
         │ Verify results  │
-        │ (Herb/Bart)     │
-        └──────┬──────────┘
+        │ (Quality Agent) │
+        └──────▼──────────┘
                │
         ┌──────▼──────────┐
         │ Update PLAN.json│
@@ -48,19 +48,15 @@ A concise reference for using the Springfield Protocol framework and its loops a
 
 ---
 
-## Character Quick Reference
+## Character Quick Reference (5-Agent Team)
 
-| Character | Use When | Output |
-|:----------|:---------|:-------|
-| **Lisa** | You need to plan work | TODO.md with tasks |
-| **Ralph** | You need to implement | Tested code + git commits |
-| **Bart** | You need to break things | Security/quality issues |
-| **Herb** | You need to verify quality | Coverage report + sign-off |
-| **Marge** | You need user alignment | PR feedback + scope notes |
-| **Frink** | You need architecture | ADR + pattern spec |
-| **Wiggum** | You have an issue to triage | Triaged issue + DoR checklist |
-| **Homer** | You need infrastructure import | Terraform modules + validation |
-| **Lovejoy** | You need to release | Version tag + CHANGELOG |
+| Character | Role | Use When | Output |
+|:----------|:-----|:---------|:-------|
+| **Marge** | Product | You need user alignment or triage | Feature Brief / Triaged Issue |
+| **Lisa** | Planning | You need to plan work or architecture | PLAN.md / TODO.md / ADR |
+| **Ralph** | Build | You need to implement with TDD | Tested code + git commits |
+| **Bart** | Quality | You need to review or verify | FEEDBACK.md / Gate sign-off |
+| **Lovejoy** | Release | You need to release or learn | Version tag + CHANGELOG |
 
 ---
 
@@ -101,7 +97,7 @@ A concise reference for using the Springfield Protocol framework and its loops a
 
 **Multiple agents working together?** → **Manager-Worker Loop**
 - Lisa orchestrates
-- Workers (Ralph, Bart, Herb) specialize
+- Workers (Ralph, Bart) specialize
 - Manager aggregates results
 
 **Two agents iterating?** → **Dialogue Loop**
@@ -122,7 +118,7 @@ Product Discovery → Define user need
     Feature Brief (validated)
 ```
 
-**Characters:** Product Discovery, Marge, Frink
+**Characters:** Marge, Lisa
 **Loops:** Tree of Thoughts, Dialogue, Observe-Hypothesize-Experiment-Conclude
 
 ---
@@ -136,7 +132,7 @@ PLAN.md → TODO.md tasks
     Verified, tested, quality code
 ```
 
-**Characters:** Lisa, Ralph, Bart, Herb
+**Characters:** Ralph, Bart
 **Loops:** Plan-and-Execute, Ralph Wiggum, Dialogue
 
 ---
@@ -146,27 +142,25 @@ PLAN.md → TODO.md tasks
 ### ✅ Implement a Feature (Happy Path)
 
 ```
-1. Feature Brief arrives (validated)
+1. Feature Brief arrives (Marge)
    ↓
 2. @lisa "Break this into tasks" → TODO.md
    ↓
 3. @ralph "Implement task 1" (TDD loop)
    ↓
-4. @bart "Review for security" (adversarial)
+4. @bart "Review and verify quality" (adversarial + coverage)
    ↓
-5. @herb "Verify coverage" (95%+ check)
+5. @marge "Check user alignment" (feedback)
    ↓
-6. @marge "Check user alignment" (feedback)
-   ↓
-7. @lovejoy "Release it" (publish + tag)
+6. @lovejoy "Release it" (publish + tag)
 ```
 
 ### 🔍 Debug an Issue
 
 ```
-1. @wiggum "Triage this issue"
+1. @marge "Triage this issue"
    ↓
-2. Search kedb for known solutions
+2. Search KEDB for known solutions
    ↓
 3. IF found → document & close
    ↓
@@ -176,25 +170,23 @@ PLAN.md → TODO.md tasks
 ### 🏗️ Import Infrastructure
 
 ```
-1. @wiggum "Map this AWS account"
+1. @marge "Map this AWS account"
    ↓
-2. @homer "Create zero-change Terraform"
+2. @ralph "Create zero-change Terraform"
    ↓
-3. @herb "Verify no changes"
+3. @bart "Verify no changes"
    ↓
-4. @tfc-api "Inspect the state"
-   ↓
-5. @lovejoy "Release the module"
+4. @lovejoy "Release the module"
 ```
 
 ### 🤔 Decide Architecture
 
 ```
-1. @frink "Create an ADR for this decision"
+1. @lisa "Create an ADR for this decision"
    ↓
 2. @bart "Poke holes in this design"
    ↓
-3. @frink "Refine based on feedback"
+3. @lisa "Refine based on feedback"
    ↓
 4. Document the pattern for reuse
 ```
@@ -223,7 +215,7 @@ Project Root/
 ├── TODO.md                 # Executable tasks (Lisa)
 ├── FEEDBACK.md             # Review feedback (Marge)
 ├── docs/
-│   ├── ADR-*.md           # Architecture decisions (Frink)
+│   ├── adr/               # Architecture decisions (Lisa)
 │   └── RUNBOOK.md         # Operations guide
 ├── .github/
 │   ├── agents/            # Agent definitions
@@ -259,11 +251,11 @@ Project Root/
 
 @bart "Review this code for security vulnerabilities"
 
-@herb "Verify test coverage meets 95%"
+@bart "Verify test coverage meets 95%"
 
 @marge "Conduct a user feedback review of this PR"
 
-@frink "Document the decision to use Event Sourcing"
+@lisa "Document the decision to use Event Sourcing"
 ```
 
 ### In Other Harnesses
@@ -275,19 +267,19 @@ Load the skill's instructions from `~/.pi/agent/skills/{character}/SKILL.md` and
 ## Troubleshooting
 
 ### "Coverage is low"
-→ Use **Herb** to identify gaps → **Ralph** to add tests
+→ Use **Bart** to identify gaps → **Ralph** to add tests
 
 ### "Code has security issues"
-→ Use **Bart** to find them → **Ralph** to fix → **Herb** to verify
+→ Use **Bart** to find them → **Ralph** to fix
 
 ### "I don't know where to start"
-→ Use **Product Discovery** to validate → **Lisa** to plan → **Ralph** to execute
+→ Use **Marge** to validate → **Lisa** to plan → **Ralph** to execute
 
 ### "This feels like busywork"
-→ Use **Tree of Thoughts** to explore alternatives → **Frink** to review options
+→ Use **Tree of Thoughts** to explore alternatives → **Lisa** to review options
 
 ### "I'm stuck in a loop"
-→ Switch loops (e.g., ReAct if Tree of Thoughts isn't working) → Escalate to **Marge** for scope review
+→ Switch loops (e.g., ReAct if Tree of Thoughts isn't working) → Escalate to **Lisa** for strategy review
 
 ---
 
@@ -299,7 +291,7 @@ Load the skill's instructions from `~/.pi/agent/skills/{character}/SKILL.md` and
 4. Install skills in `~/.pi/agent/skills/` (or your agent harness equivalent)
 5. Start with **Lisa** to plan your first task
 6. Use **Ralph** to implement
-7. Use **Herb** to verify quality
+7. Use **Bart** to verify quality
 8. Iterate!
 
 ---

@@ -16,13 +16,13 @@ A character-driven agentic development framework for lean, iterative product dev
 
 Springfield Protocol v0.2 coordinates a **Single Pizza Team** of 5 specialized agents to deliver high-quality code through the **Ralph Wiggum Loop**.
 
-| Agent | Responsibility |
-| :--- | :--- |
-| **Product** | Triage and Problem Definition (The What & Why) |
-| **Planning** | Task Breakdown and Architecture (The How) |
-| **Build** | TDD Implementation (The Doer) |
-| **Quality** | Adversarial Review and Verification (The Critic) |
-| **Release** | Ceremony and Learning (The Shipper) |
+| Agent | Responsibility | Primary Persona |
+| :--- | :--- | :--- |
+| **Product** | Triage and Problem Definition (The What & Why) | Marge |
+| **Planning** | Task Breakdown and Architecture (The How) | Lisa |
+| **Build** | TDD Implementation (The Doer) | Ralph |
+| **Quality** | Adversarial Review and Verification (The Critic) | Bart |
+| **Release** | Ceremony and Learning (The Shipper) | Lovejoy |
 
 ---
 

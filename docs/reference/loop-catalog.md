@@ -343,7 +343,7 @@ The core engine for Agile Agentic Development.
                  │
         ┌────────▼──────────────────┐
         │  Verification Loop        │
-        │  (Herb or Bart Review)    │
+        │  (Bart Review)            │
         │  Updates PLAN.json        │
         └────────┬──────────────────┘
                  │
@@ -384,7 +384,7 @@ Coordinated collaboration between orchestrator and specialized agents.
         │               │               │
     ┌───▼──┐        ┌───▼──┐       ┌───▼──┐
     │Worker│        │Worker│       │Worker│
-    │Ralph │        │Bart  │       │Herb  │
+    │Ralph │        │Bart  │       │Marge │
     └───┬──┘        └───┬──┘       └───┬──┘
         │               │               │
         └───────────────┼───────────────┘

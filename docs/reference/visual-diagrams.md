@@ -26,7 +26,7 @@ Diagrams, flowcharts, and ASCII art for understanding the Springfield Protocol a
                    │                              │
         ┌──────────▼────────────┐   ┌────────────▼───────────┐
         │  Ephemeral Context    │   │  Verification Loop     │
-        │  (Clean Git Worktree) │   │  (Herb or Bart Review) │
+        │  (Clean Git Worktree) │   │  (Bart Review)         │
         │                       │   │                        │
         │  ┌─────────────────┐  │   │  ┌──────────────────┐  │
         │  │ Red-Green-      │  │   │  │ Test Coverage    │  │
@@ -78,25 +78,22 @@ Diagrams, flowcharts, and ASCII art for understanding the Springfield Protocol a
 │  ════════════════════════════════════════  ═════════════════════════│
 │                                                                     │
 │  1. Empathize & Research                   1. Plan → TODO.md       │
-│     (Product Discovery Agent)                 (Lisa)                │
+│     (Product Agent)                           (Lisa)                │
 │        ↓                                       ↓                    │
 │  2. Define Problem                         2. Architect & ADR       │
-│     (Marge + Frink)                           (Frink)              │
+│     (Product Agent)                           (Lisa)                │
 │        ↓                                       ↓                    │
 │  3. Ideate Solutions                       3. Implement & Test      │
-│     (Tree of Thoughts)                       (Ralph + TDD)         │
+│     (Marge + Lisa)                           (Ralph + TDD)         │
 │        ↓                                       ↓                    │
-│  4. Prototype & Validate                   4. Adversarial Review    │
-│     (Build-Measure-Learn)                     (Bart)               │
+│  4. Prototype & Validate                   4. Review & Verify       │
+│     (Marge + Ralph)                          (Bart)                │
 │        ↓                                       ↓                    │
-│  5. Feature Brief (READY!)                 5. Quality Verification  │
+│  5. Feature Brief (READY!)                 5. User Alignment Check   │
 │     ─────────────────────────────────────────────→                │
-│                                                   (Herb)            │
+│                                                   (Marge)           │
 │                                                   ↓                 │
-│                                           6. User Alignment Check   │
-│                                              (Marge)               │
-│                                              ↓                     │
-│                                           7. Release & Publish      │
+│                                           6. Release & Publish      │
 │                                              (Lovejoy)             │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
@@ -111,51 +108,34 @@ Diagrams, flowcharts, and ASCII art for understanding the Springfield Protocol a
                             │
                             ▼
                     ┌───────────────┐
-                    │  WIGGUM      │ ← Triage & Investigate
-                    │  (Gatekeeper)│   (Issue → TODO bridge)
+                    │  MARGE (Prod) │ ← Triage & Investigate
                     └───────┬───────┘
                             │
                 ┌───────────┴────────────┐
                 │                        │
                 ▼                        ▼
         ┌──────────────┐        ┌──────────────┐
-        │ PRODUCT      │        │  FRINK       │ ← Design & ADR
-        │ DISCOVERY    │        │  (Architect) │   (Patterns)
-        │              │        └──────┬───────┘
-        └────────┬─────┘               │
-                 │                      │
-                 ▼                      ▼
-        ┌──────────────────────────────────┐
-        │  MARGE (Empathy & Guardrails)   │ ← User validation
-        └────────────┬─────────────────────┘
-                     │
-                     ▼
-        ┌──────────────────────────────────┐
-        │  LISA (Strategic Planner)        │ ← Plan & breakdown
-        │  Outputs: PLAN.md → TODO.md      │
-        └────────────┬─────────────────────┘
-                     │
-                     ▼
+        │  MARGE       │        │  LISA        │ ← Design & ADR
+        │  (Discovery) │        │  (Planning)  │
+        └──────┬───────┘        └──────┬───────┘
+               │                       │
+               └───────────┬───────────┘
+                           │
+                           ▼
         ┌──────────────────────────────────┐
         │  RALPH WIGGUM LOOP BEGINS        │
         └─────────┬──────────────────────┬─┘
                   │                      │
          ┌────────▼─────┐      ┌────────▼──────┐
          │ RALPH        │      │ Loop for each │
-         │ (Implementer)│      │ task in       │
+         │ (Build)      │      │ task in       │
          │ TDD Loop     │      │ TODO.md       │
          └────────┬─────┘      └───────────────┘
                   │
                   ▼
          ┌────────────────────┐
-         │ BART (Breaker)     │ ← Find bugs
-         │ Adversarial Review │
-         └────────┬───────────┘
-                  │
-                  ▼
-         ┌────────────────────┐
-         │ HERB (Verifier)    │ ← Quality check
-         │ 95%+ coverage      │   (Pass/Fail)
+         │ BART (Quality)     │ ← Review & Verify
+         │ Adversarial/TDD    │
          └────────┬───────────┘
                   │
      ┌────────────┴────────────┐
@@ -167,14 +147,13 @@ Diagrams, flowcharts, and ASCII art for understanding the Springfield Protocol a
                │
                ▼
         ┌─────────────────────┐
-        │ MARGE (Guardrails)  │ ← User alignment
+        │ MARGE (Product)     │ ← User alignment
         │ PR Review & Feedback│
         └──────────┬──────────┘
                    │
                    ▼
         ┌──────────────────────┐
-        │ LOVEJOY (Ceremony)   │ ← Release & publish
-        │ Semantic Version Tag │
+        │ LOVEJOY (Release)    │ ← Release & publish
         └──────────────────────┘
 ```
 
@@ -244,10 +223,9 @@ Diagrams, flowcharts, and ASCII art for understanding the Springfield Protocol a
                  │             │             │
             ┌────▼───┐    ┌────▼───┐   ┌───▼────┐
             │ Worker │    │ Worker │   │ Worker │
-            │ (Ralph)│    │ (Bart) │   │ (Herb) │
+            │ (Ralph)│    │ (Bart) │   │ (Marge)│
             │        │    │        │   │        │
-            │ Impl.  │    │ Review │   │ Verify │
-            │ & Test │    │ & Break│   │ & QA   │
+            │ Build  │    │ Quality│   │ Product│
             └────┬───┘    └────┬───┘   └───┬────┘
                  │             │           │
                  └─────────────┬───────────┘
@@ -409,25 +387,17 @@ Key: Ephemeral context + stateless = No degradation!
 
 ---
 
-## 11. Character Trait Mapping
+## 11. Character Trait Mapping (5-Agent Team)
 
 ```
-DISCOVERY SIDE          │        DELIVERY SIDE
+        Marge (Product)         │        Lisa (Planning)
+        "The What & Why"        │        "The How & Structure"
 
-Lisa (Intellect)        │        Ralph (Perseverance)
-"Plan it out"           │        "Just do it"
+        Ralph (Build)           │        Bart (Quality)
+        "The Doing & TDD"       │        "The Review & Verify"
 
-Marge (Empathy)         │        Bart (Criticism)
-"User wants this"       │        "This won't work"
-
-Frink (Analysis)        │        Herb (Verification)
-"This is how..."        │        "Does it work?"
-
-                  Wiggum (Triage)
-                  "What's the priority?"
-                  
-                  Lovejoy (Ceremony)
-                  "Let's celebrate!"
+                        Lovejoy (Release)
+                        "The Ship & Learn"
 ```
 
 ---

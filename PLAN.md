@@ -1,90 +1,137 @@
-# PLAN.md - Feature Roadmap
+# PLAN.md - Epic Backlog
 
-## Feature: Git Branching Model
+## EPIC-001: Git Branching Standard
+**Value Statement:** For **Developers**, who **struggle with inconsistent history and merge conflicts**, the **Git Branching Standard** is a **protocol** that **ensures clean collaboration and predictable releases**.
 
-### Epic 1: Define and Implement Branching Strategy
-- [ ] Task 1: Create Feature Brief for Git Branching Model
-  - Status: unstarted
-  - Assignee: product-discovery
-  - Feature Brief: docs/features/git-branching-model.md
-- [ ] Task 2: Define ADR for Branching Strategy
-  - Status: unstarted
-  - Assignee: frink
-  - Depends on: Task 1
-- [ ] Task 3: Configure Repository Protection Rules (if applicable/simulated)
-  - Status: unstarted
-  - Assignee: ralph
+**The "Why":** Without a standardized model, we risk "merge hell", lost code, and unclear release points. We need a shared mental model for how code moves from laptop to production.
+**Scope:**
+- ✅ Trunk-based development definition
+- ✅ Branch naming conventions (feat/, fix/)
+- ✅ Merge strategy (Squash vs Merge Commit)
+- ❌ Automated CI/CD pipeline implementation (future epic)
 
-## Feature: Compatibility with existing agent and sub-agent definitions or skills
+**Acceptance Criteria:**
+- [ ] `docs/standards/git-branching.md` exists and is ratified.
+- [ ] Team members can explain the lifecycle of a feature branch.
+- [ ] Repository settings enforce the strategy (if applicable).
+- [ ] **BDD Scenarios:** `features/git_branching.feature`
 
-e.g. the `.{github,claude,gemini}/{agents,skills}/` directory structures in an existing repository
-The springfield agent harness should be able to read and execute agents and
-skills defined in these existing directory structures, allowing for seamless
-integration with existing repositories and workflows. The repository
-definitions take precedence over any agents or skills defined in the
-springfield agents or skills directories, allowing for easy overrides and
-customizations and allowing for an opt-in of springfield opinionated workflows
-and structures.
+**Attributes:**
+- **Status:** 📋 Ready
+- **Complexity:** Low
+- **Urgency:** High (Foundational)
+- **Dependencies:** None
+- **ADRs:** `docs/adr/ADR-001-git-branching.md`
 
-## Feature: CLI Tooling for Agent Management
+---
 
-- Entry point CLI to launch agents, view logs, manage sessions, etc.
-- Corrolaries with `just invoke $agent` and `just utilize $skill` commands for ease of use and discoverability. Allowing for partial matching of agent and skill names for ease of use (e.g. `just invoke review` to invoke an agent named `code-review-agent`).
-- There is likely to be a justfile clash/conflict with an existing one in a repository, So we probably want to use an entirely different CLI tool name that is not `just`. What names can we generate that are catchy, easy to remember, and related to the theme of springfield or orchestration?
-- We could use a justfile behind the scenes such that the CLI tool is just a thin wrapper around the justfile in the springfield installation, allowing us to leverage the power and flexibility of just while providing a more user-friendly and thematic CLI interface and avoiding the conflict.
+## EPIC-002: Tmux Agent Orchestration
+**Value Statement:** For **Developers/Operators**, who **need to run multiple agents simultaneously**, the **Tmux Orchestration Layer** is a **tooling set** that **allows concurrent execution without window clutter**.
 
-## Feature: Tmux Concurrent Multi-Agent Orchestration
+**The "Why":** Running 5 agents (Lisa, Ralph, etc.) in separate terminals is unmanageable. We need a "command center" view.
+**Scope:**
+- ✅ Script to launch/attach named tmux sessions
+- ✅ `just` command integration
+- ✅ Detached mode support
+- ❌ Web-based management UI
 
-### Epic 1: Enable Parallel Agent Execution
-- [ ] Task 1: Create Feature Brief for Tmux Orchestration
-  - Status: unstarted
-  - Assignee: product-discovery
-  - Feature Brief: docs/features/tmux-concurrent-multi-agent-orchestration.md
-- [ ] Task 2: Prototype Tmux Session Management Script
-  - Status: unstarted
-  - Assignee: ralph
-- [ ] Task 3: Implement Agent Harness integration with Tmux
-  - Status: unstarted
-  - Assignee: ralph
+**Acceptance Criteria:**
+- [ ] `just flow` launches the full agent mesh in a tmux session.
+- [ ] Users can toggle between agent views easily.
+- [ ] Logs are preserved in detached panes.
 
-## Feature: Logging and Observability
+**Attributes:**
+- **Status:** 📋 Ready
+- **Complexity:** Medium
+- **Urgency:** Medium
+- **Dependencies:** None
 
-### Epic 1: Centralized Logging
-- [ ] Task 1: Create Feature Brief for Logging
-  - Status: unstarted
-  - Assignee: product-discovery
-  - Feature Brief: docs/features/logging-and-observability.md
-- [ ] Task 2: Define Logging Standard (ADR)
-  - Status: unstarted
-  - Assignee: frink
-- [ ] Task 3: Implement Structured Logger
-  - Status: unstarted
-  - Assignee: ralph
+---
 
-## Feature: Sandboxing and Agent Execution Context
+## EPIC-003: Logging & Observability
+**Value Statement:** For **Operators**, who **cannot debug failed agent actions**, the **Structured Logging System** is a **framework** that **provides traceability and context for every action**.
 
-### Epic 1: Secure Agent Environment
-- [ ] Task 1: Create Feature Brief for Sandboxing
-  - Status: unstarted
-  - Assignee: product-discovery
-  - Feature Brief: docs/features/sandboxing-and-agent-execution-context.md
-- [ ] Task 2: Research and Select Sandboxing Technology (Docker/chroot/etc)
-  - Status: unstarted
-  - Assignee: frink
-  - ADR: docs/adr/ADR-001-sandboxing.md
+**The "Why":** Debugging "why did Ralph do that?" is currently impossible with standard stdout. We need structured, grep-able logs.
+**Scope:**
+- ✅ JSON structured logging format
+- ✅ Standardized log levels (INFO, DEBUG, TRACE)
+- ✅ Agent Identity in log context
+- ❌ ELK/Splunk integration
 
-## Feature: Cost Control
+**Acceptance Criteria:**
+- [ ] All agents emit JSON logs to a central file/stream.
+- [ ] Logs contain `agent_id`, `task_id`, and `timestamp`.
+- [ ] CLI tool exists to tail/filter these logs.
 
-### Epic 1: Token and Resource Management
-- [ ] Task 1: Create Feature Brief for Cost Control
-  - Status: unstarted
-  - Assignee: product-discovery
-  - Feature Brief: docs/features/cost-control-including-agent-selection.md
-- [ ] Task 2: Implement Token Counter Middleware
-  - Status: unstarted
-  - Assignee: ralph
+**Attributes:**
+- **Status:** 📋 Ready
+- **Complexity:** Medium
+- **Urgency:** High (Debugging)
+- **Dependencies:** None
 
-## Feature: Integrations with Existing Project Management Tools
+---
 
-- Integrations with tools like Jira, Github Issues, Apptio TargetProcess, etc to pull in tasks, user stories, or project requirements that agents can then work on. This would allow for a more seamless integration of the agent orchestration system into existing workflows and project management practices, enabling teams to easily leverage the power of agents to automate and assist with their work without having to manually input tasks or requirements into the system.
+## EPIC-004: Agent Sandboxing
+**Value Statement:** For **System Administrators**, who **fear agents destroying the host system**, the **Sandboxing Environment** is a **security boundary** that **ensures safe execution of arbitrary code**.
 
+**The "Why":** Agents like Ralph execute code. Running this as root/user on the host is dangerous. We need containment.
+**Scope:**
+- ✅ Docker/Container-based execution context
+- ✅ Workspace mounting strategy
+- ✅ Network restriction policies
+- ❌ Full VM virtualization
+
+**Acceptance Criteria:**
+- [ ] Agents run inside a defined container image.
+- [ ] Agents cannot access host files outside the mounted workspace.
+- [ ] Workspace state is preserved between runs.
+
+**Attributes:**
+- **Status:** 📋 Ready
+- **Complexity:** High
+- **Urgency:** High (Security)
+- **Dependencies:** EPIC-003 (Logging)
+
+---
+
+## EPIC-005: Cost Control & Agent Selection
+**Value Statement:** For **Budget Owners**, who **need to prevent runaway LLM costs**, the **Cost Control Middleware** is a **governance tool** that **tracks and limits token usage**.
+
+**The "Why":** "Infinite loops" in agent logic can bankrupt us. We need a kill-switch and visibility.
+**Scope:**
+- ✅ Token counting middleware
+- ✅ Budget limits (per session/day)
+- ✅ "Cheapest Model" selection logic
+- ❌ Real-time billing API integration
+
+**Acceptance Criteria:**
+- [ ] Every LLM call is logged with token count and estimated cost.
+- [ ] System rejects requests when budget is exceeded.
+- [ ] Reporting command shows daily spend.
+
+**Attributes:**
+- **Status:** 📋 Ready
+- **Complexity:** Medium
+- **Urgency:** Medium
+- **Dependencies:** EPIC-003 (Logging)
+
+---
+
+## EPIC-006: Legacy Agent Compatibility
+**Value Statement:** For **Adopters**, who **have existing agent definitions**, the **Compatibility Layer** is a **bridge** that **allows Springfield to run legacy/external agent structures**.
+
+**The "Why":** We shouldn't force a rewrite of all existing `.github/agents` definitions. We should embrace them.
+**Scope:**
+- ✅ Support for `.github/agents`, `.claude/agents`, etc.
+- ✅ Precedence logic (Repo > Default)
+- ❌ Conversion/Migration tools
+
+**Acceptance Criteria:**
+- [ ] Springfield detects and loads agents from existing folder structures.
+- [ ] Repo-defined agents override defaults.
+
+**Attributes:**
+- **Status:** 📋 Ready
+- **Complexity:** Medium
+- **Urgency:** Low
+- **Dependencies:** None

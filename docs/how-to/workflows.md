@@ -9,8 +9,8 @@ This guide provides step-by-step procedures for the most common tasks in the Spr
 The Discovery Diamond ensures we solve the right problem before we start building.
 
 1.  **DIVERGE: Orthogonal Investigation**
-    -   **Product Agent** generates options using **Troy bias** (What's the pragmatic shortcut?) and **Marge bias** (How does this impact the user?).
-    -   **Planning Agent** adds **Frink bias** (What crazy tech could we use?).
+    -   **Product Agent (Marge)** generates options using **Empathy bias** (How does this impact the user?).
+    -   **Planning Agent (Lisa)** adds **Structural bias** (How does this fit our architecture?).
     -   **Result:** A wide "Tree of Thoughts" of potential problem definitions and solution directions.
 2.  **POOL:** Consolidate all biased options into a candidate list.
 3.  **CONVERGE: Validate & Shortlist**
@@ -40,9 +40,9 @@ Standard procedure for resolving bugs.
 
 How to make and record technical decisions.
 
-1.  **Planning Agent:** Proposes approach based on existing patterns → Drafts ADR.
-2.  **Quality Agent:** Adversarial review of ADR ("Poke holes" in the design).
-3.  **Planning Agent:** Refines ADR based on feedback.
+1.  **Planning Agent (Lisa):** Proposes approach based on existing patterns → Drafts ADR.
+2.  **Quality Agent (Bart):** Adversarial review of ADR ("Poke holes" in the design).
+3.  **Planning Agent (Lisa):** Refines ADR based on feedback.
 4.  **Acceptance:** Mark ADR as `Accepted`.
 5.  **Build Agent:** Implements feature using the ADR as a guardrail.
 
@@ -53,7 +53,7 @@ How to make and record technical decisions.
 The ceremonial path to shipping code.
 
 1.  **Verification:** Ensure all tasks in `PLAN.md` are marked `verified`.
-2.  **Release Agent:**
+2.  **Release Agent (Lovejoy):**
     -   Determine next version (SemVer).
     -   Gather changes from `TODO.md` and `FEEDBACK.md`.
     -   Generate `CHANGELOG.md` entry.

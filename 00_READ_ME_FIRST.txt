@@ -17,7 +17,7 @@ intelligent agents organized by Simpsons character personas.
 
   ✓ Framework overview & principles
   ✓ 16+ agentic feedback loops with diagrams
-  ✓ 9 character skill descriptions
+  ✓ 5 core character skill descriptions
   ✓ 14 ASCII diagrams explaining everything
   ✓ Common workflows end-to-end
   ✓ FAQ & troubleshooting guides
@@ -39,9 +39,8 @@ That's it! You'll be oriented in 10 minutes.
 
 The Springfield Protocol combines:
 
-1. CHARACTERS (9 Simpson personas):
-   Lisa = Planner, Ralph = Implementer, Bart = Breaker, Herb = Verifier,
-   Marge = User Advocate, Frink = Architect, Wiggum = Triage, Lovejoy = Release
+1. CHARACTERS (5 Core personas):
+   Marge = Product, Lisa = Planner, Ralph = Build, Bart = Quality, Lovejoy = Release
 
 2. LOOPS (16+ feedback patterns):
    Sense-Plan-Act, ReAct, Tree of Thoughts, Ralph Wiggum Loop, Plan-and-Execute,
@@ -77,19 +76,15 @@ The Springfield Protocol combines:
 ════════════════════════════════════════════════════════════════════════════
 
 DISCOVERY:
-  Product Discovery ... Understand user needs
-  Marge Simpson ....... Empathy & user alignment
-  Frink Simpson ....... Architecture & design
+  Marge Simpson ....... Product Discovery & Triage
+  Lisa Simpson ........ Architecture & Planning
 
 DELIVERY:
-  Lisa Simpson ........ Planning & breakdown
-  Ralph Wiggum ........ TDD implementation
-  Bart Simpson ........ Adversarial review
-  Herb Powell ......... Quality verification
+  Ralph Wiggum ........ Build & TDD
+  Bart Simpson ........ Quality Review & Verification
 
 SUPPORT:
-  Chief Wiggum ........ Triage & prioritization
-  Reverend Lovejoy ... Release & publishing
+  Reverend Lovejoy .... Release & Publishing
 
 ════════════════════════════════════════════════════════════════════════════
                         START READING HERE
@@ -120,8 +115,7 @@ SUPPORT:
    character-map.md .................. Interactions
 
 👥 CHARACTER PROFILES:
-   lisa.md, ralph.md, bart.md, herb.md, marge.md, frink.md,
-   wiggum.md, lovejoy.md, troy-mcclure.md
+   lisa.md, ralph.md, bart.md, marge.md, lovejoy.md
 
 📋 REFERENCE:
    MANIFEST.txt ...................... Complete inventory
@@ -136,18 +130,17 @@ DEVELOPER:
   1. START_HERE.md
   2. QUICK_START.md
   3. ralph.md (implement)
-  4. bart.md (review)
-  5. herb.md (verify)
+  4. bart.md (review & verify)
 
 PRODUCT MANAGER:
   1. START_HERE.md
   2. QUICK_START.md (discovery section)
-  3. marge.md (user advocacy)
+  3. marge.md (product & triage)
   4. lisa.md (planning)
 
 ARCHITECT:
   1. core-principles.md
-  2. frink.md
+  2. lisa.md (architecture)
   3. LOOP_CATALOG.md (OHECI loop)
 
 TEAM LEAD:
@@ -169,15 +162,13 @@ Basic Workflow:
 
 Example: Implementing a Feature
 
-  Product Discovery → Feature Brief
+  Marge Discovery → Feature Brief
          ↓
   @lisa Plan it (PLAN.md → TODO.md)
          ↓
   @ralph Implement with TDD (Ralph Wiggum Loop)
          ↓
-  @bart Review for security
-         ↓
-  @herb Verify coverage (95%+)
+  @bart Review & Verify
          ↓
   @marge Check user alignment
          ↓
@@ -216,7 +207,7 @@ A: A stateless iteration engine that prevents hallucination & context rot.
    See: START_HERE.md + QUICK_START.md + VISUAL_REFERENCE.md § 1
 
 Q: Can I use this solo or do I need a team?
-A: Both! Solo, use Ralph for coding + Herb for verification. With a team,
+A: Both! Solo, use Ralph for coding + Bart for verification. With a team,
    coordinate via Lisa (planner) and Lovejoy (release master).
 
 Q: What if I don't like The Simpsons?
