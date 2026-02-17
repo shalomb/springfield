@@ -21,7 +21,8 @@ Practical guides for getting things done.
 Technical specifications and look-up data.
 - **[Agents & Skills](reference/agents.md):** The 5-agent team and skill mapping.
 - **[The 7 Core Documents](reference/documents.md):** Detailed specs for PLAN, TODO, Feature, etc.
-- **[Agentic Loops](reference/loops.md):** Catalog of feedback patterns.
+- **[Agentic Loops](reference/loops.md):** Quick selection guide and catalog overview.
+- **[Loop Specifications](reference/loop-catalog.md):** Detailed technical specs for all 16+ loops.
 - **[Visual Diagrams](reference/visual-diagrams.md):** System architecture and flowcharts.
 - **[Glossary](reference/glossary.md):** Terminology definitions.
 

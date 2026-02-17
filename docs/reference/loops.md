@@ -69,3 +69,5 @@ Two agents iterating (propose → critique → refine).
 | Peer review | Low | **Dialogue** |
 
 For visual flowcharts of these loops, see [docs/reference/visual-diagrams.md](visual-diagrams.md).
+
+For detailed technical specifications of each loop, see [docs/reference/loop-catalog.md](loop-catalog.md).

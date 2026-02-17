@@ -4,15 +4,23 @@ This guide provides step-by-step procedures for the most common tasks in the Spr
 
 ---
 
-## 1. Implementing a New Feature
+## 1. Discovery Diamond: From Idea to Brief
 
-The core path from idea to production.
+The Discovery Diamond ensures we solve the right problem before we start building.
 
-1.  **Product Agent:** Investigates request → Creates `Feature.md` (Problem + Requirements).
-2.  **Planning Agent:** Checks fit → Creates ADRs if needed → Generates `PLAN.md` & `TODO.md`.
-3.  **Build Agent:** Picks task from `TODO.md` → Executes **Ralph Wiggum Loop** (TDD Implementation).
-4.  **Quality Agent:** Conducts adversarial review → Checks gate (>95% coverage) → Updates `FEEDBACK.md`.
-5.  **Release Agent:** Bumps version → Updates `CHANGELOG.md` → Tags release.
+1.  **DIVERGE: Orthogonal Investigation**
+    -   **Product Agent** generates options using **Troy bias** (What's the pragmatic shortcut?) and **Marge bias** (How does this impact the user?).
+    -   **Planning Agent** adds **Frink bias** (What crazy tech could we use?).
+    -   **Result:** A wide "Tree of Thoughts" of potential problem definitions and solution directions.
+2.  **POOL:** Consolidate all biased options into a candidate list.
+3.  **CONVERGE: Validate & Shortlist**
+    -   **Planning Agent** filters by architectural fit and cost.
+    -   **Product Agent** filters by user alignment.
+    -   **Output:** A validated **Feature.md** (Brief) and necessary **ADRs**.
+
+---
+
+## 2. Delivery Diamond: From Brief to Release
 
 ---
 

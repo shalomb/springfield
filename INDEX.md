@@ -72,7 +72,7 @@ Springfield Protocol is a document-driven framework that coordinates a **Single 
 -   **"I want to build a feature":** Read `docs/how-to/workflows.md#1-implementing-a-new-feature`.
 -   **"I want to understand the agents":** Read `docs/reference/agents.md`.
 -   **"I need a technical spec for a document":** Read `docs/reference/documents.md`.
--   **"I want to learn about the loops":** Read `docs/reference/loops.md`.
+-   **"I want to learn about the loops":** Read `docs/reference/loops.md` or the `docs/reference/loop-catalog.md`.
 
 ---
 
