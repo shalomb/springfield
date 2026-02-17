@@ -1,155 +1,84 @@
-# Springfield Protocol v0.2: The Complete Model
+# Springfield Protocol v0.2: The Master Model
 
-## Overview
-
-Springfield Protocol is a **document-driven, agent-based framework** for coordinating work across design thinking, agile delivery, and DevOps.
-
-**Core Components:**
-- 5 focused agents (single-pizza team)
-- 9 standardized skills
-- 2 flow diamonds (design thinking + agile)
-- 1 iteration engine (Ralph Wiggum Loop)
-- 7 core documents
-- 1 CLI UX (just commands)
+This document defines the core logic, philosophy, and architecture of the Springfield Protocol.
 
 ---
 
-## The 5-Agent Team
+## 1. Core Principles
 
-We use a "Single Pizza Team" model to keep agent context windows focused and expedient.
+The framework is built on six foundational principles designed to ensure quality while avoiding agent distraction.
 
-### 1. Product Agent (The "What & Why")
-- **Focus:** Discovery Diamond (Diverge)
-- **Skills:** `discovery-skill` (investigate), `wiggum` (triage)
-- **Role:** Understand user needs, define problems, create Feature Briefs.
-- **Context:** Loaded with user research, gemba walk, and problem definition prompts.
-
-### 2. Planning Agent (The "How & Structure")
-- **Focus:** Discovery Converge & Delivery Planning
-- **Skills:** `planning-skill` (breakdown), `architecture-skill` (patterns)
-- **Role:** Turn briefs into executable plans, validate architecture, create ADRs.
-- **Context:** Loaded with architectural patterns, dependency graph logic, and breakdown strategies.
-
-### 3. Build Agent (The "Doer")
-- **Focus:** Delivery Diamond (Diverge/Build)
-- **Skills:** `implementation-skill` (code), `testing-skill` (TDD)
-- **Role:** Write code, write tests, build infrastructure. Optimistic mindset.
-- **Context:** Loaded with TDD rules, language syntax, clean code guidelines.
-
-### 4. Quality Agent (The "Critic")
-- **Focus:** Delivery Diamond (Converge/Verify)
-- **Skills:** `review-skill` (adversarial), `verification-skill` (gates)
-- **Role:** Challenge assumptions, find bugs, verify gates. Pessimistic mindset.
-- **Context:** Loaded with OWASP security checklists, edge case heuristics, and style guides.
-
-### 5. Release Agent (The "Shipper")
-- **Focus:** Release & Loop Feedback
-- **Skills:** `release-skill` (ceremony), `learning-skill` (insights)
-- **Role:** Manage releases, update changelogs, capture learning.
-- **Context:** Loaded with semver rules, changelog formats, and git tagging logic.
+1.  **Plan Before You Build:** Gather data to reduce uncertainty. The Discovery Diamond must produce a Feature Brief before implementation begins.
+2.  **Steer As You Go:** Stay connected to execution. If implementation reveals broken assumptions, update the plan immediately.
+3.  **Iteration Over Perfection:** Embrace the **Ralph Wiggum Loop**. High-quality output emerges through persistent, stateless resampling, not one-shot perfection.
+4.  **Explicit Uncertainty:** Document what you don't know. Use `Feature.md#unknowns` and ADRs to manage risks.
+5.  **Documents Are Shared State:** Markdown files are the single source of truth. Agents and skills read/write to these files to maintain context.
+6.  **Avoid the Distracted Agent:** Keep agent context focused. Split roles by purpose (Build vs. Quality) to prevent context window overload and "hallucinated" verification.
 
 ---
 
-## The Nine Skills
+## 2. The 5-Agent Team (Single Pizza)
 
-Skills are the capabilities agents exercise.
+We use specialized agents to keep context windows lean and reasoning sharp.
 
-1. **discovery-skill** (Investigate, interview, Five Whys) -> *Product Agent*
-2. **architecture-skill** (Validate fit, design decisions) -> *Planning Agent*
-3. **planning-skill** (Break features into tasks) -> *Planning Agent*
-4. **implementation-skill** (Write code, TDD) -> *Build Agent*
-5. **testing-skill** (Write tests, verify coverage) -> *Build Agent*
-6. **review-skill** (Adversarial review, security) -> *Quality Agent*
-7. **verification-skill** (Check quality gates) -> *Quality Agent*
-8. **release-skill** (Semantic versioning, publish) -> *Release Agent*
-9. **learning-skill** (Capture unknowns, insights) -> *Release/All Agents*
+| Agent | Mindset | Focus | Primary Skills |
+| :--- | :--- | :--- | :--- |
+| **Product** | Empathetic | What & Why | `discovery`, `triage` |
+| **Planning** | Logical | How & Structure | `planning`, `architecture` |
+| **Build** | Optimistic | Doing | `implementation`, `testing` |
+| **Quality** | Pessimistic | Critiquing | `review`, `verification` |
+| **Release** | Ceremonial | Shipping | `release`, `learning` |
 
 ---
 
-## The Two Diamonds
+## 3. The Two Diamonds Flow
+
+The protocol coordinates work across two distinct phases of diverging (exploring) and converging (deciding).
 
 ### Discovery Diamond (Design Thinking)
-
-```
-Problem/Request
-      ↓
-   DIVERGE: Investigate
-   (Product Agent)
-      ↓
-🚪 Gate: Problem Clear?
-      ↓
-   CONVERGE: Validate
-   (Planning Agent)
-      ↓
-Feature Brief (Feature.md + ADRs)
-```
+-   **Diverge (Investigate):** Product Agent gathers requirements, conducts Five Whys, and Gemba walks.
+-   **Converge (Validate):** Planning Agent checks architectural fit and creates ADRs for unknowns.
+-   **Output:** A validated **Feature Brief**.
 
 ### Delivery Diamond (Agile)
-
-```
-Feature Brief
-      ↓
-   DIVERGE: Plan & Build
-   (Planning Agent -> Build Agent)
-      ↓
-🚪 Gate: Quality Ready?
-      ↓
-   CONVERGE: Verify
-   (Quality Agent)
-      ↓
-Release (CHANGELOG.md)
-   (Release Agent)
-```
+-   **Diverge (Build):** Planning Agent creates tasks; Build Agent implements via TDD.
+-   **Converge (Verify):** Quality Agent conducts adversarial reviews and checks coverage gates (>95%).
+-   **Output:** Verified, production-ready code.
 
 ---
 
-## The Ralph Wiggum Loop (Execution Engine)
+## 4. The Ralph Wiggum Loop (The Engine)
 
-The **stateless resampling** loop that runs the framework:
+The core execution engine uses **stateless resampling** to ensure quality.
+
+1.  **Monitor:** Scheduler checks `PLAN.md` for failed or unstarted tasks.
+2.  **Spawn:** Agent is spawned in an **Ephemeral Context** (clean worktree).
+3.  **Execute:** Agent exercises skills (Build Agent implements; Quality Agent verifies).
+4.  **Update:** Documents are updated. If verification fails, the task is marked for a fresh iteration.
+
+**Why?** Starting fresh each time prevents "context rot" where errors from early in a session compound into later mistakes.
+
+---
+
+## 5. Shared State: The 7 Core Documents
+
+Agents and skills maintain alignment through these documents:
+
+1.  **PLAN.md:** The epic-level roadmap and task status.
+2.  **TODO.md:** Immediate executable tasks and implementation learning.
+3.  **Feature.md:** The intent (Problem, Requirements, Assumptions, Unknowns).
+4.  **ADRs:** Architectural Decision Records (The rationale for the "How").
+5.  **BDD Specs:** Gherkin scenarios defining acceptance criteria.
+6.  **FEEDBACK.md:** Results of reviews and quality gate checks.
+7.  **CHANGELOG.md:** Release history and high-level learning capture.
+
+---
+
+## 6. Architecture & Data Flow
 
 ```
-Monitor PLAN.md for unstarted/failed tasks
-           ↓
-Spawn Agent (Build or Quality)
-with clean context (ephemeral environment)
-           ↓
-Agent exercises skills
-           ↓
-Verification (Quality Agent)
-           ↓
-If passed: Mark verified
-If failed: Loop back with fresh context
+Problem → [Discovery Diamond] → Feature Brief → [Delivery Diamond] → Release
+             (Product/Planning)                    (Build/Quality)      (Release)
 ```
 
----
-
-## The Seven Core Documents
-
-**Shared State:**
-1. **PLAN.md** (Roadmap)
-2. **TODO.md** (Tasks)
-3. **Feature.md** (Requirements)
-4. **ADRs** (Decisions)
-5. **scenarios.feature** (BDD Specs)
-6. **FEEDBACK.md** (Review results)
-7. **CHANGELOG.md** (History)
-
----
-
-## Core Principles
-
-1. **Plan Before You Build** (Discovery first)
-2. **Steer As You Go** (Adjust based on learning)
-3. **Iteration Over Perfection** (Ralph Wiggum Loop)
-4. **Explicit Uncertainty** (Document unknowns)
-5. **Documents Are Shared State** (Markdown is truth)
-6. **Avoid the Distracted Agent** (Focused contexts)
-
----
-
-## Why This Model Works
-
-✅ **Focused Contexts** - 5 specialized agents prevent context window overload.
-✅ **Clear Separation** - Builders build, Critics critique. No hallucinations of quality.
-✅ **Scalable** - Works for 1 person (wearing 5 hats) to large teams.
-✅ **Coherent** - Aligns with industry standard Design Thinking + Agile flows.
+For a detailed visual guide to these flows, see [docs/reference/visual-diagrams.md](../reference/visual-diagrams.md).

@@ -1,32 +1,33 @@
-# Documentation
+# Springfield Protocol Documentation
 
-Springfield Protocol documentation organized by Diataxis principles:
+This documentation is organized using the **Diataxis** framework to keep information focused and expedient.
 
-```
-docs/
-├── README.md (you are here)
-├── how-to/                    # Goal-oriented guides
-│   ├── implement-feature.md
-│   ├── debug-issue.md
-│   ├── design-architecture.md
-│   ├── release.md
-│   └── import-infrastructure.md
-├── reference/                 # Look-up information
-│   ├── documents.md          # The 7 core documents (PLAN, TODO, Feature, ADRs, BDD, FEEDBACK, CHANGELOG)
-│   ├── loops.md              # All agentic loops
-│   ├── agents.md             # All agent profiles (links to .github/agents/)
-│   └── glossary.md
-└── concepts/                  # Understanding & philosophy
-    ├── principles.md         # Core principles
-    ├── philosophy.md         # "Plan before you build, steer as you go"
-    ├── ralph-wiggum-loop.md  # Stateless resampling explained
-    └── discovery-vs-delivery.md
-```
+---
 
-## Where to Start
+## 💡 Concepts (Understanding)
+Core logic, architecture, and principles of the framework.
+- **[Master Model](concepts/model.md):** Principles, Agents, Diamonds, and the Ralph Wiggum Loop.
 
-- **New to Springfield?** → Read root [`START_HERE.md`](../START_HERE.md)
-- **Need a quick reference?** → Read root [`QUICK_START.md`](../QUICK_START.md)
-- **Solving a specific problem?** → See [`how-to/`](how-to/)
-- **Looking up loops or agents?** → See [`reference/`](reference/)
-- **Understanding the philosophy?** → See [`concepts/`](concepts/)
+---
+
+## 🚀 How-To (Goal-Oriented)
+Practical guides for getting things done.
+- **[Getting Started](how-to/getting-started.md):** Setup and first implementation.
+- **[Standard Workflows](how-to/workflows.md):** Features, Bugs, Architecture, and Releases.
+
+---
+
+## 📚 Reference (Information)
+Technical specifications and look-up data.
+- **[Agents & Skills](reference/agents.md):** The 5-agent team and skill mapping.
+- **[The 7 Core Documents](reference/documents.md):** Detailed specs for PLAN, TODO, Feature, etc.
+- **[Agentic Loops](reference/loops.md):** Catalog of feedback patterns.
+- **[Visual Diagrams](reference/visual-diagrams.md):** System architecture and flowcharts.
+- **[Glossary](reference/glossary.md):** Terminology definitions.
+
+---
+
+## 📍 Where to Start
+1.  **If you are new:** Start with root `INDEX.md` then `how-to/getting-started.md`.
+2.  **If you want to understand the engine:** Read `concepts/model.md`.
+3.  **If you are building:** Reference `how-to/workflows.md` and `reference/loops.md`.

@@ -1,57 +1,71 @@
 # Agentic Loops Reference
 
-A quick lookup guide for the 16+ feedback loops used in Springfield Protocol.
+This catalog defines the feedback patterns and coordination strategies used in the Springfield Protocol.
 
-## Loop Selection
+---
 
-| Loop | Use When | Complexity |
-|------|----------|-----------|
-| **Sense-Plan-Act** | Real-time decisions | Low |
-| **ReAct** | Debugging with reasoning | Medium |
-| **Tree of Thoughts** | Complex multi-path decisions | High |
-| **Plan-and-Execute** | Clear specs, sequential work | Medium |
-| **Ralph Wiggum** | Feature delivery with quality gates | Medium |
-| **GECR** | Polishing output | Medium |
-| **TALAR** | Test-driven optimization | Medium |
-| **Manager-Worker** | Multi-agent coordination | Medium |
-| **Dialogue** | Two-agent iteration | Low |
+## 1. Foundational Patterns
 
-## Decision Tree
+### Sense-Plan-Act (Observe → Think → Act)
+The simplest agent loop. Used for immediate, low-complexity tasks.
+- **Use When:** Handling straightforward instructions without significant error risk.
 
-```
-What's your problem?
+### ReAct (Reason + Act)
+Verbalize thinking before taking actions.
+- **Use When:** Debugging specific errors where the agent needs to explain its reasoning at each step.
 
-├─ Vague/complex problem
-│  └─ Tree of Thoughts
-│
-├─ Specific error with reasoning
-│  └─ ReAct
-│
-├─ Clear spec, sequential work
-│  └─ Plan-and-Execute
-│
-├─ Feature delivery with gates
-│  └─ Ralph Wiggum
-│
-├─ Polish & refine output
-│  └─ GECR
-│
-├─ Optimize via testing
-│  └─ TALAR
-│
-├─ Multiple agents in parallel
-│  └─ Manager-Worker
-│
-└─ Two agents iterating
-   └─ Dialogue
-```
+---
 
-## Full Specifications
+## 2. Refinement & Quality
 
-See [`../LOOP_CATALOG.md`](../LOOP_CATALOG.md) in the root for complete technical specifications with diagrams.
+### Ralph Wiggum Loop (The Engine)
+Stateless resampling via ephemeral contexts.
+- **Use When:** Standard feature implementation and verification.
+- **Key:** Fresh context each iteration prevents error accumulation.
 
-## Related
+### GECR (Generate → Evaluate → Critique → Refine)
+Multi-stage refinement for high-quality output.
+- **Use When:** Polishing documentation, complex logic, or creative architectural proposals.
 
-- **QUICK_START.md** (root) - Loop quick reference
-- **concepts/ralph-wiggum-loop.md** - Conceptual explanation
-- **how-to/** - Workflows using these loops
+### TALAR (Test → Analyze → Learn → Adjust → Retest)
+Experiment-driven optimization.
+- **Use When:** Performance tuning or resolving complex race conditions.
+
+---
+
+## 3. Exploration & Decisions
+
+### Tree of Thoughts (ToT)
+Exploring multiple reasoning paths and pruning low-scoring options.
+- **Use When:** Vague or complex problems with many possible solutions.
+
+### OHECI (Observe-Hypothesize-Experiment-Conclude-Integrate)
+A scientific method loop for architecture and research spikes.
+- **Use When:** Conducting spikes or validating new architectural patterns.
+
+---
+
+## 4. Coordination & Orchestration
+
+### Manager-Worker Loop
+One orchestrator (e.g., Planning Agent) coordinates specialized workers (e.g., Build Agents) in parallel.
+- **Use When:** Managing large epics or multi-agent workstreams.
+
+### Dialogue Loop
+Two agents iterating (propose → critique → refine).
+- **Use When:** Peer review between Build and Quality agents.
+
+---
+
+## Loop Selection Guide
+
+| Problem Type | Complexity | Recommended Loop |
+| :--- | :--- | :--- |
+| Simple task | Low | **Sense-Plan-Act** |
+| Specific error | Medium | **ReAct** |
+| Vague problem | High | **Tree of Thoughts** |
+| Feature build | Medium | **Ralph Wiggum** |
+| Optimization | Medium | **TALAR** |
+| Peer review | Low | **Dialogue** |
+
+For visual flowcharts of these loops, see [docs/reference/visual-diagrams.md](visual-diagrams.md).

@@ -1,81 +1,69 @@
-# Agent Profiles Reference
+# Agent & Skills Reference
 
-The Springfield Protocol uses a **5-Agent "Single Pizza" Team** model. Each agent has a focused context and specific skills.
+The Springfield Protocol uses a **5-Agent "Single Pizza" Team** model. Each agent represents a focused mindset and exercises specific standardized skills.
 
-The classic Simpsons characters act as **personas** or "modes" that these agents adopt to guide their behavior.
+---
 
 ## The 5-Agent Team
 
-| Agent | Focus | Primary Skills | Personas (Modes) |
-|-------|-------|----------------|------------------|
-| **1. Product Agent** | Discovery & Triage | `discovery-skill` | **Troy** (Investigate), **Wiggum** (Triage), **Marge** (Empathy) |
-| **2. Planning Agent** | Structure & Arch | `planning-skill` | **Lisa** (Plan), **Frink** (Architect) |
-| **3. Build Agent** | Implementation | `implementation-skill` | **Ralph** (Doer), **Homer** (Infra) |
-| **4. Quality Agent** | Verification | `review-skill` | **Bart** (Critic), **Herb** (Quality) |
-| **5. Release Agent** | Ceremony | `release-skill` | **Lovejoy** (Ceremony) |
+| Agent | Mindset | Focus | Primary Skills | Personas (Personas) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Product** | Empathy | What & Why | `discovery`, `triage` | Troy, Wiggum, Marge |
+| **Planning** | Logic | How & Structure | `planning`, `architecture` | Lisa, Frink |
+| **Build** | Optimism | Doing | `implementation`, `testing` | Ralph, Homer |
+| **Quality** | Pessimism | Critiquing | `review`, `verification` | Bart, Herb |
+| **Release** | Ceremony | Shipping | `release`, `learning` | Lovejoy |
 
 ---
 
-## Agent Definitions
-
-### 1. Product Agent
-**"The What & Why"**
-- **Role:** Understands user needs, defines the problem, conducts triage.
-- **Context:** User research, problem statements, gemba walks.
+## 1. Product Agent ("The What & Why")
+- **Role:** Investigates user needs, defines the problem, and enforces the "Definition of Ready."
 - **Output:** Feature Briefs (`Feature.md`), Problem Statements.
-- **Personas:**
-  - **Troy McClure:** Connects dots, investigates. [`→ profile`](../../.github/agents/troy-mcclure.md)
-  - **Chief Wiggum:** Triages issues, enforces "Definition of Ready". [`→ profile`](../../.github/agents/wiggum.md)
-  - **Marge:** Ensures user empathy and alignment. [`→ profile`](../../.github/agents/marge.md)
+- **Key Skills:**
+    - `discovery-skill`: Interviews, Five Whys, Gemba walks.
+    - `triage-skill`: Categorizing and prioritizing requests.
 
-### 2. Planning Agent
-**"The How & Structure"**
-- **Role:** Breaks down work, validates architecture, plans dependencies.
-- **Context:** Architectural patterns, dependency graphs, task breakdown strategies.
+## 2. Planning Agent ("The How & Structure")
+- **Role:** Breaks down features into tasks, validates architectural fit, and plans dependencies.
 - **Output:** `PLAN.md`, `TODO.md`, `ADRs`.
-- **Personas:**
-  - **Lisa:** Logical planning, task breakdown. [`→ profile`](../../.github/agents/lisa.md)
-  - **Frink:** Architecture decisions, patterns. [`→ profile`](../../.github/agents/frink.md)
+- **Key Skills:**
+    - `planning-skill`: Task breakdown, estimation, sequencing.
+    - `architecture-skill`: Design decision records (ADRs), pattern validation.
 
-### 3. Build Agent
-**"The Doer"**
-- **Role:** Writes code, writes tests, builds infrastructure. Optimistic mindset.
-- **Context:** TDD rules, language syntax, clean code guidelines.
-- **Output:** Code, Tests, Infrastructure config.
-- **Personas:**
-  - **Ralph:** TDD execution, persistence ("I'm learnding!"). [`→ profile`](../../.github/agents/ralph.md)
-  - **Homer:** Infrastructure, lazy-but-functional (zero-change imports).
+## 3. Build Agent ("The Doer")
+- **Role:** Optimistic implementation of tasks following strict TDD practices.
+- **Output:** Tested code, infrastructure config.
+- **Key Skills:**
+    - `implementation-skill`: Writing Red-Green-Refactor code.
+    - `testing-skill`: Writing mocks and unit tests.
 
-### 4. Quality Agent
-**"The Critic"**
-- **Role:** Adversarial review, verification, finding edge cases. Pessimistic mindset.
-- **Context:** OWASP checklists, edge case heuristics, style guides.
-- **Output:** `FEEDBACK.md`, Gate Results.
-- **Personas:**
-  - **Bart:** Adversarial reviewer, tries to break things. [`→ profile`](../../.github/agents/bart.md)
-  - **Herb:** Quality engineer, enforces standards (95%+ coverage). [`→ profile`](../../.github/agents/herb.md)
+## 4. Quality Agent ("The Critic")
+- **Role:** Pessimistic adversarial reviewer focused on finding what the Build Agent missed.
+- **Output:** `FEEDBACK.md`, Gate sign-offs.
+- **Key Skills:**
+    - `review-skill`: Security scans, edge case analysis, adversarial questioning.
+    - `verification-skill`: Coverage checks (>95%), performance regression checks.
 
-### 5. Release Agent
-**"The Shipper"**
-- **Role:** Manages release ceremony, versioning, and learning capture.
-- **Context:** Semantic versioning, changelog formats, git tagging.
-- **Output:** `CHANGELOG.md`, Releases, KEDB entries.
-- **Personas:**
-  - **Rev. Lovejoy:** Ceremony master, public announcer. [`→ profile`](../../.github/agents/lovejoy.md)
+## 5. Release Agent ("The Shipper")
+- **Role:** Ceremonial master of publishing and organizational learning.
+- **Output:** `CHANGELOG.md`, Release tags, KEDB entries.
+- **Key Skills:**
+    - `release-skill`: Versioning, changelog automation, deployment ceremony.
+    - `learning-skill`: Capturing insights and updating the Known Error Database.
 
 ---
 
-## Why This Structure?
+## Persona Mapping (The Simpsons Mnemonics)
 
-**Avoid the Distracted Agent**
-By splitting into 5 focused agents, we keep context windows lean.
-- The **Build Agent** doesn't need to know about "User Empathy" or "Release Ceremony".
-- The **Quality Agent** doesn't need to know how to "Generate Ideas".
+Characters are useful mental models for how an agent should behave:
+- **Ralph Wiggum:** Persistent effort, Red-Green-Refactor.
+- **Bart Simpson:** Adversarial thinking, "I'm going to break this."
+- **Lisa Simpson:** Strategic, logical, planning everything.
+- **Troy McClure:** Investigations, storytelling, synthesis.
+- **Chief Wiggum:** Triage, "Move along, nothing to see here" (Definition of Ready).
+- **Herb Powell:** Quality obsession, high standards.
+- **Frink:** Scientific method, architectural patterns.
+- **Marge Simpson:** User empathy, the "voice of reason."
+- **Rev. Lovejoy:** Release ceremony, public announcements.
 
-**Optimistic vs Pessimistic**
-Separating **Build** (Optimistic) from **Quality** (Pessimistic) prevents the "fox guarding the henhouse" problem. The builder tries to make it work; the critic tries to prove it doesn't.
-
-## Related
-
-- **docs/concepts/model.md** - The complete v0.2 model
-- **docs/reference/documents.md** - The documents these agents produce
+For detailed persona instructions, see individual profiles in [.github/agents/](../../.github/agents/).
