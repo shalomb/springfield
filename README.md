@@ -4,19 +4,22 @@ A character-driven agentic development framework for Lean, iterative product dev
 
 ---
 
-## Quick Start
+## Getting Started
 
 **New to Springfield Protocol?**
 
-1. Start here: [[core-principles.md]] - Vision, philosophy, dual-track framework
-2. Meet the team: [[character-map.md]] - All 9 characters and their roles
-3. Deep dive: [[troy-mcclure.md]] - Understand the discovery process
+👉 **Start here: [INDEX.md](INDEX.md)** (navigation hub)
 
-**Already know the basics?**
+Then choose your path:
+- **Fast track (15 min):** Read [QUICK_START.md](QUICK_START.md)
+- **Understanding (1 hour):** Read [docs/concepts/model.md](docs/concepts/model.md)
+- **Implementing (2 hours):** Follow [docs/how-to/getting-started.md](docs/how-to/getting-started.md)
 
-- Want to understand discovery? → [[discovery-track.md]]
-- Want to understand delivery? → [[delivery-track.md]]
-- Need templates? → [[discovery-brief-template.md]] or [[feature-brief-template.md]]
+**Solving a specific problem?**
+- Implement feature → [docs/how-to/implement-feature.md](docs/how-to/implement-feature.md)
+- Debug issue → [docs/how-to/debug-issue.md](docs/how-to/debug-issue.md)
+- Design architecture → [docs/how-to/design-architecture.md](docs/how-to/design-architecture.md)
+- Release version → [docs/how-to/release.md](docs/how-to/release.md)
 
 ---
 
@@ -91,25 +94,25 @@ Stay engaged during delivery:
 ```
 Springfield Protocol/
 ├── README.md                          ← You are here
-├── core-principles.md                 # Vision, philosophy, dual-track framework
-├── ralph-wiggum-loop.md               # Core execution engine (coming soon)
-├── character-map.md                   # All characters, roles, interactions
-├── troy-mcclure.md                    # Chief Discovery Officer (detailed)
-├── frink.md                           # Architect & Patterns (stub)
-├── lisa.md                            # Strategic Planner (stub)
-├── marge.md                           # Empathy & Guardrails (stub)
-├── ralph.md                           # TDD Executor (stub)
-├── bart.md                            # Adversarial Reviewer (stub)
-├── herb.md                            # Quality Engineer (stub)
-├── lovejoy.md                         # Ceremony Master (stub)
-├── wiggum.md                          # Triage Officer (stub)
-├── discovery-track.md                 # Discovery workflow (coming soon)
-├── delivery-track.md                  # Delivery workflow (coming soon)
-├── discovery-brief-template.md        # Troy's deliverable (coming soon)
-└── feature-brief-template.md          # Feature specification (coming soon)
+├── INDEX.md                           # Navigation & documentation index ⭐ START HERE
+├── QUICK_START.md                     # Workflows & quick reference
+├── LOOP_CATALOG.md                    # All 16+ agentic loops
+├── CHARACTER_SKILLS.md                # All 9 character skill descriptions
+├── VISUAL_REFERENCE.md                # 14 ASCII diagrams
+│
+├── docs/                              # Detailed documentation (Diataxis)
+│   ├── how-to/                        # Goal-oriented guides
+│   ├── reference/                     # Look-up information
+│   ├── concepts/                      # Understanding & philosophy
+│   └── README.md                      # Documentation index
+│
+├── .github/
+│   ├── agents/                        # Character profiles (lisa.md, ralph.md, etc.)
+│   └── REFINEMENT_ROADMAP.md          # Framework evolution (v0.1 → v0.2)
+└── .git/                              # Version control
 ```
 
-**Status:** Core characters are defined. Workflow documents and templates coming soon.
+**Status:** Core framework stable. Documentation organized by Diataxis. Detailed guides in `/docs`.
 
 ---
 
