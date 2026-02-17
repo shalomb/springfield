@@ -8,7 +8,7 @@ The Springfield Protocol uses a **5-Agent "Single Pizza" Team** model. Each agen
 
 | Agent | Mindset | Focus | Primary Skills | Personas (Personas) |
 | :--- | :--- | :--- | :--- | :--- |
-| **Product** | Empathy | What & Why | `discovery`, `triage` | Troy, Wiggum, Marge |
+| **Product** | Empathy | What & Why | `discovery`, `triage` | Troy, Marge |
 | **Planning** | Logic | How & Structure | `planning`, `architecture` | Lisa, Frink |
 | **Build** | Optimism | Doing | `implementation`, `testing` | Ralph, Homer |
 | **Quality** | Pessimism | Critiquing | `review`, `verification` | Bart, Herb |
@@ -59,8 +59,7 @@ Characters are useful mental models for how an agent should behave:
 - **Ralph Wiggum:** Persistent effort, Red-Green-Refactor.
 - **Bart Simpson:** Adversarial thinking, "I'm going to break this."
 - **Lisa Simpson:** Strategic, logical, planning everything.
-- **Troy McClure:** Investigations, storytelling, synthesis.
-- **Chief Wiggum:** Triage, "Move along, nothing to see here" (Definition of Ready).
+- **Troy McClure:** Investigations, storytelling, synthesis, triage, "Definition of Ready."
 - **Herb Powell:** Quality obsession, high standards.
 - **Frink:** Scientific method, architectural patterns.
 - **Marge Simpson:** User empathy, the "voice of reason."

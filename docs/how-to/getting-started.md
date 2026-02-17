@@ -121,7 +121,7 @@ Create `.github/agents/product-agent.md`:
 
 **Focus:** Discovery & Triage (The "What & Why")
 **Skills:** discovery-skill, wiggum
-**Personas:** Troy, Wiggum, Marge
+**Personas:** Troy, Marge
 
 **Responsibilities:**
 - Investigate user needs
