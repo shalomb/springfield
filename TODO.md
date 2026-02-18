@@ -6,11 +6,11 @@
 
 ## Tasks
 
-- [ ] **Task 1: Research `pi` environment capabilities** @Ralph
-    - [ ] Check if `docker` command is available and functional.
-    - [ ] Check if `podman` or `nsenter` are available.
-    - [ ] Determine if current user has permissions to run containers.
-    - [ ] Document findings in `docs/research/sandboxing-capabilities.md`.
+- [x] **Task 1: Research `pi` environment capabilities** @Ralph
+    - [x] Check if `docker` command is available and functional.
+    - [x] Check if `podman` or `nsenter` are available.
+    - [x] Determine if current user has permissions to run containers.
+    - [x] Document findings in `docs/research/sandboxing-capabilities.md`.
     - **Acceptance Criteria:** A clear report on what isolation technologies are available in the current environment.
 
 - [ ] **Task 2: Draft ADR-004: Agent Sandboxing Strategy** @Lisa
@@ -19,20 +19,34 @@
     - [ ] Document resource constraints and workspace mounting strategy.
     - **Acceptance Criteria:** `docs/adr/ADR-004-agent-sandboxing.md` exists in "Proposed" state.
 
-- [ ] **Task 3: Create BDD Scenarios** @Ralph
-    - [ ] Create `features/sandboxing.feature`.
-    - [ ] Define scenarios for:
+- [x] **Task 3: Create BDD Scenarios** @Ralph
+    - [x] Create `features/sandboxing.feature`.
+    - [x] Define scenarios for:
         - Successful execution in sandbox.
         - Prevention of host file access (outside workspace).
         - Preservation of workspace state.
     - **Acceptance Criteria:** `features/sandboxing.feature` exists and reflects the requirements.
 
-- [ ] **Task 4: Prototype isolation script** @Ralph
-    - [ ] Based on ADR-004, create a minimal `scripts/sandbox.sh`.
-    - [ ] Script should be able to run a simple command (e.g., `ls`) in the sandbox.
-    - [ ] Attempt to verify isolation (e.g., try to touch a file in `/root`).
+- [x] **Task 4: Prototype isolation script** @Ralph
+    - [x] Based on ADR-004, create a minimal `scripts/sandbox.sh`.
+    - [x] Script should be able to run a simple command (e.g., `ls`) in the sandbox.
+    - [x] Attempt to verify isolation (e.g., try to touch a file in `/root`).
     - **Acceptance Criteria:** Prototype script successfully demonstrates basic isolation.
 
+## Feedback Iteration (EPIC-004)
+
+- [ ] **Task 5: Harden Sandbox Isolation** @Ralph
+    - [ ] Pin container image to `docker.io/library/alpine:3.19` (avoid `latest`).
+    - [ ] Disable network access (`--network none`) by default.
+    - [ ] Mount `.git` and `scripts` directories as **read-only** to prevent accidental damage.
+    - [ ] Improve command injection safety in `scripts/sandbox.sh` (use arrays/exec if possible).
+    - **Acceptance Criteria:** `sandbox.sh` runs with `--network none` and read-only system mounts.
+
+- [ ] **Task 6: Verify Git Safety (BDD)** @Ralph
+    - [ ] Add scenario to `features/sandboxing.feature`: "Prevent modification of .git directory".
+    - [ ] Verify that attempting to `rm -rf .git` or `touch .git/config` from within the sandbox fails.
+    - **Acceptance Criteria:** Test suite passes and confirms `.git` protection.
+
 ## Notes & Blockers
-- **Blocker:** We don't know yet if the `pi` harness allows running Docker or other containerization tools. Task 1 is critical.
+- **Resolved Blocker:** The `pi` harness supports `podman` for container execution. `docker` is not available.
 - **Reference:** See `docs/features/sandboxing-and-agent-execution-context.md` for initial requirements.
