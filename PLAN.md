@@ -86,21 +86,36 @@
 
 **The "Why":** Agents like Ralph execute code. Running this as root/user on the host is dangerous. We need containment.
 **Scope:**
-- ✅ Docker/Container-based execution context
-- ✅ Workspace mounting strategy
-- ✅ Network restriction policies
-- ❌ Full VM virtualization
+- [ ] Docker/Container-based execution context
+- [ ] Workspace mounting strategy
+- [ ] Resource constraints (CPU/Memory)
+- ❌ Network restriction policies (Deferred)
+- ❌ Full VM virtualization (Out of Scope)
 
 **Acceptance Criteria:**
-- [ ] Agents run inside a defined container image.
+- [ ] Agents run inside a defined container image (or similar isolation).
 - [ ] Agents cannot access host files outside the mounted workspace.
 - [ ] Workspace state is preserved between runs.
+- [ ] **BDD Scenarios:** `features/sandboxing.feature`
+- [ ] **Marge Gate:** Performance impact is measured and accepted by stakeholders.
+- [ ] **Marge Gate:** Security model is validated against common "jailbreak" patterns.
 
 **Attributes:**
-- **Status:** 📋 Ready
+- **Status:** 🔍 Discovery
 - **Complexity:** High
 - **Urgency:** High (Security)
 - **Dependencies:** EPIC-003 (Logging)
+- **ADRs:** `docs/adr/ADR-004-agent-sandboxing.md` (Planned)
+
+**Risks:**
+- **TR-005:** `pi` environment constraints may prevent Docker-in-Docker or nested virtualization.
+- **TR-006:** Filesystem mounting latency could impact Ralph's performance.
+
+**Tasks:**
+- [ ] Task 1: Research `pi` environment capabilities for isolation (Docker, podman, nsenter)
+- [ ] Task 2: Draft ADR-004 with proposed isolation strategy
+- [ ] Task 3: Create `features/sandboxing.feature`
+- [ ] Task 4: Prototype isolation script
 
 ---
 
@@ -109,15 +124,17 @@
 
 **The "Why":** "Infinite loops" in agent logic can bankrupt us. We need a kill-switch and visibility.
 **Scope:**
-- ✅ Token counting middleware
-- ✅ Budget limits (per session/day)
-- ✅ "Cheapest Model" selection logic
-- ❌ Real-time billing API integration
+- [ ] Token counting middleware
+- [ ] Budget limits (per session/day)
+- [ ] "Cheapest Model" selection logic
+- ❌ Real-time billing API integration (Out of Scope)
 
 **Acceptance Criteria:**
 - [ ] Every LLM call is logged with token count and estimated cost.
 - [ ] System rejects requests when budget is exceeded.
 - [ ] Reporting command shows daily spend.
+- [ ] **Marge Gate:** Budget thresholds are agreed upon by finance/stakeholders.
+- [ ] **Marge Gate:** Process for "emergency budget override" is documented.
 
 **Attributes:**
 - **Status:** 📋 Ready
@@ -132,13 +149,14 @@
 
 **The "Why":** We shouldn't force a rewrite of all existing `.github/agents` definitions. We should embrace them.
 **Scope:**
-- ✅ Support for `.github/agents`, `.claude/agents`, etc.
-- ✅ Precedence logic (Repo > Default)
-- ❌ Conversion/Migration tools
+- [ ] Support for `.github/agents`, `.claude/agents`, etc.
+- [ ] Precedence logic (Repo > Default)
+- ❌ Conversion/Migration tools (Out of Scope)
 
 **Acceptance Criteria:**
 - [ ] Springfield agents are primed to load from existing folder structures.
 - [ ] Repo-defined agents override defaults.
+- [ ] **Marge Gate:** Identified legacy agents (e.g., from `pi` defaults) map successfully to Springfield roles.
 
 **Attributes:**
 - **Status:** 📋 Ready
