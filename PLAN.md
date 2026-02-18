@@ -67,12 +67,14 @@
 - ❌ ELK/Splunk integration
 
 **Acceptance Criteria:**
-- [ ] All agents emit JSON logs to a central file/stream.
-- [ ] Logs contain `agent_id`, `task_id`, and `timestamp`.
-- [ ] CLI tool exists to tail/filter these logs.
+- [x] All agents emit JSON logs to a central file/stream. ✅ [Verified @Herb]
+- [x] Logs contain `agent_id`, `task_id`, and `timestamp`. ✅ [Verified @Herb]
+- [x] CLI tool exists to tail/filter these logs. ✅ (`just logs`) [Verified @Herb]
+- [x] **BDD Scenarios:** `features/logging.feature` ✅ [Verified @Herb]
+- [x] **ADR:** `docs/adr/ADR-003-logging-standard.md` ✅ [Verified @Herb]
 
 **Attributes:**
-- **Status:** 🚀 In Progress
+- **Status:** ✅ Done
 - **Complexity:** Medium
 - **Urgency:** High (Debugging)
 - **Dependencies:** None

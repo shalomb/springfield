@@ -1,21 +1,30 @@
-# TODO.md - Sprint for EPIC-002: Tmux Agent Orchestration
+# TODO.md - Sprint for EPIC-003: Logging & Observability
 
 ## Context
-Running 5 agents (Marge, Lisa, Ralph, Bart, Lovejoy) in separate terminals is unmanageable. 
-We need a "command center" view using Tmux to allow concurrent execution and easy session management.
-See [PLAN.md#EPIC-002] for full value statement and scope.
+Tracing agent actions is difficult without structured logs. 
+We need a unified JSON logging format that includes agent context and timestamps.
+See [PLAN.md#EPIC-003] for full value statement and scope.
 
 ## Strategy
-- Use a single Tmux session named `springfield`.
-- Each agent gets its own named window/pane.
-- Use `just` as the entry point for orchestration.
-- Support "detached" mode so agents can work in the background.
+- Implement a Python-based logger or a shell utility.
+- Each agent write to `logs/[agent_name].log`.
+- Log format: `{"timestamp": "...", "agent": "...", "epic": "...", "level": "...", "message": "..."}`.
+- Update `scripts/tmux-orch.sh` to ensure log directory existence.
 
 ## Tasks
-- [x] Task 0: Define ADR for Tmux Orchestration ✅ @Lisa 2026-02-17
-- [x] Task 1: Create BDD Scenarios for Tmux Orch ✅ @Lisa 2026-02-17
-- [x] Task 2: Create `scripts/tmux-orch.sh` prototype ✅ @Ralph 2026-02-17
-- [x] Task 3: Implement `just flow` command ✅ @Ralph 2026-02-17
+- [x] Task 1: Define Logging ADR (ADR-003) ✅ @Lisa 2026-02-18
+- [x] Create BDD Scenarios for Logging ✅ @Lisa 2026-02-18
+- [x] Task 2: Create structured logging utility ✅ @Ralph 2026-02-18
+  - Assigned to: Ralph
+  - Subtasks:
+    - [x] Create `scripts/logger.py` ✅
+    - [x] Support JSON output ✅
+    - [x] Add basic unit tests. ✅ @Herb 2026-02-18
+- [x] Task 3: Integrate logger into core scripts ✅ @Ralph 2026-02-18
+  - Assigned to: Ralph
+  - Subtasks:
+    - [x] Update `scripts/tmux-orch.sh` to use the new logger for orchestration events. ✅
+    - [x] Add `just logs` command to tail all logs. ✅
 
 ## BDD Scenarios
-See `features/tmux_orchestration.feature` (to be created).
+See `features/logging.feature` (to be created).
