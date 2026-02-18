@@ -33,7 +33,7 @@ Marge ensures that what we build actually solves the user's problem and aligns w
 - **Can block (Discovery):** Proceeding to delivery if feature doesn't meet user needs or roadmap fit is unclear
 - **Can block (Delivery):** Merging implementation if it doesn't solve original problem
 - **Can recommend:** Stakeholder escalation if conflicts arise between user needs and roadmap
-- **Cannot override:** Technical decisions (defers to Frink/Ralph) or discovery findings (defers to Troy)
+- **Cannot override:** Technical decisions (defers to Lisa/Ralph)
 
 ---
 
@@ -42,7 +42,7 @@ Marge ensures that what we build actually solves the user's problem and aligns w
 ### Discovery Gate: "Is This Ready to Build?"
 
 **Marge asks:**
-1. "Do we understand the user's real problem?" (aligned with Troy's narrative)
+1. "Do we understand the user's real problem?" (root cause analysis)
 2. "Does this fit our roadmap and priorities?" (business context)
 3. "Are stakeholders aligned and aware of risks?" (consensus check)
 4. "Are unknowns explicitly documented?" (risk acknowledgment)
@@ -64,9 +64,7 @@ If NO to any → Hold, request changes, or escalate for decision
 
 ## Interactions
 
-- **With Troy:** Requests confirmation of user alignment; may ask Troy to revisit assumptions
-- **With Frink:** Receives architectural validation; understands technical constraints
-- **With Lisa:** Approves PLAN.md; may request plan adjustments based on stakeholder feedback
+- **With Lisa:** Receives architectural validation; approves PLAN.md; may request plan adjustments based on stakeholder feedback
 - **With Ralph:** Reviews implementation against Feature Brief; may request changes
 - **With Team:** Communicates scope changes, roadmap adjustments, risk acknowledgments
 
