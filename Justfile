@@ -43,3 +43,32 @@ start-fix name:
     fi
     @git checkout -b fix/{{name}}
     @echo "Switched to branch fix/{{name}}"
+
+# Install the agent skills to the local pi environment
+install:
+    @echo "Installing Springfield agents..."
+    @mkdir -p ~/.pi/agent/skills
+    @cp -r .pi/agent/skills/* ~/.pi/agent/skills/
+    @echo "Installed: bart, lisa, lovejoy, marge, ralph to ~/.pi/agent/skills/"
+
+# Run a command inside the agent sandbox
+sandbox +cmd:
+    @scripts/sandbox.sh "{{cmd}}"
+
+# Verify sandbox isolation and functionality
+sandbox-verify:
+    @echo "Verifying sandbox..."
+    @scripts/sandbox.sh "echo 'Hello from Sandbox'" > /dev/null
+    @touch .sandbox_test
+    @if scripts/sandbox.sh "ls .sandbox_test" > /dev/null; then \
+        echo "PASS: Workspace mount works"; \
+    else \
+        echo "FAIL: Workspace mount failed"; \
+        rm .sandbox_test; \
+        exit 1; \
+    fi
+    @rm .sandbox_test
+    @echo "Sandbox verified."
+
+# Alias for sandbox verification
+test-sandbox: sandbox-verify
