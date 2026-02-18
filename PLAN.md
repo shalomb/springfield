@@ -119,28 +119,46 @@
 
 ---
 
-## EPIC-005: Cost Control & Agent Selection
-**Value Statement:** For **Budget Owners**, who **need to prevent runaway LLM costs**, the **Cost Control Middleware** is a **governance tool** that **tracks and limits token usage**.
+## EPIC-005: Agent Governance & Selection
+**Value Statement:** For **Budget Owners & Developers**, who **need to manage costs and tailor agent behavior**, the **Agent Governance Layer** is a **configuration and control system** that **balances operational flexibility with financial safety**.
 
-**The "Why":** "Infinite loops" in agent logic can bankrupt us. We need a kill-switch and visibility.
+**The "Why":** "Infinite loops" in agent logic can bankrupt us, and generic agent prompts don't always fit specific project needs. We need a way to say "use this model, for this task, within this budget."
+
 **Scope:**
-- [ ] Token counting middleware
-- [ ] Budget limits (per session/day)
-- [ ] "Cheapest Model" selection logic
+- [ ] **Unified Config (`.springfield.yaml`):** Repo-level overrides for agent behavior and selection.
+- [ ] **Global Configuration Fallback:** Support for `~/.config/springfield/config.yaml` as a base layer.
+- [ ] **Token counting middleware:** Track usage across different LLM providers (Pi, Claude, Copilot, Gemini).
+- [ ] **Budget Enforcer:** Per-session and per-day hard limits to prevent runaway costs.
+- [ ] **Model Selection Logic:** Ability to swap models (e.g., GPT-4 for planning, GPT-3.5 for simple tasks) based on task complexity.
+- [ ] **Prompt Engineering Injection:** Support for project-specific system prompts and identity definitions.
+- [ ] **Tool/Sandbox Mapping:** Define which directories and tools are accessible to specific agents.
+- [ ] **Output Stream Handling:** Intercepting agent output for logging and cost analysis.
 - ❌ Real-time billing API integration (Out of Scope)
+
+**Technical Requirements & Discovery:**
+- **Provider Surface Areas:** Examine CLI interfaces for `pi`, `claude` (CLI), `copilot` (prerelease), and `gemini-cli`.
+- **Controllable Aspects:**
+    - Model selection (e.g., GPT-4 vs GPT-3.5).
+    - Prompt identity (e.g., "You are Ralph, an expert in debugging... use TDD").
+    - Formatting context (e.g., "Always include a JSON blob...").
+    - Identity invocation (e.g., @ralph mentions vs configuration loading).
+    - Resource isolation (mounting safe directories into sandboxes).
 
 **Acceptance Criteria:**
 - [ ] Every LLM call is logged with token count and estimated cost.
 - [ ] System rejects requests when budget is exceeded.
-- [ ] Reporting command shows daily spend.
-- [ ] **Marge Gate:** Budget thresholds are agreed upon by finance/stakeholders.
-- [ ] **Marge Gate:** Process for "emergency budget override" is documented.
+- [ ] Reporting command (`just budget`) shows daily spend.
+- [ ] Agents can be configured via a `.springfield.yaml` in the repo root.
+- [ ] **Marge Gate:** The `.springfield.yaml` schema is validated as "human-friendly" (easy for a dev to write without a manual).
+- [ ] **Marge Gate:** Budget thresholds are agreed upon by stakeholders; "Fail-safe" mode is implemented (agents stop gracefully when budget is hit).
+- [ ] **Marge Gate:** Privacy check: ensure sensitive project prompts aren't leaked in global logs.
 
 **Attributes:**
 - **Status:** 📋 Ready
 - **Complexity:** Medium
 - **Urgency:** Medium
-- **Dependencies:** EPIC-003 (Logging)
+- **Dependencies:** EPIC-003 (Logging), EPIC-004 (Sandboxing)
+- **ADRs:** `docs/adr/ADR-005-agent-governance.md` (Planned)
 
 ---
 
