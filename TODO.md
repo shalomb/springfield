@@ -1,30 +1,38 @@
-# TODO.md - Sprint for EPIC-003: Logging & Observability
+# TODO - EPIC-004: Agent Sandboxing
 
-## Context
-Tracing agent actions is difficult without structured logs. 
-We need a unified JSON logging format that includes agent context and timestamps.
-See [PLAN.md#EPIC-003] for full value statement and scope.
-
-## Strategy
-- Implement a Python-based logger or a shell utility.
-- Each agent write to `logs/[agent_name].log`.
-- Log format: `{"timestamp": "...", "agent": "...", "epic": "...", "level": "...", "message": "..."}`.
-- Update `scripts/tmux-orch.sh` to ensure log directory existence.
+> **Epic:** EPIC-004: Agent Sandboxing
+> **Context:** Isolate agent execution environments from the host system to ensure security and stability.
+> **Status:** 🔍 Discovery
 
 ## Tasks
-- [x] Task 1: Define Logging ADR (ADR-003) ✅ @Lisa 2026-02-18
-- [x] Create BDD Scenarios for Logging ✅ @Lisa 2026-02-18
-- [x] Task 2: Create structured logging utility ✅ @Ralph 2026-02-18
-  - Assigned to: Ralph
-  - Subtasks:
-    - [x] Create `scripts/logger.py` ✅
-    - [x] Support JSON output ✅
-    - [x] Add basic unit tests. ✅ @Herb 2026-02-18
-- [x] Task 3: Integrate logger into core scripts ✅ @Ralph 2026-02-18
-  - Assigned to: Ralph
-  - Subtasks:
-    - [x] Update `scripts/tmux-orch.sh` to use the new logger for orchestration events. ✅
-    - [x] Add `just logs` command to tail all logs. ✅
 
-## BDD Scenarios
-See `features/logging.feature` (to be created).
+- [ ] **Task 1: Research `pi` environment capabilities** @Ralph
+    - [ ] Check if `docker` command is available and functional.
+    - [ ] Check if `podman` or `nsenter` are available.
+    - [ ] Determine if current user has permissions to run containers.
+    - [ ] Document findings in `docs/research/sandboxing-capabilities.md`.
+    - **Acceptance Criteria:** A clear report on what isolation technologies are available in the current environment.
+
+- [ ] **Task 2: Draft ADR-004: Agent Sandboxing Strategy** @Lisa
+    - [ ] Review research from Task 1.
+    - [ ] Propose isolation strategy (e.g., Docker, restricted user, etc.).
+    - [ ] Document resource constraints and workspace mounting strategy.
+    - **Acceptance Criteria:** `docs/adr/ADR-004-agent-sandboxing.md` exists in "Proposed" state.
+
+- [ ] **Task 3: Create BDD Scenarios** @Ralph
+    - [ ] Create `features/sandboxing.feature`.
+    - [ ] Define scenarios for:
+        - Successful execution in sandbox.
+        - Prevention of host file access (outside workspace).
+        - Preservation of workspace state.
+    - **Acceptance Criteria:** `features/sandboxing.feature` exists and reflects the requirements.
+
+- [ ] **Task 4: Prototype isolation script** @Ralph
+    - [ ] Based on ADR-004, create a minimal `scripts/sandbox.sh`.
+    - [ ] Script should be able to run a simple command (e.g., `ls`) in the sandbox.
+    - [ ] Attempt to verify isolation (e.g., try to touch a file in `/root`).
+    - **Acceptance Criteria:** Prototype script successfully demonstrates basic isolation.
+
+## Notes & Blockers
+- **Blocker:** We don't know yet if the `pi` harness allows running Docker or other containerization tools. Task 1 is critical.
+- **Reference:** See `docs/features/sandboxing-and-agent-execution-context.md` for initial requirements.
