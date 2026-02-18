@@ -1,0 +1,171 @@
+# PLAN.md - Epic Backlog
+
+## EPIC-001: Git Branching Standard
+**Value Statement:** For **Developers**, who **struggle with inconsistent history and merge conflicts**, the **Git Branching Standard** is a **protocol** that **ensures clean collaboration and predictable releases**.
+
+**The "Why":** Without a standardized model, we risk "merge hell", lost code, and unclear release points. We need a shared mental model for how code moves from laptop to production.
+**Scope:**
+- ✅ Trunk-based development definition
+- ✅ Branch naming conventions (feat/, fix/)
+- ✅ Merge strategy (Squash vs Merge Commit)
+- ❌ Automated CI/CD pipeline implementation (future epic)
+
+**Acceptance Criteria:**
+- [x] `docs/standards/git-branching.md` exists and is ratified. ✅
+- [ ] Team members can explain the lifecycle of a feature branch.
+- [ ] Repository settings enforce the strategy (if applicable).
+- [ ] **BDD Scenarios:** `features/git_branching.feature`
+
+**Attributes:**
+- **Status:** ✅ Done
+- **Complexity:** Low
+- **Urgency:** High (Foundational)
+- **Dependencies:** None
+- **ADRs:** `docs/adr/ADR-001-git-branching.md`
+
+**Tasks:**
+- [x] Task 1: Create Git Branching Strategy Document ✅ @Ralph 2026-02-17 [Verified @Herb]
+- [x] Task 2: Define ADR for Branching Strategy ✅ @Lisa 2026-02-17
+- [x] Task 3: Configure Repository Protection Rules (Simulated) ✅ @Ralph 2026-02-17
+
+---
+
+## EPIC-002: Tmux Agent Orchestration
+**Value Statement:** For **Developers/Operators**, who **need to run multiple agents simultaneously**, the **Tmux Orchestration Layer** is a **tooling set** that **allows concurrent execution without window clutter**.
+
+**The "Why":** Running 5 agents (Lisa, Ralph, etc.) in separate terminals is unmanageable. We need a "command center" view.
+**Scope:**
+- ✅ Script to launch/attach named tmux sessions
+- ✅ `just` command integration
+- ✅ Detached mode support
+- ✅ Smart session reuse (detect existing `$TMUX`)
+- ❌ Web-based management UI
+
+**Acceptance Criteria:**
+- [x] `just flow` launches the full agent mesh in a tmux session. ✅
+- [x] Users can toggle between agent views easily. ✅
+- [x] Logs are preserved in detached panes. ✅
+- [x] Windows are titled with agent names (e.g. `ralph-1`). ✅
+
+**Attributes:**
+- **Status:** ✅ Done
+- **Complexity:** Medium
+- **Urgency:** Medium
+- **Dependencies:** None
+- **ADRs:** `docs/adr/ADR-002-tmux-orchestration.md`
+
+---
+
+## EPIC-003: Logging & Observability
+**Value Statement:** For **Operators**, who **cannot debug failed agent actions**, the **Structured Logging System** is a **framework** that **provides traceability and context for every action**.
+
+**The "Why":** Debugging "why did Ralph do that?" is currently impossible with standard stdout. We need structured, grep-able logs.
+**Scope:**
+- ✅ JSON structured logging format
+- ✅ Standardized log levels (INFO, DEBUG, TRACE)
+- ✅ Agent Identity in log context
+- ❌ ELK/Splunk integration
+
+**Acceptance Criteria:**
+- [ ] All agents emit JSON logs to a central file/stream.
+- [ ] Logs contain `agent_id`, `task_id`, and `timestamp`.
+- [ ] CLI tool exists to tail/filter these logs.
+
+**Attributes:**
+- **Status:** 📋 Ready
+- **Complexity:** Medium
+- **Urgency:** High (Debugging)
+- **Dependencies:** None
+
+---
+
+## EPIC-004: Agent Sandboxing
+**Value Statement:** For **System Administrators**, who **fear agents destroying the host system**, the **Sandboxing Environment** is a **security boundary** that **ensures safe execution of arbitrary code**.
+
+**The "Why":** Agents like Ralph execute code. Running this as root/user on the host is dangerous. We need containment.
+**Scope:**
+- ✅ Docker/Container-based execution context
+- ✅ Workspace mounting strategy
+- ✅ Network restriction policies
+- ❌ Full VM virtualization
+
+**Acceptance Criteria:**
+- [ ] Agents run inside a defined container image.
+- [ ] Agents cannot access host files outside the mounted workspace.
+- [ ] Workspace state is preserved between runs.
+
+**Attributes:**
+- **Status:** 📋 Ready
+- **Complexity:** High
+- **Urgency:** High (Security)
+- **Dependencies:** EPIC-003 (Logging)
+
+---
+
+## EPIC-005: Cost Control & Agent Selection
+**Value Statement:** For **Budget Owners**, who **need to prevent runaway LLM costs**, the **Cost Control Middleware** is a **governance tool** that **tracks and limits token usage**.
+
+**The "Why":** "Infinite loops" in agent logic can bankrupt us. We need a kill-switch and visibility.
+**Scope:**
+- ✅ Token counting middleware
+- ✅ Budget limits (per session/day)
+- ✅ "Cheapest Model" selection logic
+- ❌ Real-time billing API integration
+
+**Acceptance Criteria:**
+- [ ] Every LLM call is logged with token count and estimated cost.
+- [ ] System rejects requests when budget is exceeded.
+- [ ] Reporting command shows daily spend.
+
+**Attributes:**
+- **Status:** 📋 Ready
+- **Complexity:** Medium
+- **Urgency:** Medium
+- **Dependencies:** EPIC-003 (Logging)
+
+---
+
+## EPIC-006: Existing Agent Compatibility
+**Value Statement:** For **Adopters**, who **have existing agent definitions**, the **Compatibility Layer** is a **bridge** that **allows Springfield to run legacy/external agent structures**.
+
+**The "Why":** We shouldn't force a rewrite of all existing `.github/agents` definitions. We should embrace them.
+**Scope:**
+- ✅ Support for `.github/agents`, `.claude/agents`, etc.
+- ✅ Precedence logic (Repo > Default)
+- ❌ Conversion/Migration tools
+
+**Acceptance Criteria:**
+- [ ] Springfield agents are primed to load from existing folder structures.
+- [ ] Repo-defined agents override defaults.
+
+**Attributes:**
+- **Status:** 📋 Ready
+- **Complexity:** Medium
+- **Urgency:** Low
+- **Dependencies:** None
+
+---
+
+## Technical Debt & Risks (Backlog)
+
+### 🚩 TR-001: PLAN.md Merge Contention
+- **Risk:** High-concurrency merges will cause conflicts in the single `PLAN.md` file.
+- **Mitigation:** Future epic to split status into individual files (e.g., `docs/plans/EPIC-XXX.status`).
+
+### 🚩 TR-002: Coordination Branch Race Conditions
+- **Risk:** Lisa's planning commits may conflict with automated downstream syncs from `main`.
+- **Mitigation:** Future investigation into "Planning Locks" or atomic reconciliation logic.
+
+### 🚩 TR-003: Worktree Lifecycle Management
+- **Risk:** Crashed agents leave "ghost" worktrees and fill up disk space.
+- **Mitigation:** Future task for `just gc-worktrees` cleanup routine.
+
+### 🚩 TR-004: Roadmap/Code Decoupling
+- **Risk:** PR gates on `main` prevent timely roadmap updates.
+- **Mitigation:** Future ADR to decide if `PLAN.md` should move to a separate coordination repo.
+
+---
+
+## EPIC-XXX: Continuous Improvement
+
+Allow for the system to do a retrospective after each major release to identify both technical and process improvements. This will be a recurring epic that ensures we are always iterating on our practices and tooling based on data from the agents.
