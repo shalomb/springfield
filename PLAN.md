@@ -44,6 +44,11 @@
 ## EPIC-007: Autonomous Development Loop ("just do")
 **Value Statement:** For **Developers**, who **want to delegate end-to-end feature implementation**, the **Autonomous Development Loop** is a **workflow orchestrator** that **automates the cycle of planning, coding, reviewing, and refining**.
 
+### 📝 Retrospective (In-Progress)
+- **Early Failure:** Initial attempt to complete EPIC-007 was rejected by Bart due to missing Go foundation and test runner mismatches.
+- **Learning:** The "Autonomous Loop" cannot be verified if the build system it orchestrates is broken.
+- **Correction:** We must stabilize the Go environment and `Justfile` recipes before the loop can be considered functional.
+
 **The "Why":** Manual handoffs between agents (Planning -> Coding -> Review) are inefficient. We need a closed-loop system where agents collaborate iteratively to complete complex tasks without constant human interruption.
 
 **Scope:**
