@@ -168,10 +168,11 @@ agent name task:
     ./bin/springfield --agent {{name}} --task "{{task}}"
 
 # Run the autonomous "Ralph" loop (Agent working off TODO.md)
-ralph:
+ralph *args='':
     #!/usr/bin/env bash
     set -euo pipefail
     printf "🤖 Starting Ralph Loop...\n"
+    EXTRA_PROMPT="{{args}}"
     while :; do
         if [[ ! -e TODO.md ]]; then
             printf "✅ No TODO.md found. Work complete!\n"
@@ -189,7 +190,7 @@ ralph:
             --provider google-gemini-cli \
             --model gemini-3-flash-preview \
             @TODO.md \
-            -p "If there no tasks to work on - git rm TODO.md and create a completion git commit. If there are tasks to work on - assume the role of .github/agents/ralph.md and pick the highest priority task and work on it. Strictly adhere to the Atomic Commit Protocol (docs/standards/atomic-commit-protocol.md). Employ TDD processes (RED -> GREEN -> REFACTOR) and ensure that every commit is an indivisible unit containing BDD specs, TDD tests, minimal implementation, and documentation. Ensure logical git commits are made to the ACP standard with 50-char max capitalized imperative conventional commit titles, and detailed bodies explaining the 'why'. Ensure that the codebase is in a working state after each commit. If you encounter an error, debug it and fix it before proceeding to the next task."
+            -p "If there no tasks to work on - git rm TODO.md and create a completion git commit. If there are tasks to work on - assume the role of .github/agents/ralph.md and pick the highest priority task and work on it. Strictly adhere to the Atomic Commit Protocol (docs/standards/atomic-commit-protocol.md). Employ TDD processes (RED -> GREEN -> REFACTOR) and ensure that every commit is an indivisible unit containing BDD specs, TDD tests, minimal implementation, and documentation. Ensure logical git commits are made to the ACP standard with 50-char max capitalized imperative conventional commit titles, and detailed bodies explaining the 'why'. Ensure that the codebase is in a working state after each commit. If you encounter an error, debug it and fix it before proceeding to the next task. ${EXTRA_PROMPT:+USER INSTRUCTION: $EXTRA_PROMPT}"
 
         echo ''
         echo '********'
@@ -197,10 +198,11 @@ ralph:
     done
 
 # Run the intelligent "Lisa" loop (Planner preparing work for Ralph)
-lisa:
+lisa *args='':
     #!/usr/bin/env bash
     set -euo pipefail
     printf "📚 Starting Lisa Simpson (Intelligent Planner)...\n"
+    EXTRA_PROMPT="{{args}}"
 
     npm exec @mariozechner/pi-coding-agent -- \
         --verbose \
@@ -216,4 +218,4 @@ lisa:
         3. Moral Compass: Ensure the plan adheres to Takeda's compliance and safety standards (ADR-0001 Building Blocks, RBAC, audit logging). \
         4. Autonomous Setup: Create a new git branch for the epic named 'feat/epic-{name}'. Add the TODO.md and updated PLAN.md to this branch. \
         5. Atomic Handover: Commit the plan with a clear message following ACP standards. \
-        You are the intelligent pre-processor. You provide the logic Ralph needs to succeed without eating the paste. Ensure TODO.md tasks are atomic, testable, and include success criteria."
+        You are the intelligent pre-processor. You provide the logic Ralph needs to succeed without eating the paste. Ensure TODO.md tasks are atomic, testable, and include success criteria. ${EXTRA_PROMPT:+USER INSTRUCTION: $EXTRA_PROMPT}"
