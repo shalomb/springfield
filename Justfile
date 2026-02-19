@@ -11,6 +11,9 @@ BINARY_NAME := "springfield"
 BUILD_DIR := "bin"
 TEST_DIR := "tests"
 
+# Common arguments for the pi-coding-agent
+PI_AGENT_ARGS := "--verbose --mode json --no-session --thinking medium --no-extensions --provider google-gemini-cli --model gemini-3-flash-preview"
+
 # =============================================================================
 # HELP & DOCUMENTATION
 # =============================================================================
@@ -168,6 +171,8 @@ install:
 
 # Run a Springfield agent
 agent name task:
+    #!/usr/bin/env bash
+    set -euo pipefail
     ./bin/springfield --agent {{name}} --task "{{task}}"
 
 # Run the autonomous "Ralph" loop (Agent working off TODO.md)
@@ -195,14 +200,7 @@ ralph *args='':
             ARGS+=("@TODO.md")
         fi
 
-        npm exec @mariozechner/pi-coding-agent -- \
-            --verbose \
-            --mode json \
-            --no-session \
-            --thinking medium \
-            --no-extensions \
-            --provider google-gemini-cli \
-            --model gemini-3-flash-preview \
+        npm exec @mariozechner/pi-coding-agent -- {{PI_AGENT_ARGS}} \
             "${ARGS[@]}" \
             -p "Assume the role of .github/agents/ralph.md. 
             If TODO.md exists, pick the highest priority task and work on it. 
@@ -225,14 +223,7 @@ lisa *args='':
     printf "📚 Starting Lisa Simpson (Intelligent Planner)...\n"
     EXTRA_PROMPT="{{args}}"
 
-    npm exec @mariozechner/pi-coding-agent -- \
-        --verbose \
-        --mode json \
-        --no-session \
-        --thinking medium \
-        --no-extensions \
-        --provider google-gemini-cli \
-        --model gemini-3-flash-preview \
+    npm exec @mariozechner/pi-coding-agent -- {{PI_AGENT_ARGS}} \
         -p "Assume the role of Lisa Simpson (.github/agents/lisa.md). Your mission is to translate high-level intent from PLAN.md into executable tasks for Ralph. \
         1. Reflect & Learn: Analyze recent commits and branch state. Identify learnings, technical debt, or necessary reprioritizations. Update PLAN.md with a 'Retrospective' section for the completed epic if appropriate. \
         2. Technical Breakdown: Identify the next high-priority Epic from PLAN.md. Translate it into a technical breakdown in a new TODO.md. Ensure tasks follow the Atomic Commit Protocol (docs/standards/atomic-commit-protocol.md) - each task should ideally map to one or more atomic commits. \
@@ -249,14 +240,7 @@ herb *args='':
 	printf "🧐 Starting Herb Powell (Quality Review)...\n"
 	EXTRA_PROMPT="{{args}}"
 
-	npm exec @mariozechner/pi-coding-agent -- \
-		--verbose \
-		--mode json \
-		--no-session \
-		--thinking medium \
-		--no-extensions \
-		--provider google-gemini-cli \
-		--model gemini-3-flash-preview \
+	npm exec @mariozechner/pi-coding-agent -- {{PI_AGENT_ARGS}} \
 		-p "Assume the role of Herb Powell (Quality/Review). Your mission is to perform a strict code review of the recent changes in this branch. \
 		1. Static Analysis: Review the code for SOLID principles, Clean Code standards, and Go/Python best practices. \
 		2. Atomic Commit Check: Verify that commits follow the Atomic Commit Protocol. \
@@ -269,14 +253,7 @@ bart *args='':
 	printf "🛹 Starting Bart Simpson (Quality Verification)...\n"
 	EXTRA_PROMPT="{{args}}"
 
-	npm exec @mariozechner/pi-coding-agent -- \
-		--verbose \
-		--mode json \
-		--no-session \
-		--thinking medium \
-		--no-extensions \
-		--provider google-gemini-cli \
-		--model gemini-3-flash-preview \
+	npm exec @mariozechner/pi-coding-agent -- {{PI_AGENT_ARGS}} \
 		-p "Assume the role of Bart Simpson (Quality/Verification). Your mission is to break the code and find bugs. \
 		1. Test Execution: Run 'just test' to verify the entire test ladder. \
 		2. BDD Validation: Verify that the implemented code matches the Gherkin scenarios in docs/features/. \
@@ -290,14 +267,7 @@ lovejoy *args='':
 	printf "⛪ Starting Reverend Lovejoy (Release Ceremony)...\n"
 	EXTRA_PROMPT="{{args}}"
 
-	npm exec @mariozechner/pi-coding-agent -- \
-		--verbose \
-		--mode json \
-		--no-session \
-		--thinking medium \
-		--no-extensions \
-		--provider google-gemini-cli \
-		--model gemini-3-flash-preview \
+	npm exec @mariozechner/pi-coding-agent -- {{PI_AGENT_ARGS}} \
 		-p "Assume the role of Reverend Lovejoy (Release). Your mission is to perform the release ceremony. \
 		1. Readiness Check: Verify that TODO.md is empty and FEEDBACK.md contains no blocking issues. \
 		2. Merge: Merge the feature branch into main using a squash merge with a clean, descriptive message. \
