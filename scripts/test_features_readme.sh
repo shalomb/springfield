@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # test_features_readme.sh - Verify Features README structure
 
 FILE="docs/features/README.md"

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # test_final_verification.sh - Verify all files and links exist
 
 FILES=(
@@ -8,7 +9,7 @@ FILES=(
     "docs/standards/atomic-commit-protocol.md"
     "docs/standards/coding-conventions.md"
     "docs/features/README.md"
-    "docs/adr/ADR-000-takeda-compliance.md"
+    "docs/adr/ADR-000-compliance-and-safety.md"
 )
 
 for f in "${FILES[@]}"; do

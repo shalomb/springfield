@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # test_acp.sh - Verify Atomic Commit Protocol document exists and has required sections
 
 FILE="docs/standards/atomic-commit-protocol.md"

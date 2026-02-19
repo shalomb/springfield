@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # test_agents_map.sh - Verify AGENTS.md exists and has required links
 
 FILE="AGENTS.md"
