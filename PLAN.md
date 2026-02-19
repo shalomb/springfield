@@ -28,6 +28,10 @@
 - [x] Task 2: Define ADR for Branching Strategy ✅ @Lisa 2026-02-17
 - [x] Task 3: Configure Repository Protection Rules (Simulated) ✅ @Ralph 2026-02-17
 
+**Retrospective (EPIC-001):**
+- **Learnings:** Establishing a clear branching strategy early was crucial. Team alignment on `feat/` and `fix/` prefixes has reduced initial friction.
+- **Success:** Documented and verified strategy provides a solid foundation for automation.
+
 ---
 
 ## EPIC-002: Tmux Agent Orchestration
@@ -46,6 +50,10 @@
 - [x] Users can toggle between agent views easily. ✅
 - [x] Logs are preserved in detached panes. ✅
 - [x] Windows are titled with agent names (e.g. `ralph-1`). ✅
+
+**Retrospective (EPIC-002):**
+- **Learnings:** Tmux session management via `just` commands significantly improved agent orchestration usability. The "Smart session reuse" was a key convenience feature.
+- **Success:** Multi-agent development is now manageable within a single terminal window.
 
 **Attributes:**
 - **Status:** ✅ Done
@@ -72,6 +80,10 @@
 - [x] CLI tool exists to tail/filter these logs. ✅ (`just logs`) [Verified @Herb]
 - [x] **BDD Scenarios:** `features/logging.feature` ✅ [Verified @Herb]
 - [x] **ADR:** `docs/adr/ADR-003-logging-standard.md` ✅ [Verified @Herb]
+
+**Retrospective (EPIC-003):**
+- **Learnings:** Structured JSON logging is essential for agent debugging. Adding `agent_id` and `task_id` context has saved hours of manual log parsing.
+- **Success:** `just logs` provides a powerful interface for real-time observability.
 
 **Attributes:**
 - **Status:** ✅ Done
@@ -154,7 +166,7 @@
 - [ ] **Marge Gate:** Privacy check: ensure sensitive project prompts aren't leaked in global logs.
 
 **Attributes:**
-- **Status:** 📋 Ready
+- **Status:** 🏃 In Progress
 - **Complexity:** Medium
 - **Urgency:** Medium
 - **Dependencies:** EPIC-003 (Logging), EPIC-004 (Sandboxing)
