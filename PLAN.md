@@ -47,12 +47,12 @@
 **The "Why":** Manual handoffs between agents (Planning -> Coding -> Review) are inefficient. We need a closed-loop system where agents collaborate iteratively to complete complex tasks without constant human interruption.
 
 **Scope:**
-- ✅ `just do` command as the entry point.
-- ✅ Sequential agent chaining: Lisa -> Ralph -> Herb -> Bart.
-- ✅ Context persistence: `TODO.md` (Plan) and `FEEDBACK.md` (Review).
-- ✅ Dynamic branching: Lisa manages feature branches based on specs.
-- ✅ Iteration logic: Loop repeats based on feedback severity.
-- ✅ Exit criteria: Handover to Lovejoy for merging when "Done".
+- [ ] `just do` command as the entry point.
+- [ ] Sequential agent chaining: Lisa -> Ralph -> Herb -> Bart.
+- [ ] Context persistence: `TODO.md` (Plan) and `FEEDBACK.md` (Review).
+- [ ] Dynamic branching: Lisa manages feature branches based on specs.
+- [ ] Iteration logic: Loop repeats based on feedback severity.
+- [ ] Exit criteria: Handover to Lovejoy for merging when "Done".
 
 **Acceptance Criteria:**
 - [ ] `just do` initiates the loop in the current context.
@@ -75,7 +75,7 @@
     - Invokes `just lovejoy` for merge when cycle is complete.
 
 **Attributes:**
-- **Status:** 📋 Planned
+- **Status:** 🏗️ In Progress
 - **Complexity:** High
 - **Urgency:** High
 - **Dependencies:** EPIC-002 (Tmux), EPIC-003 (Logging)
