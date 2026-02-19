@@ -1,52 +1,54 @@
-# TODO - EPIC-004: Agent Sandboxing
+# TODO - EPIC-005: Agent Governance & Selection
 
-> **Epic:** EPIC-004: Agent Sandboxing
-> **Context:** Isolate agent execution environments from the host system to ensure security and stability.
-> **Status:** 🔍 Discovery
+This TODO list covers the implementation of the Agent Governance Layer, focusing on configuration, budget enforcement, and model selection.
 
-## Tasks
+## Status Legend
+- ⬜ To Do
+- 🏃 In Progress
+- ✅ Done
+- ❌ Blocked
 
-- [x] **Task 1: Research `pi` environment capabilities** @Ralph
-    - [x] Check if `docker` command is available and functional.
-    - [x] Check if `podman` or `nsenter` are available.
-    - [x] Determine if current user has permissions to run containers.
-    - [x] Document findings in `docs/research/sandboxing-capabilities.md`.
-    - **Acceptance Criteria:** A clear report on what isolation technologies are available in the current environment.
+## Milestone 1: Unified Configuration Layer
+Goal: Implement the core configuration loading logic and schema validation.
 
-- [ ] **Task 2: Draft ADR-004: Agent Sandboxing Strategy** @Lisa
-    - [ ] Review research from Task 1.
-    - [ ] Propose isolation strategy (e.g., Docker, restricted user, etc.).
-    - [ ] Document resource constraints and workspace mounting strategy.
-    - **Acceptance Criteria:** `docs/adr/ADR-004-agent-sandboxing.md` exists in "Proposed" state.
+- [ ] **Task 1: Define Configuration Schema & ADR**
+  - **Description:** Formalize the `.springfield.yaml` schema and document the governance strategy in `docs/adr/ADR-005-agent-governance.md`.
+  - **Success Criteria:** `docs/adr/ADR-005-agent-governance.md` exists. Schema supports model selection and budget limits.
+  - **ACP Alignment:** 1 commit: `docs(governance): define ADR-005 and configuration schema`
 
-- [x] **Task 3: Create BDD Scenarios** @Ralph
-    - [x] Create `features/sandboxing.feature`.
-    - [x] Define scenarios for:
-        - Successful execution in sandbox.
-        - Prevention of host file access (outside workspace).
-        - Preservation of workspace state.
-    - **Acceptance Criteria:** `features/sandboxing.feature` exists and reflects the requirements.
+- [ ] **Task 2: Implement Config Loader**
+  - **Description:** Implement logic to load config from project root `.springfield.yaml`.
+  - **Success Criteria:** `internal/config` package can parse the yaml.
+  - **ACP Alignment:** 1 commit: `feat(config): implement YAML configuration loader with TDD`
 
-- [x] **Task 4: Prototype isolation script** @Ralph
-    - [x] Based on ADR-004, create a minimal `scripts/sandbox.sh`.
-    - [x] Script should be able to run a simple command (e.g., `ls`) in the sandbox.
-    - [x] Attempt to verify isolation (e.g., try to touch a file in `/root`).
-    - **Acceptance Criteria:** Prototype script successfully demonstrates basic isolation.
+## Milestone 2: Budget Enforcement & Token Tracking
+Goal: Prevent runaway costs by tracking usage and enforcing limits.
 
-## Feedback Iteration (EPIC-004)
+- [ ] **Task 3: Token Counting Middleware**
+  - **Description:** Intercept LLM calls to count tokens.
+  - **Success Criteria:** Logs contain `input_tokens` and `output_tokens`.
+  - **ACP Alignment:** 1 commit: `feat(llm): add token counting middleware and audit logging`
 
-- [ ] **Task 5: Harden Sandbox Isolation** @Ralph
-    - [ ] Pin container image to `docker.io/library/alpine:3.19` (avoid `latest`).
-    - [ ] Disable network access (`--network none`) by default.
-    - [ ] Mount `.git` and `scripts` directories as **read-only** to prevent accidental damage.
-    - [ ] Improve command injection safety in `scripts/sandbox.sh` (use arrays/exec if possible).
-    - **Acceptance Criteria:** `sandbox.sh` runs with `--network none` and read-only system mounts.
+- [ ] **Task 4: Budget Enforcer**
+  - **Description:** Check cumulative usage against limits.
+  - **Success Criteria:** BDD scenario for budget limit passes.
+  - **ACP Alignment:** 1 commit: `feat(governance): implement budget enforcer with BDD verification`
 
-- [ ] **Task 6: Verify Git Safety (BDD)** @Ralph
-    - [ ] Add scenario to `features/sandboxing.feature`: "Prevent modification of .git directory".
-    - [ ] Verify that attempting to `rm -rf .git` or `touch .git/config` from within the sandbox fails.
-    - **Acceptance Criteria:** Test suite passes and confirms `.git` protection.
+## Milestone 3: Model Selection
+Goal: Allow project-specific model routing.
 
-## Notes & Blockers
-- **Resolved Blocker:** The `pi` harness supports `podman` for container execution. `docker` is not available.
-- **Reference:** See `docs/features/sandboxing-and-agent-execution-context.md` for initial requirements.
+- [ ] **Task 5: Model Routing**
+  - **Description:** Route tasks to specific models based on config.
+  - **Success Criteria:** Agents use the model specified in `.springfield.yaml`.
+  - **ACP Alignment:** 1 commit: `feat(llm): implement dynamic model selection based on config`
+
+## Milestone 4: Verification & Marge Gates
+- [ ] **Task 6: Budget Reporting CLI**
+  - **Description:** Implement `just budget` command.
+  - **Success Criteria:** Displays current spend.
+  - **ACP Alignment:** 1 commit: `feat(cli): add budget reporting command`
+
+## Moral Compass & Compliance
+- **Audit Logging**: Ensured via Task 3.
+- **RBAC**: Config overrides allow for role-based model/tool access (future).
+- **Safety**: Budget enforcer prevents financial "infinite loops".
