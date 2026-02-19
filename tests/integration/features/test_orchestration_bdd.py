@@ -16,6 +16,10 @@ def test_agent_logs_visible():
     pass
 
 @pytest.fixture
+def context():
+    return {}
+
+@pytest.fixture
 def tmux_mock(monkeypatch):
     # We will mock the 'tmux' command to avoid actually creating sessions
     mock = subprocess.CompletedProcess(args=[], returncode=0, stdout="", stderr="")

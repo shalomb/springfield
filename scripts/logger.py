@@ -2,6 +2,7 @@
 import json
 import sys
 import os
+import fcntl
 from datetime import datetime, timezone
 
 def log(message, level="INFO", agent="orchestrator", epic=None, task=None, data=None):
@@ -22,14 +23,19 @@ def log(message, level="INFO", agent="orchestrator", epic=None, task=None, data=
     # Write to agent-specific log
     log_dir = "logs"
     os.makedirs(log_dir, exist_ok=True)
-    log_file = os.path.join(log_dir, f"{agent}.log")
-    
-    with open(log_file, "a") as f:
-        f.write(json.dumps(log_entry) + "\n")
+    write_locked_log(os.path.join(log_dir, f"{agent}.log"), log_entry)
     
     # Also write to combined log
-    with open(os.path.join(log_dir, "springfield.log"), "a") as f:
-        f.write(json.dumps(log_entry) + "\n")
+    write_locked_log(os.path.join(log_dir, "springfield.log"), log_entry)
+
+def write_locked_log(filename, entry):
+    line = json.dumps(entry) + "\n"
+    with open(filename, "a") as f:
+        try:
+            fcntl.flock(f, fcntl.LOCK_EX)
+            f.write(line)
+        finally:
+            fcntl.flock(f, fcntl.LOCK_UN)
 
     # Output to stdout for tmux capture (optional, but good for visibility)
     # print(json.dumps(log_entry))

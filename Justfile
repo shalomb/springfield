@@ -117,19 +117,14 @@ test-lint:
 # Phase 3: Run fast unit tests
 test-unit:
 	@echo "🧪 Running unit tests (Phase 3)..."
-	go test -v -short -race ./internal/... ./pkg/...
+	go test -v -short -race ./...
 	@echo "✅ Unit tests passed"
 
 # Phase 4: Run integration tests
 test-integration:
 	@echo "🧪 Running integration tests (Phase 4)..."
-	@if [ -n "$(shell axon --version 2>/dev/null)" ] || [ -e ~/shalomb/tide/go-axon/bin/axon ] || [ -e ~/shalomb/axon/go-axon/bin/axon ]; then \
-		go test -v ./tests/integration; \
-		echo "✅ Integration tests passed"; \
-	else \
-		echo "⚠️  axon binary not found. Skipping integration tests."; \
-		echo "   Run 'just install-tools' or install axon locally."; \
-	fi
+	pytest tests/integration/features/
+	@echo "✅ Integration tests passed"
 
 # Run only Axon-related integration tests
 test-integration-axon:
@@ -324,12 +319,24 @@ lovejoy *args='':
 
 # Start a new feature branch from main
 start-feature name:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	if [[ ! "{{name}}" =~ ^[a-z0-9-]+$ ]]; then
+		echo "Error: Branch name '{{name}}' must be in lowercase-kebab-case."
+		exit 1
+	fi
 	git checkout main
-	git pull
+	if git remote | grep -q . ; then git pull; fi
 	git checkout -b feat/{{name}}
 
 # Start a new fix branch from main
 start-fix name:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	if [[ ! "{{name}}" =~ ^[a-z0-9-]+$ ]]; then
+		echo "Error: Branch name '{{name}}' must be in lowercase-kebab-case."
+		exit 1
+	fi
 	git checkout main
-	git pull
+	if git remote | grep -q . ; then git pull; fi
 	git checkout -b fix/{{name}}

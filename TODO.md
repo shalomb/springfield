@@ -19,7 +19,7 @@ Stabilize the Springfield infrastructure so the autonomous loop (Lisa -> Ralph -
 - [x] **Task 3: Add Missing Lifecycle Recipes**
   - **Action:** Implement `start-feature` and `start-fix` in `Justfile`.
   - **Success Criteria:** `just list` shows the new recipes.
-- [ ] **Task 4: Fix Test Runner Mismatch & Logger Stability**
+- [x] **Task 4: Fix Test Runner Mismatch & Logger Stability**
   - **Action:** Update `test-integration` to correctly handle existing Python/BDD tests. Implement basic file locking or sequential logging to prevent race conditions in `scripts/logger.py`.
   - **Success Criteria:** `just test` passes Phase 1 and Phase 2. Logs remain valid JSON under concurrent load.
 
@@ -30,6 +30,14 @@ Stabilize the Springfield infrastructure so the autonomous loop (Lisa -> Ralph -
 - [ ] **Task 6: Final Integration Check**
   - **Action:** Run `just do` for a minor documentation fix.
   - **Success Criteria:** Full loop executes without error and updates `FEEDBACK.md` to ✅.
+
+### Phase 4: Feedback Loop Intelligence (ACP-4)
+- [ ] **Task 7: Implement Lisa's Triage Logic**
+  - **Action:** Update `just lisa` prompt to parse `FEEDBACK.md` and make Go/No-Go decisions.
+  - **Success Criteria:** Lisa can read a mock `FEEDBACK.md` and either create a `TODO.md` task or update `PLAN.md`.
+- [ ] **Task 8: Implement Loop Limiter (Circuit Breaker)**
+  - **Action:** Add a counter (e.g., `git rev-list --count HEAD` or a temporary file) to `just do` to prevent infinite loops. Max retries = 2.
+  - **Success Criteria:** `just do` aborts if `FEEDBACK.md` remains non-empty after 2 cycles.
 
 ## ⚖️ Standards Check
 - [x] ADR-000 (Building Blocks) - N/A for this infrastructure fix.
