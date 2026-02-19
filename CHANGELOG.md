@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-02-19
+
+### Added
+- **EPIC-008: Knowledge Architecture (Diataxis)**
+  - Reorganized project documentation using the Diataxis framework (Concepts, How-To, Reference, Standards).
+  - Replaced monolithic `AGENTS.md` with a structured Site Map to minimize agent token usage.
+  - Established `docs/standards/atomic-commit-protocol.md` for consistent git history.
+  - Established `docs/standards/coding-conventions.md` for Go and Scripting standards.
+  - Created `docs/features/README.md` to define the BDD-driven development process.
+  - Implemented `docs/adr/ADR-000-takeda-compliance.md` for safety and compliance.
+  - Added automated verification scripts for all newly established standards.
+
+### Changed
+- Refactored `Justfile` to include targets for Herb (Review), Bart (Quality), and Lovejoy (Release).
+- Updated `PLAN.md` to reflect completion of EPIC-008.
+
+### Removed
+- Sanitized repository of legacy orientation files (`INDEX.md`, `MANIFEST.txt`, `00_READ_ME_FIRST.txt`).
+- Retired deprecated agent personas (`frink`, `herb`, `troy-mcclure`).
+
 ## [0.2.0] - 2026-02-18
 
 ### Added

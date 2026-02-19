@@ -29,6 +29,6 @@ Technical specifications and look-up data.
 ---
 
 ## 📍 Where to Start
-1.  **If you are new:** Start with root `INDEX.md` then `how-to/getting-started.md`.
+1.  **If you are new:** Start with root `README.md` then `how-to/getting-started.md`.
 2.  **If you want to understand the engine:** Read `concepts/model.md`.
 3.  **If you are building:** Reference `how-to/workflows.md` and `reference/loops.md`.

@@ -3,7 +3,7 @@
 ## 1. Core Principles
 - **Trunk-Based**: `main` is the single source of truth for code and the roadmap (`PLAN.md`).
 - **Short-Lived Branches**: Implementation happens on feature branches that last no longer than one Epic.
-- **Squash & Merge**: Keeps `main` history clean and atomic.
+- **Squash & Merge**: Keeps `main` history clean and atomic. See [Atomic Commit Protocol](atomic-commit-protocol.md).
 - **Shared State**: `PLAN.md` updates coordinate multiple agents. In protected environments, a dedicated `coordination` branch or "Planning PRs" are used to bypass `main` restrictions for the roadmap.
 - **Concurrent Execution**: Use **Git Worktrees** to allow multiple agents to work on different epics/branches in parallel on the same host.
 - **Merge Queues**: High-concurrency merges are managed via a merge queue to ensure integration tests pass against the "eventual main" state.

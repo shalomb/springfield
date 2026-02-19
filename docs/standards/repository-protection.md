@@ -21,7 +21,7 @@ To ensure the integrity of the `main` branch and the enforcement of the Springfi
 - **Restrict deletions**: `main` cannot be deleted.
 
 ### Merge Strategy
-- **Allow squash merging**: **Mandatory**. Keeps the trunk history clean and atomic.
+- **Allow squash merging**: **Mandatory**. Keeps the trunk history clean and atomic according to the [Atomic Commit Protocol](atomic-commit-protocol.md).
 - **Restrict to Squash & Merge**: Disable standard Merge Commits and Rebase Merging to maintain a flat history on `main`.
 
 ## 2. Branch: `coordination`

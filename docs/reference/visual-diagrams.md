@@ -265,7 +265,7 @@ Diagrams, flowcharts, and ASCII art for understanding the Springfield Protocol a
 │  4. BART: Adversarial Review                    │              │
 │     └─ Find security holes, edge cases         │              │
 │                                                  │              │
-│  5. HERB: Quality Verification                 │              │
+│  5. BART: Quality Verification                 │              │
 │     └─ 95%+ coverage, mock-first               │              │
 │                                                  │              │
 │  6. MARGE: User Alignment                      │              │

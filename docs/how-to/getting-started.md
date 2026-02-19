@@ -120,8 +120,8 @@ Create `.github/agents/product-agent.md`:
 # Product Agent
 
 **Focus:** Discovery & Triage (The "What & Why")
-**Skills:** discovery-skill, wiggum
-**Personas:** Troy, Marge
+**Skills:** discovery-skill
+**Persona:** Marge
 
 **Responsibilities:**
 - Investigate user needs
@@ -142,7 +142,7 @@ Create `.github/agents/planning-agent.md`:
 
 **Focus:** Structure & Architecture (The "How")
 **Skills:** planning-skill, architecture-skill
-**Personas:** Lisa, Frink
+**Persona:** Lisa
 
 **Responsibilities:**
 - Break features into tasks
@@ -162,7 +162,7 @@ Create `.github/agents/build-agent.md`:
 
 **Focus:** Implementation (The "Doer")
 **Skills:** implementation-skill, testing-skill
-**Personas:** Ralph, Homer
+**Persona:** Ralph
 
 **Responsibilities:**
 - Write code
@@ -182,7 +182,7 @@ Create `.github/agents/quality-agent.md`:
 
 **Focus:** Verification (The "Critic")
 **Skills:** review-skill, verification-skill
-**Personas:** Bart, Herb
+**Persona:** Bart
 
 **Responsibilities:**
 - Adversarial review

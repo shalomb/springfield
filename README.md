@@ -4,17 +4,26 @@ A character-driven agentic development framework for lean, iterative product dev
 
 ---
 
-## ⚡ Quick Start
+## ⚡ 60-Second Overview
 
-1.  **Start Here:** Read **[INDEX.md](INDEX.md)** for the complete navigation hub.
-2.  **Fast Track:** Read **[QUICK_START.md](QUICK_START.md)** for common commands and workflows.
-3.  **Setup:** Follow **[Getting Started](docs/how-to/getting-started.md)** to implement the protocol in your project.
+Springfield Protocol is a document-driven framework that coordinates a **Single Pizza Team** of 5 specialized agents to deliver high-quality code through the **Ralph Wiggum Loop**.
+
+1.  **Specialized Agents:** Product, Planning, Build, Quality, and Release.
+2.  **Stateless Engine:** The Ralph Wiggum Loop prevents context rot via ephemeral worktrees.
+3.  **Two Diamonds:** Integrated Design Thinking and Agile Delivery flows.
+4.  **Just CLI:** Simple commands: `just impersonate`, `just utilize`, `just flow`, `just loop`.
 
 ---
 
-## 🏗️ The Framework
+## 🚀 Getting Started
 
-Springfield Protocol v0.2 coordinates a **Single Pizza Team** of 5 specialized agents to deliver high-quality code through the **Ralph Wiggum Loop**.
+1.  **Fast Track:** Read **[QUICK_START.md](QUICK_START.md)** for common workflows and loops.
+2.  **Setup:** Follow **[Getting Started](docs/how-to/getting-started.md)** to implement the protocol.
+3.  **Master Model:** Understand the **[Concepts & Principles](docs/concepts/model.md)**.
+
+---
+
+## 🏗️ The 5-Agent Team
 
 | Agent | Responsibility | Primary Persona |
 | :--- | :--- | :--- |
@@ -26,12 +35,25 @@ Springfield Protocol v0.2 coordinates a **Single Pizza Team** of 5 specialized a
 
 ---
 
-## 📖 Documentation Structure
+## 📖 Knowledge Architecture (Diataxis)
 
--   **[Concepts](docs/concepts/model.md):** The Master Model, Principles, and Architecture.
--   **[How-To](docs/how-to/workflows.md):** Step-by-step Standard Operating Workflows.
--   **[Reference](docs/reference/agents.md):** Agent profiles, Skill specs, and Loop catalogs.
+| Quadrant | Location | Best For |
+| :--- | :--- | :--- |
+| **Concepts** | `docs/concepts/` | Understanding the "Why" and the architecture. |
+| **How-To** | `docs/how-to/` | Solving problems and following procedures. |
+| **Reference** | `docs/reference/` | Technical specs, loops, agents, and glossary. |
+
+### 🔑 Key Files Map
+
+- **[Master Model](docs/concepts/model.md)**: ⭐ Core principles and architecture.
+- **[Standard Workflows](docs/how-to/workflows.md)**: 🛠️ How to run a feature cycle.
+- **[Agent Reference](docs/reference/agents.md)**: 👥 Detailed agent mindsets and skills.
+- **[Agentic Loops](docs/reference/loops.md)**: 🔄 Feedback patterns (ReAct, ToT, etc.).
+- **[Visual Diagrams](docs/reference/visual-diagrams.md)**: 📊 Maps of the loops and tracks.
+- **[Standards & Rules](docs/standards/)**: 📜 Coding, commits, and protection rules.
+- **[ADR Log](docs/adr/)**: 🧠 Decisions and architecture evolution.
+- **[Features & BDD](docs/features/)**: 🏗️ Executable truth and requirements.
 
 ---
 
-**Status:** ✅ v0.2 Complete. Documentation consolidated and slimmed for expedient use.
+**Ready to build? Start with [Standard Workflows](docs/how-to/workflows.md)** 🚀

@@ -6,20 +6,29 @@
 **The "Why":** A monolithic `AGENTS.md` is hard to maintain and expensive to process. By adopting Diataxis, we separate "How-to" (Guides) from "Explanation" (Context) and "Reference" (Standards), allowing agents to load only what they need.
 
 **Scope:**
-- ✅ Replace monolithic `AGENTS.md` with a structured index.
+- ✅ Replace monolithic `AGENTS.md` with a structured index (Site Map).
 - ✅ Ensure all core standards exist as separate files in `docs/standards/`.
 - ✅ Ensure all architectural decisions exist in `docs/adr/`.
 - ✅ Verify agents can traverse links or are configured to read specific paths.
+- ✅ Sanitize repository of legacy orientation files and retired personas.
 
 **Acceptance Criteria:**
-- [ ] `AGENTS.md` acts as a "Site Map" linking to `docs/`.
-- [ ] `docs/standards/coding-conventions.md` is the source of truth for code style.
-- [ ] `docs/standards/git-branching.md` is the source of truth for workflow.
-- [ ] `docs/reference/agents.md` defines the agent team roles.
-- [ ] `docs/features/README.md` explains the BDD process.
+- [x] `AGENTS.md` acts as a "Site Map" linking to `docs/`.
+- [x] `docs/standards/coding-conventions.md` is the source of truth for code style.
+- [x] `docs/standards/git-branching.md` is the source of truth for workflow.
+- [x] `docs/reference/agents.md` defines the agent team roles.
+- [x] `docs/features/README.md` explains the BDD process.
+
+**Tasks (from TODO.md):**
+- [x] **Task 1: Create `AGENTS.md` Site Map**
+- [x] **Task 2: Define Atomic Commit Protocol (ACP)**
+- [x] **Task 3: Establish Coding Conventions**
+- [x] **Task 4: Create Features README**
+- [x] **Task 5: Compliance and Safety (ADR-000)**
+- [x] **Task 6: Cross-Reference and Finalize Index**
 
 **Attributes:**
-- **Status:** 📋 Planned
+- **Status:** ✅ Done
 - **Complexity:** Low
 - **Urgency:** Medium
 - **Dependencies:** None
@@ -48,6 +57,8 @@
     - Manages git branches (creates `feat/xxx` if on `main`).
 - [ ] **Ralph (Builder):**
     - Executes tasks from `TODO.md`.
+    - Continues working as long as `TODO.md` exists OR uncommitted changes remain.
+    - Finalizes work by committing remaining changes and removing `TODO.md`.
     - Updates task status in real-time.
 - [ ] **Herb & Bart (Reviewers):**
     - Herb reviews code changes (Static Analysis/Style).

@@ -43,6 +43,9 @@ list:
 	@echo "  install              Install agent skills to ~/.pi/agent/skills/"
 	@echo "  lisa                 Run the intelligent Planner agent (Lisa)"
 	@echo "  ralph                Run the autonomous Build agent (Ralph)"
+	@echo "  herb                 Run the Quality Review agent (Herb)"
+	@echo "  bart                 Run the Quality Verification agent (Bart)"
+	@echo "  lovejoy              Run the Release agent (Lovejoy)"
 	@echo ""
 
 # =============================================================================
@@ -174,13 +177,24 @@ ralph *args='':
     printf "🤖 Starting Ralph Loop...\n"
     EXTRA_PROMPT="{{args}}"
     while :; do
-        if [[ ! -e TODO.md ]]; then
-            printf "✅ No TODO.md found. Work complete!\n"
+        UNCOMMITTED=$(git status --porcelain)
+        if [[ ! -e TODO.md ]] && [[ -z "$UNCOMMITTED" ]]; then
+            printf "✅ No TODO.md found and no uncommitted changes. Work complete!\n"
             break
         fi
 
-        printf "📋 Tasks found. Engaging Agent...\n"
+        if [[ -n "$UNCOMMITTED" ]]; then
+            printf "📝 Uncommitted changes detected. Engaging Ralph to finalize...\n"
+        else
+            printf "📋 Tasks found in TODO.md. Engaging Ralph...\n"
+        fi
+
         # Note: This assumes npm and the agent package are available
+        ARGS=()
+        if [[ -e TODO.md ]]; then
+            ARGS+=("@TODO.md")
+        fi
+
         npm exec @mariozechner/pi-coding-agent -- \
             --verbose \
             --mode json \
@@ -189,8 +203,15 @@ ralph *args='':
             --no-extensions \
             --provider google-gemini-cli \
             --model gemini-3-flash-preview \
-            @TODO.md \
-            -p "If there no tasks to work on - git rm TODO.md and create a completion git commit. If there are tasks to work on - assume the role of .github/agents/ralph.md and pick the highest priority task and work on it. Strictly adhere to the Atomic Commit Protocol (docs/standards/atomic-commit-protocol.md). Employ TDD processes (RED -> GREEN -> REFACTOR) and ensure that every commit is an indivisible unit containing BDD specs, TDD tests, minimal implementation, and documentation. Ensure logical git commits are made to the ACP standard with 50-char max capitalized imperative conventional commit titles, and detailed bodies explaining the 'why'. Ensure that the codebase is in a working state after each commit. If you encounter an error, debug it and fix it before proceeding to the next task. ${EXTRA_PROMPT:+USER INSTRUCTION: $EXTRA_PROMPT}"
+            "${ARGS[@]}" \
+            -p "Assume the role of .github/agents/ralph.md. 
+            If TODO.md exists, pick the highest priority task and work on it. 
+            If there are uncommitted changes but no tasks left in TODO.md, create a clean completion git commit and 'git rm TODO.md' if it still exists.
+            Strictly adhere to the Atomic Commit Protocol (docs/standards/atomic-commit-protocol.md). 
+            Employ TDD processes (RED -> GREEN -> REFACTOR) and ensure that every commit is an indivisible unit containing BDD specs, TDD tests, minimal implementation, and documentation. 
+            Ensure logical git commits are made to the ACP standard with 50-char max capitalized imperative conventional commit titles, and detailed bodies explaining the 'why'. 
+            Ensure that the codebase is in a working state after each commit. 
+            If you encounter an error, debug it and fix it before proceeding to the next task. ${EXTRA_PROMPT:+USER INSTRUCTION: $EXTRA_PROMPT}"
 
         echo ''
         echo '********'
@@ -219,3 +240,66 @@ lisa *args='':
         4. Autonomous Setup: Create a new git branch for the epic named 'feat/epic-{name}'. Add the TODO.md and updated PLAN.md to this branch. \
         5. Atomic Handover: Commit the plan with a clear message following ACP standards. \
         You are the intelligent pre-processor. You provide the logic Ralph needs to succeed without eating the paste. Ensure TODO.md tasks are atomic, testable, and include success criteria. ${EXTRA_PROMPT:+USER INSTRUCTION: $EXTRA_PROMPT}"
+
+
+# Run the Quality Review loop (Herb)
+herb *args='':
+	#!/usr/bin/env bash
+	set -euo pipefail
+	printf "🧐 Starting Herb Powell (Quality Review)...\n"
+	EXTRA_PROMPT="{{args}}"
+
+	npm exec @mariozechner/pi-coding-agent -- \
+		--verbose \
+		--mode json \
+		--no-session \
+		--thinking medium \
+		--no-extensions \
+		--provider google-gemini-cli \
+		--model gemini-3-flash-preview \
+		-p "Assume the role of Herb Powell (Quality/Review). Your mission is to perform a strict code review of the recent changes in this branch. \
+		1. Static Analysis: Review the code for SOLID principles, Clean Code standards, and Go/Python best practices. \
+		2. Atomic Commit Check: Verify that commits follow the Atomic Commit Protocol. \
+		3. Feedback: Document any issues, technical debt, or refactoring suggestions in FEEDBACK.md. If the code is excellent, state that it is ready for verification. ${EXTRA_PROMPT:+USER INSTRUCTION: $EXTRA_PROMPT}"
+
+# Run the Quality Verification loop (Bart)
+bart *args='':
+	#!/usr/bin/env bash
+	set -euo pipefail
+	printf "🛹 Starting Bart Simpson (Quality Verification)...\n"
+	EXTRA_PROMPT="{{args}}"
+
+	npm exec @mariozechner/pi-coding-agent -- \
+		--verbose \
+		--mode json \
+		--no-session \
+		--thinking medium \
+		--no-extensions \
+		--provider google-gemini-cli \
+		--model gemini-3-flash-preview \
+		-p "Assume the role of Bart Simpson (Quality/Verification). Your mission is to break the code and find bugs. \
+		1. Test Execution: Run 'just test' to verify the entire test ladder. \
+		2. BDD Validation: Verify that the implemented code matches the Gherkin scenarios in docs/features/. \
+		3. Adversarial Testing: Think of edge cases Ralph might have missed. \
+		4. Feedback: Document all failures, bugs, or missing coverage in FEEDBACK.md. Flag critical issues that block release. ${EXTRA_PROMPT:+USER INSTRUCTION: $EXTRA_PROMPT}"
+
+# Run the Release Ceremony loop (Lovejoy)
+lovejoy *args='':
+	#!/usr/bin/env bash
+	set -euo pipefail
+	printf "⛪ Starting Reverend Lovejoy (Release Ceremony)...\n"
+	EXTRA_PROMPT="{{args}}"
+
+	npm exec @mariozechner/pi-coding-agent -- \
+		--verbose \
+		--mode json \
+		--no-session \
+		--thinking medium \
+		--no-extensions \
+		--provider google-gemini-cli \
+		--model gemini-3-flash-preview \
+		-p "Assume the role of Reverend Lovejoy (Release). Your mission is to perform the release ceremony. \
+		1. Readiness Check: Verify that TODO.md is empty and FEEDBACK.md contains no blocking issues. \
+		2. Merge: Merge the feature branch into main using a squash merge with a clean, descriptive message. \
+		3. Documentation: Update CHANGELOG.md and capture any major learnings for the next cycle. \
+		4. Cleanup: Delete the local and remote feature branch after a successful merge. ${EXTRA_PROMPT:+USER INSTRUCTION: $EXTRA_PROMPT}"
