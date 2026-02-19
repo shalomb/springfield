@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # test_coding_conventions.sh - Verify Coding Conventions document structure
 
 FILE="docs/standards/coding-conventions.md"

@@ -14,8 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Established `docs/standards/atomic-commit-protocol.md` for consistent git history.
   - Established `docs/standards/coding-conventions.md` for Go and Scripting standards.
   - Created `docs/features/README.md` to define the BDD-driven development process.
-  - Implemented `docs/adr/ADR-000-takeda-compliance.md` for safety and compliance.
+  - Implemented `docs/adr/ADR-000-compliance-and-safety.md` for safety and compliance.
   - Added automated verification scripts for all newly established standards.
+
+### Fixed
+- Resolved potential infinite loop in `ralph` target by ignoring untracked files in git status check.
+- Hardened bash scripts with `set -euo pipefail`.
+- Updated `.gitignore` with Go and Python standard patterns.
 
 ### Changed
 - Refactored `Justfile` to include targets for Herb (Review), Bart (Quality), and Lovejoy (Release).

@@ -3,6 +3,12 @@
 ## EPIC-008: Knowledge Architecture (Diataxis)
 **Value Statement:** For **Agents and Contributors**, who **need precise context without token overload**, the **Modular Documentation Structure** is a **knowledge retrieval system** that **minimizes hallucination and maximizes relevance**.
 
+### 📝 Retrospective
+- **Context Management:** Separating documentation into Diataxis categories significantly reduces noise for agents. Using a site-map (`AGENTS.md`) allows agents to selectively load only the relevant standards, saving tokens and improving focus.
+- **Standards Enforcement:** Automated verification scripts (`scripts/test_*.sh`) are essential for maintaining the integrity of the new architecture as the project scales.
+- **Legacy Cleanup:** Removing retired agents and orientation files reduces mental overhead for both human and AI contributors.
+- **Improvements for Next Cycle:** Consider further atomization of `PLAN.md` to avoid merge contention (as noted in TR-001). Integrate documentation linting into the graduated test ladder (`just test`).
+
 **The "Why":** A monolithic `AGENTS.md` is hard to maintain and expensive to process. By adopting Diataxis, we separate "How-to" (Guides) from "Explanation" (Context) and "Reference" (Standards), allowing agents to load only what they need.
 
 **Scope:**
