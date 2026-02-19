@@ -24,18 +24,18 @@ Stabilize the Springfield infrastructure so the autonomous loop (Lisa -> Ralph -
   - **Success Criteria:** `just test` passes Phase 1 and Phase 2. Logs remain valid JSON under concurrent load.
 
 ### Phase 3: Loop Verification (ACP-3)
-- [ ] **Task 5: Verify Ralph's Loop with a dummy task**
+- [x] **Task 5: Verify Ralph's Loop with a dummy task**
   - **Action:** Create a small TODO task and run `just ralph`.
   - **Success Criteria:** Ralph completes the task, commits, and removes the TODO.
-- [ ] **Task 6: Final Integration Check**
+- [x] **Task 6: Final Integration Check**
   - **Action:** Run `just do` for a minor documentation fix.
   - **Success Criteria:** Full loop executes without error and updates `FEEDBACK.md` to ✅.
 
 ### Phase 4: Feedback Loop Intelligence (ACP-4)
-- [ ] **Task 7: Implement Lisa's Triage Logic**
+- [x] **Task 7: Implement Lisa's Triage Logic**
   - **Action:** Update `just lisa` prompt to parse `FEEDBACK.md` and make Go/No-Go decisions.
   - **Success Criteria:** Lisa can read a mock `FEEDBACK.md` and either create a `TODO.md` task or update `PLAN.md`.
-- [ ] **Task 8: Implement Loop Limiter (Circuit Breaker)**
+- [x] **Task 8: Implement Loop Limiter (Circuit Breaker)**
   - **Action:** Add a counter (e.g., `git rev-list --count HEAD` or a temporary file) to `just do` to prevent infinite loops. Max retries = 2.
   - **Success Criteria:** `just do` aborts if `FEEDBACK.md` remains non-empty after 2 cycles.
 

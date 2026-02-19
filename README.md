@@ -57,3 +57,16 @@ Springfield Protocol is a document-driven framework that coordinates a **Single 
 ---
 
 **Ready to build? Start with [Standard Workflows](docs/how-to/workflows.md)** 🚀
+
+## 🚀 Development
+
+### Go Migration
+We are currently migrating the core orchestrator to Go. Use `just build` to compile the new entrypoint.
+
+### Testing
+Springfield uses a graduated test ladder:
+1. `just test-structure`: Format and vet.
+2. `just test-lint`: Linters.
+3. `just test-unit`: Unit tests.
+4. `just test-integration`: BDD integration tests (Python).
+Run the full ladder with `just test`.
