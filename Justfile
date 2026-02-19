@@ -222,10 +222,37 @@ plan *args='':
 
 # Run the autonomous "just do" orchestrator
 do *args='':
-	@just plan {{args}}
-	@just ralph {{args}}
-	@just bart {{args}}
-	@just herb {{args}}
+	#!/usr/bin/env bash
+	set -euo pipefail
+	MAX_ITERATIONS=2
+	ITERATION=1
+	while [[ $ITERATION -le $MAX_ITERATIONS ]]; do
+		printf "\n🚀 [Iteration $ITERATION/$MAX_ITERATIONS] Starting Autonomous Loop...\n"
+		
+		just plan {{args}}
+		just ralph {{args}}
+		just bart {{args}}
+		just herb {{args}}
+
+		if [[ ! -e FEEDBACK.md ]]; then
+			printf "\n✅ No FEEDBACK.md found. Cycle complete!\n"
+			break
+		fi
+
+		# Check if FEEDBACK.md has critical issues
+		if grep -qiE "critical|blocker|rejected|fail" FEEDBACK.md; then
+			printf "\n⚠️ Critical issues found in FEEDBACK.md. Re-looping for corrective planning...\n"
+			ITERATION=$((ITERATION + 1))
+		else
+			printf "\n✅ Only minor issues found in FEEDBACK.md. Ending loop.\n"
+			break
+		fi
+	done
+
+	if [[ $ITERATION -gt $MAX_ITERATIONS ]]; then
+		printf "\n🛑 [HARD STOP] Loop limit reached ($MAX_ITERATIONS iterations). Human review required!\n"
+		exit 1
+	fi
 
 # Run the intelligent "Lisa" loop (Planner preparing work for Ralph)
 lisa *args='':
