@@ -16,7 +16,7 @@ Stabilize the Springfield infrastructure so the autonomous loop (Lisa -> Ralph -
   - **Success Criteria:** `just build` succeeds and `./bin/springfield --help` runs.
 
 ### Phase 2: Justfile Harmonization (ACP-2)
-- [ ] **Task 3: Add Missing Lifecycle Recipes**
+- [x] **Task 3: Add Missing Lifecycle Recipes**
   - **Action:** Implement `start-feature` and `start-fix` in `Justfile`.
   - **Success Criteria:** `just list` shows the new recipes.
 - [ ] **Task 4: Fix Test Runner Mismatch & Logger Stability**

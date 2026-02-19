@@ -54,6 +54,10 @@ list:
 	@echo "  plan                 Alias for 'just lisa'"
 	@echo "  do                   Run the autonomous loop (Lisa -> Ralph -> Bart -> Herb)"
 	@echo ""
+	@echo "🌿 GIT WORKFLOW:"
+	@echo "  start-feature name   Start a new feature branch from main"
+	@echo "  start-fix name       Start a new fix branch from main"
+	@echo ""
 
 # =============================================================================
 # BUILD & RUN
@@ -230,13 +234,20 @@ lisa *args='':
 	printf "📚 Starting Lisa Simpson (Intelligent Planner)...\n"
 	EXTRA_PROMPT="{{args}}"
 
+	ARGS=()
+	if [[ -e FEEDBACK.md ]]; then
+		ARGS+=("@FEEDBACK.md")
+	fi
+
 	npm exec @mariozechner/pi-coding-agent -- {{PI_AGENT_FLAGS}} \
+		"${ARGS[@]}" \
 		-p "Assume the role of Lisa Simpson (.github/agents/lisa.md). Your mission is to translate high-level intent from PLAN.md into executable tasks for Ralph. 
 		1. Reflect & Learn: Analyze recent commits and branch state. Identify learnings, technical debt, or necessary reprioritizations. Update PLAN.md with a 'Retrospective' section for the completed epic if appropriate. 
-		2. Technical Breakdown: Identify the next high-priority Epic from PLAN.md. Translate it into a technical breakdown in a new TODO.md. Ensure tasks follow the Atomic Commit Protocol (docs/standards/atomic-commit-protocol.md) - each task should ideally map to one or more atomic commits. 
-		3. Moral Compass: Ensure the plan adheres to Enterprise compliance and safety standards (ADR-000 Building Blocks, RBAC, audit logging). 
-		4. Autonomous Setup: Detect the current branch. If on 'main', create a new git branch for the epic named 'feat/epic-{name}'. Add the TODO.md and updated PLAN.md to this branch. 
-		5. Atomic Handover: Commit the plan with a clear message following ACP standards. 
+		2. Analyze Feedback: If FEEDBACK.md exists, analyze it against PLAN.md. If errors are critical (breaking functionality, security, crash), create specific corrective tasks in TODO.md. If errors are minor (style, non-blocking edge cases), log them in PLAN.md under 'Known Issues' and clear FEEDBACK.md. DO NOT loop if you have already tried to fix this twice.
+		3. Technical Breakdown: Identify the next high-priority Epic from PLAN.md. Translate it into a technical breakdown in a new TODO.md. Ensure tasks follow the Atomic Commit Protocol (docs/standards/atomic-commit-protocol.md) - each task should ideally map to one or more atomic commits. 
+		4. Moral Compass: Ensure the plan adheres to Enterprise compliance and safety standards (ADR-000 Building Blocks, RBAC, audit logging). 
+		5. Autonomous Setup: Detect the current branch. If on 'main', create a new git branch for the epic named 'feat/epic-{name}'. Add the TODO.md and updated PLAN.md to this branch. 
+		6. Atomic Handover: Commit the plan with a clear message following ACP standards. 
 		You are the intelligent pre-processor. You provide the logic Ralph needs to succeed without eating the paste. Ensure TODO.md tasks are atomic, testable, and include success criteria. ${EXTRA_PROMPT:+USER INSTRUCTION: $EXTRA_PROMPT}"
 
 # Run the Quality Review loop (Herb)
@@ -279,3 +290,19 @@ lovejoy *args='':
 		2. Merge: Merge the feature branch into main using a squash merge with a clean, descriptive message. 
 		3. Documentation: Update CHANGELOG.md and capture any major learnings for the next cycle. 
 		4. Cleanup: Delete the local and remote feature branch after a successful merge. ${EXTRA_PROMPT:+USER INSTRUCTION: $EXTRA_PROMPT}"
+
+# =============================================================================
+# GIT WORKFLOW
+# =============================================================================
+
+# Start a new feature branch from main
+start-feature name:
+	git checkout main
+	git pull
+	git checkout -b feat/{{name}}
+
+# Start a new fix branch from main
+start-fix name:
+	git checkout main
+	git pull
+	git checkout -b fix/{{name}}
