@@ -8,10 +8,10 @@ Stabilize the Springfield infrastructure so the autonomous loop (Lisa -> Ralph -
 ## 🛠 Tasks
 
 ### Phase 1: Go Foundation (ACP-1)
-- [ ] **Task 1: Initialize Go Module**
+- [x] **Task 1: Initialize Go Module**
   - **Action:** Run `go mod init github.com/shalomb/springfield` and `go mod tidy`.
   - **Success Criteria:** `go.mod` and `go.sum` exist.
-- [ ] **Task 2: Create Minimal Entrypoint**
+- [x] **Task 2: Create Minimal Entrypoint**
   - **Action:** Create `cmd/springfield/main.go` with a basic CLI structure.
   - **Success Criteria:** `just build` succeeds and `./bin/springfield --help` runs.
 
