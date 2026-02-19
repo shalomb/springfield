@@ -1,5 +1,70 @@
 # PLAN.md - Epic Backlog
 
+## EPIC-008: Knowledge Architecture (Diataxis)
+**Value Statement:** For **Agents and Contributors**, who **need precise context without token overload**, the **Modular Documentation Structure** is a **knowledge retrieval system** that **minimizes hallucination and maximizes relevance**.
+
+**The "Why":** A monolithic `AGENTS.md` is hard to maintain and expensive to process. By adopting Diataxis, we separate "How-to" (Guides) from "Explanation" (Context) and "Reference" (Standards), allowing agents to load only what they need.
+
+**Scope:**
+- ✅ Replace monolithic `AGENTS.md` with a structured index.
+- ✅ Ensure all core standards exist as separate files in `docs/standards/`.
+- ✅ Ensure all architectural decisions exist in `docs/adr/`.
+- ✅ Verify agents can traverse links or are configured to read specific paths.
+
+**Acceptance Criteria:**
+- [ ] `AGENTS.md` acts as a "Site Map" linking to `docs/`.
+- [ ] `docs/standards/coding-conventions.md` is the source of truth for code style.
+- [ ] `docs/standards/git-branching.md` is the source of truth for workflow.
+- [ ] `docs/reference/agents.md` defines the agent team roles.
+- [ ] `docs/features/README.md` explains the BDD process.
+
+**Attributes:**
+- **Status:** 📋 Planned
+- **Complexity:** Low
+- **Urgency:** Medium
+- **Dependencies:** None
+
+---
+
+## EPIC-007: Autonomous Development Loop ("just do")
+**Value Statement:** For **Developers**, who **want to delegate end-to-end feature implementation**, the **Autonomous Development Loop** is a **workflow orchestrator** that **automates the cycle of planning, coding, reviewing, and refining**.
+
+**The "Why":** Manual handoffs between agents (Planning -> Coding -> Review) are inefficient. We need a closed-loop system where agents collaborate iteratively to complete complex tasks without constant human interruption.
+
+**Scope:**
+- ✅ `just do` command as the entry point.
+- ✅ Sequential agent chaining: Lisa -> Ralph -> Herb -> Bart.
+- ✅ Context persistence: `TODO.md` (Plan) and `FEEDBACK.md` (Review).
+- ✅ Dynamic branching: Lisa manages feature branches based on specs.
+- ✅ Iteration logic: Loop repeats based on feedback severity.
+- ✅ Exit criteria: Handover to Lovejoy for merging when "Done".
+
+**Acceptance Criteria:**
+- [ ] `just do` initiates the loop in the current context.
+- [ ] **Lisa (Planner):**
+    - Parses `PLAN.md` and `FEEDBACK.md`.
+    - Generates BDD scenarios in `docs/features/`.
+    - Creates/Updates `TODO.md` with prioritized tasks (TDD first, Refactor last).
+    - Manages git branches (creates `feat/xxx` if on `main`).
+- [ ] **Ralph (Builder):**
+    - Executes tasks from `TODO.md`.
+    - Updates task status in real-time.
+- [ ] **Herb & Bart (Reviewers):**
+    - Herb reviews code changes (Static Analysis/Style).
+    - Bart verifies functionality against BDD scenarios.
+    - Both populate `FEEDBACK.md` with findings.
+- [ ] **Orchestrator:**
+    - Detects loop continuation (Is `TODO.md` empty? Is `FEEDBACK.md` critical?).
+    - Invokes `just lovejoy` for merge when cycle is complete.
+
+**Attributes:**
+- **Status:** 📋 Planned
+- **Complexity:** High
+- **Urgency:** High
+- **Dependencies:** EPIC-002 (Tmux), EPIC-003 (Logging)
+
+---
+
 ## EPIC-001: Git Branching Standard
 **Value Statement:** For **Developers**, who **struggle with inconsistent history and merge conflicts**, the **Git Branching Standard** is a **protocol** that **ensures clean collaboration and predictable releases**.
 
