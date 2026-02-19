@@ -6,13 +6,13 @@ Implementing the end-to-end autonomous loop to allow Springfield to self-evolve 
 ## Tasks
 
 ### 🔧 Phase 0: Stabilization & Debt (Reflect & Learn)
-- [ ] **Task 0.1: Robustness for scripts (set -euo pipefail)**
+- [x] **Task 0.1: Robustness for scripts (set -euo pipefail)**
   - Success Criteria: All `.sh` scripts in `scripts/` have `set -euo pipefail`.
   - ACP: `fix(scripts): add robust error handling to bash scripts`
-- [ ] **Task 0.2: Justfile DRYness for Agents**
+- [x] **Task 0.2: Justfile DRYness for Agents**
   - Success Criteria: Repetitive agent calls in Justfile are refactored into a shared variable or template.
   - ACP: `refactor(build): DRY up agent targets in Justfile`
-- [ ] **Task 0.3: Complete .gitignore**
+- [x] **Task 0.3: Complete .gitignore**
   - Success Criteria: Standard exclusions for Python and Go artifacts are added to avoid Ralph loops.
   - ACP: `fix(infra): update .gitignore for Python and Go environments`
 
