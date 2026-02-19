@@ -50,6 +50,10 @@ list:
 	@echo "  bart                 Run the Quality Verification agent (Bart)"
 	@echo "  lovejoy              Run the Release agent (Lovejoy)"
 	@echo ""
+	@echo "🤖 AUTONOMOUS LOOP:"
+	@echo "  plan                 Run Lisa to update TODO.md from PLAN.md"
+	@echo "  do                   Run the autonomous loop (Lisa -> Ralph -> Bart)"
+	@echo ""
 
 # =============================================================================
 # BUILD & RUN
@@ -215,6 +219,14 @@ ralph *args='':
         echo '********'
         sleep 1
     done
+
+# Run the intelligent "Lisa" loop (Planner preparing work for Ralph)
+plan *args='': lisa {{args}}
+
+# Run the autonomous "just do" orchestrator
+do *args='':
+    @just plan {{args}}
+    @just ralph {{args}}
 
 # Run the intelligent "Lisa" loop (Planner preparing work for Ralph)
 lisa *args='':
