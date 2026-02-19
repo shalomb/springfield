@@ -227,6 +227,8 @@ plan *args='': lisa {{args}}
 do *args='':
     @just plan {{args}}
     @just ralph {{args}}
+    @just bart {{args}}
+    @just herb {{args}}
 
 # Run the intelligent "Lisa" loop (Planner preparing work for Ralph)
 lisa *args='':
@@ -240,7 +242,7 @@ lisa *args='':
         1. Reflect & Learn: Analyze recent commits and branch state. Identify learnings, technical debt, or necessary reprioritizations. Update PLAN.md with a 'Retrospective' section for the completed epic if appropriate. \
         2. Technical Breakdown: Identify the next high-priority Epic from PLAN.md. Translate it into a technical breakdown in a new TODO.md. Ensure tasks follow the Atomic Commit Protocol (docs/standards/atomic-commit-protocol.md) - each task should ideally map to one or more atomic commits. \
         3. Moral Compass: Ensure the plan adheres to Enterprise compliance and safety standards (ADR-000 Building Blocks, RBAC, audit logging). \
-        4. Autonomous Setup: Create a new git branch for the epic named 'feat/epic-{name}'. Add the TODO.md and updated PLAN.md to this branch. \
+        4. Autonomous Setup: Detect the current branch. If on 'main', create a new git branch for the epic named 'feat/epic-{name}'. Add the TODO.md and updated PLAN.md to this branch. \
         5. Atomic Handover: Commit the plan with a clear message following ACP standards. \
         You are the intelligent pre-processor. You provide the logic Ralph needs to succeed without eating the paste. Ensure TODO.md tasks are atomic, testable, and include success criteria. ${EXTRA_PROMPT:+USER INSTRUCTION: $EXTRA_PROMPT}"
 
@@ -256,7 +258,7 @@ herb *args='':
 		-p "Assume the role of Herb Powell (Quality/Review). Your mission is to perform a strict code review of the recent changes in this branch. \
 		1. Static Analysis: Review the code for SOLID principles, Clean Code standards, and Go/Python best practices. \
 		2. Atomic Commit Check: Verify that commits follow the Atomic Commit Protocol. \
-		3. Feedback: Document any issues, technical debt, or refactoring suggestions in FEEDBACK.md. If the code is excellent, state that it is ready for verification. ${EXTRA_PROMPT:+USER INSTRUCTION: $EXTRA_PROMPT}"
+		3. Feedback: Document any issues, technical debt, or refactoring suggestions in FEEDBACK.md. If the code is excellent, state that it is ready for verification. Exit with a non-zero status if critical issues or ACP violations are found. ${EXTRA_PROMPT:+USER INSTRUCTION: $EXTRA_PROMPT}"
 
 # Run the Quality Verification loop (Bart)
 bart *args='':
@@ -270,7 +272,7 @@ bart *args='':
 		1. Test Execution: Run 'just test' to verify the entire test ladder. \
 		2. BDD Validation: Verify that the implemented code matches the Gherkin scenarios in docs/features/. \
 		3. Adversarial Testing: Think of edge cases Ralph might have missed. \
-		4. Feedback: Document all failures, bugs, or missing coverage in FEEDBACK.md. Flag critical issues that block release. ${EXTRA_PROMPT:+USER INSTRUCTION: $EXTRA_PROMPT}"
+		4. Feedback: Document all failures, bugs, or missing coverage in FEEDBACK.md. Flag critical issues that block release. Exit with a non-zero status if any test fails or critical bugs are discovered. ${EXTRA_PROMPT:+USER INSTRUCTION: $EXTRA_PROMPT}"
 
 # Run the Release Ceremony loop (Lovejoy)
 lovejoy *args='':
