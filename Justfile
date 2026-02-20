@@ -25,12 +25,12 @@ PROMPT_LOVEJOY := "Assume the role of Reverend Lovejoy (Release). Your mission i
 # DEFAULT
 # =============================================================================
 default:
-    @just list
+    @just help
 
 # =============================================================================
 # HELP
 # =============================================================================
-list:
+help:
     @printf "🌸 Springfield - AI Agent Orchestration (Go Migration)\n"
     @printf "===================================================\n\n"
     @printf "🚀 CORE COMMANDS:\n"
