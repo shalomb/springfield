@@ -41,3 +41,7 @@ coverage/
 *.tmp
 *.bak
 .todos/
+
+# Springfield
+FEEDBACK.md
+TODO.md
