@@ -36,7 +36,7 @@ func TestOrchestrator_Tick(t *testing.T) {
 
 	agentRunner := &mockAgentRunner{}
 	orch := NewOrchestrator(client, agentRunner, nil)
-	
+
 	// 1. Ready -> InProgress
 	err = orch.Tick()
 	if err != nil {
@@ -47,6 +47,10 @@ func TestOrchestrator_Tick(t *testing.T) {
 		t.Fatalf("expected 1 in_progress epic, got %d", len(ids))
 	}
 	id := ids[0]
+	if len(agentRunner.runs) != 1 || agentRunner.runs[0] != "ralph:"+id {
+		t.Errorf("expected ralph to be run for epic %s, got %v", id, agentRunner.runs)
+	}
+	agentRunner.runs = nil // reset
 
 	// 2. InProgress -> Implemented
 	err = client.LogDecision(id, "ralph_done")
@@ -61,6 +65,10 @@ func TestOrchestrator_Tick(t *testing.T) {
 	if epic.Status != "in_review" {
 		t.Errorf("expected in_review status, got %s", epic.Status)
 	}
+	if len(agentRunner.runs) != 1 || agentRunner.runs[0] != "bart:"+id {
+		t.Errorf("expected bart to be run for epic %s, got %v", id, agentRunner.runs)
+	}
+	agentRunner.runs = nil // reset
 
 	// 3. Implemented -> InProgress (Failure)
 	err = client.LogDecision(id, "bart_fail_implementation")
@@ -75,6 +83,10 @@ func TestOrchestrator_Tick(t *testing.T) {
 	if epic.Status != "in_progress" {
 		t.Errorf("expected in_progress status after failure, got %s", epic.Status)
 	}
+	if len(agentRunner.runs) != 1 || agentRunner.runs[0] != "ralph:"+id {
+		t.Errorf("expected ralph to be run for epic %s, got %v", id, agentRunner.runs)
+	}
+	agentRunner.runs = nil // reset
 
 	// 4. InProgress -> Implemented (Retry)
 	err = client.LogDecision(id, "ralph_done")
@@ -89,6 +101,10 @@ func TestOrchestrator_Tick(t *testing.T) {
 	if epic.Status != "in_review" {
 		t.Errorf("expected in_review status after retry, got %s", epic.Status)
 	}
+	if len(agentRunner.runs) != 1 || agentRunner.runs[0] != "bart:"+id {
+		t.Errorf("expected bart to be run for epic %s, got %v", id, agentRunner.runs)
+	}
+	agentRunner.runs = nil // reset
 
 	// 5. Implemented -> Blocked
 	err = client.LogDecision(id, "bart_fail_viability")
@@ -103,4 +119,8 @@ func TestOrchestrator_Tick(t *testing.T) {
 	if epic.Status != "blocked" {
 		t.Errorf("expected blocked status, got %s", epic.Status)
 	}
+	if len(agentRunner.runs) != 1 || agentRunner.runs[0] != "lisa:"+id {
+		t.Errorf("expected lisa to be run for epic %s, got %v", id, agentRunner.runs)
+	}
 }
+
