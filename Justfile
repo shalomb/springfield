@@ -139,9 +139,9 @@ ralph *args:
     printf "🤖 Starting Ralph Loop...\n"
 
     # Build the task instruction
-    task_instruction=""
-    if [[ -n "{{args}}" ]]; then
-        task_instruction="{{args}}"
+    task_instruction="{{args}}"
+    if [[ -z "$task_instruction" ]]; then
+        task_instruction="Execute tasks from TODO.md"
     fi
 
     # Use the Go-based Springfield binary instead of npm/pi-coding-agent
@@ -154,9 +154,9 @@ lisa *args:
     printf "📚 Starting Lisa Simpson (Intelligent Planner)...\n"
 
     # Build the task instruction
-    task_instruction=""
-    if [[ -n "{{args}}" ]]; then
-        task_instruction="{{args}}"
+    task_instruction="{{args}}"
+    if [[ -z "$task_instruction" ]]; then
+        task_instruction="Refine PLAN.md and evaluate options"
     fi
 
     # Use the Go-based Springfield binary instead of npm/pi-coding-agent
@@ -177,9 +177,9 @@ bart *args:
     printf "🛹 Starting Bart Simpson (Quality Agent)...\n"
 
     # Build the task instruction
-    task_instruction=""
-    if [[ -n "{{args}}" ]]; then
-        task_instruction="{{args}}"
+    task_instruction="{{args}}"
+    if [[ -z "$task_instruction" ]]; then
+        task_instruction="Review code quality, test coverage, and git commits"
     fi
 
     # Use the Go-based Springfield binary instead of npm/pi-coding-agent
@@ -197,9 +197,9 @@ lovejoy *args:
     printf "⛪ Starting Reverend Lovejoy (Release Ceremony)...\n"
 
     # Build the task instruction
-    task_instruction=""
-    if [[ -n "{{args}}" ]]; then
-        task_instruction="{{args}}"
+    task_instruction="{{args}}"
+    if [[ -z "$task_instruction" ]]; then
+        task_instruction="Prepare release: verify completion, merge, and celebrate"
     fi
 
     # Use the Go-based Springfield binary instead of npm/pi-coding-agent
