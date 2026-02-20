@@ -124,3 +124,9 @@
 - **TR-007:** Springfield binary implementation slip (delays type-safe orchestration).
 - **TR-008:** Lisa's ToT/Self-Consistency logic cost/latency (bottleneck).
 - **TR-009:** `td(1)` data loss or corruption (single-host SQLite risk).
+
+## 📔 Retrospective (2026-02-20)
+- **Signal:** Bart rejected EPIC-009 implementation due to worktree fragility and infinite loop risk.
+- **Learning:** The state machine transitions `Implemented` -> `In Progress` must always involve Lisa if the feedback is high-level. Ralph needs specific `TODO.md` tasks to avoid "looping without doing anything."
+- **Learning:** `EnsureWorktree` was too naive, assuming directory existence implies a valid worktree.
+- **Action:** Retrying EPIC-009 with architectural changes to the state machine (Lisa as the correction agent).
