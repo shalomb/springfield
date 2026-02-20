@@ -5,4 +5,4 @@
 
 ## Backlog
 - [x] Integrate td(1) subprocess calls for state querying (`td-4350e2`)
-- [ ] Fix unchecked errors in integration tests (Tech Debt)
+- [x] Fix unchecked errors in integration tests (Tech Debt)
