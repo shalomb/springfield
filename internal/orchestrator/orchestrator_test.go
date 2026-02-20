@@ -37,7 +37,7 @@ func TestOrchestrator_Tick(t *testing.T) {
 	}
 
 	agentRunner := &mockAgentRunner{}
-	orch := NewOrchestrator(client, agentRunner)
+	orch := NewOrchestrator(client, agentRunner, nil)
 	err = orch.Tick()
 	if err != nil {
 		t.Fatalf("Tick failed: %v", err)
