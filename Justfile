@@ -227,7 +227,7 @@ bart *args:
     npm exec @mariozechner/pi-coding-agent -- "{{PI_FLAGS}}" -p "$full_prompt"
 
     # Post-Execution Assertion: Fail if Bart found critical issues
-    if [[ -f FEEDBACK.md ]] && grep -qiE "critical|blocker|rejected|fail" FEEDBACK.md; then
+    if [[ -f FEEDBACK.md ]] && grep -qE "Status:.*(REJECTED|BLOCKED)|❌.*Verdict" FEEDBACK.md; then
         printf "❌ Bart found critical issues in FEEDBACK.md. Exiting with error.\n" >&2
         exit 1
     fi
@@ -249,7 +249,7 @@ lovejoy *args:
         printf "❌ TODO.md is not empty. Cannot release.\n" >&2
         exit 1
     fi
-    if [[ -f FEEDBACK.md ]] && grep -qiE "critical|blocker|rejected|fail" FEEDBACK.md; then
+    if [[ -f FEEDBACK.md ]] && grep -qE "Status:.*(REJECTED|BLOCKED)|❌.*Verdict" FEEDBACK.md; then
         printf "❌ FEEDBACK.md contains blocking issues. Cannot release.\n" >&2
         exit 1
     fi
