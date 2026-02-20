@@ -142,6 +142,7 @@
 ## 🚩 Technical Debt, Risks & Known Issues
 
 ### ⚠️ Known Issues (Minor Feedback)
+- **Model Selection (DEVELOPMENT MODE):** All agents currently use `claude-haiku-4-5` during development (see `config.toml`). Post-MVP, optimize per EPIC-005 Phase 2: Marge→Claude Sonnet (UX), Lisa→Claude Opus (Planning), Ralph→Claude Sonnet (Speed), Bart→Claude Opus (Review), Lovejoy→Claude Opus (Reliability).
 - **Handoff Filename (EPIC-009):** `TODO-{id}.md` is renamed to `TODO.md` inside the worktree for simplification. This is acceptable but slightly deviates from the ADR.
 - **Infinite Loop Protection:** Lisa (Planning Agent) is responsible for handling `StatusBlocked` and ensuring tasks are atomic and non-circular.
 - **Justfile Fragility (FIXED IN TODO):** Greedy grep on `FEEDBACK.md` causes false positives.
