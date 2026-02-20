@@ -5,6 +5,74 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-02-20
+
+### Added
+- **EPIC-005: Agent Governance & Selection**
+  - Unified configuration system via `.springfield.toml` for budget control and model selection.
+  - Session-based budget enforcement with hard limits (per-session, per-day, per-request).
+  - LLM model fallback logic for graceful degradation under constraints.
+  - Token usage and cost logging integration across all LLM calls.
+
+- **Planning Architecture (ADRs 007 & 008)**
+  - Fidelity gradient for Epic maturity: far-term stubs → near-term options → ready.
+  - Lisa's LRM (Logical Reasoning Model) for option evaluation using Tree-of-Thought and Self-Consistency.
+  - Task Decomposition strategies: by workflow step, by business rule, by data variation.
+  - State machine for Epic lifecycle with typed transitions (proposed→ready→implemented→done/verified).
+
+- **Quality Standards & Indices**
+  - Farley Index: 8 properties for test quality (Fast, Isolated, Repeatable, Self-Verifying, Independent, Focused, Deterministic, Maintainable).
+  - Adzic Index: 8 properties for BDD scenario quality (Business-Readable, Intention-Revealing, Atomic, Data-Driven, Executable, Non-Redundant, Focused, Maintainable).
+  - Feedback standard with typed signal output (✅ Approved, ⚠️ Rework, ❌ Blocker, ❓ Viability Failure).
+  - Shift-left quality gates: Ralph checks Farley in code review, Marge checks Adzic in scenario design.
+
+- **Skills Infrastructure**
+  - New agent skills: `impersonate` (find and load agent contexts), `farley-index`, `adzic-index`.
+  - Skill mirrors in `.github/skills/` for non-pi-SDK tooling to discover agent capabilities.
+  - Enhanced agent definitions: aligned responsibilities with governance (Ralph → Task Decomposition, Lisa → LRM, Marge → Adzic, Bart → Typed Feedback).
+
+- **Documentation & Reference**
+  - Comprehensive ADRs with amendment protocol (ADR-007 Amendment A: ADR Lifecycle).
+  - Agent responsibility alignment with standards (`docs/standards/AGENTS.md`).
+  - Reference guides: `farley-index.md`, `adzic-index.md`, `task-decomposition.md`.
+  - Discovery documentation: `sandbox-audit.md` for environment capability evaluation.
+
+- **Testing & Integration**
+  - 52 unit tests covering agent loop, LLM fallback, config parsing, logger concurrency.
+  - 16 BDD scenarios (Gherkin/Godog) for agent governance, feedback loop, sandboxing.
+  - Integration tests for governance policy enforcement and task decomposition.
+
+### Fixed
+- Fixed Justfile `PI_FLAGS` quoting to handle empty or whitespace-only environment variables.
+- Improved FINISH marker detection robustness (word boundary, line-specific matching).
+- Shell redirection guardrails refined: now allow pipes and legitimate shell patterns while blocking exploits.
+- Standardized error handling across core modules: no ignored errors on logger.Log, os.Chdir, etc.
+
+### Changed
+- Agent definitions reorganized to reflect governance responsibilities:
+  - Ralph now owns Task Decomposition strategies (upfront decomposition before implementation).
+  - Lisa now owns Logical Reasoning Model for option generation and evaluation.
+  - Marge now owns Adzic Index application in Feature Brief design.
+  - Bart now generates typed Feedback signals with explicit "viability failure" escalation path.
+
+- Planning architecture evolved:
+  - Epic Intent Layer (Marge's Feature Brief) is immutable once decided.
+  - Epic Approach Layer (Lisa's LRM decision) is fixed for iteration but immutable in handoff.
+  - Task Decomposition (Ralph's TODO-{td-id}.md) is working layer, evolved during implementation.
+  - Constraints layer (inherited ADRs) is non-negotiable.
+
+### Deprecated
+- Direct string matching on agent prose for orchestration (replaced by Springfield binary with typed state machine).
+- Manual TODO.md management (replaced by td(1) and Springfield binary integration).
+
+### See Also
+- [ADR-007: Epic Refinement and Lisa's LRM](docs/adr/ADR-007-epic-refinement-and-lisa-lrm.md)
+- [ADR-008: Planning State (td) and Springfield Orchestrator](docs/adr/ADR-008-planning-state-td-springfield-orchestrator.md)
+- [Farley Index](docs/reference/farley-index.md)
+- [Adzic Index](docs/reference/adzic-index.md)
+- [Task Decomposition Guide](docs/standards/task-decomposition.md)
+- [Feedback Standard](docs/standards/feedback.md)
+
 ## [0.3.0] - 2026-02-19
 
 ### Added
