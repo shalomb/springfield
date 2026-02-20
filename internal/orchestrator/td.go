@@ -3,6 +3,7 @@ package orchestrator
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -14,6 +15,10 @@ type TDClient struct {
 
 // NewTDClient creates a new TDClient.
 func NewTDClient(workDir string) *TDClient {
+	if workDir == "" {
+		wd, _ := os.Getwd()
+		workDir = wd
+	}
 	return &TDClient{WorkDir: workDir}
 }
 

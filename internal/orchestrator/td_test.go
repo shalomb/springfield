@@ -29,7 +29,9 @@ func TestTDClient_QueryEpics(t *testing.T) {
 	}
 	// Extract ID from output like "CREATED td-773d3d"
 	var id string
-	fmt.Sscanf(string(outputCreate), "CREATED %s", &id)
+	if _, err := fmt.Sscanf(string(outputCreate), "CREATED %s", &id); err != nil {
+		t.Fatalf("failed to parse epic ID from output: %v (output: %s)", err, string(outputCreate))
+	}
 	t.Logf("Created ID: %s", id)
 
 	client := &TDClient{WorkDir: tempDir}

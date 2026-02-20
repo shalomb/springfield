@@ -11,6 +11,7 @@ import (
 	"github.com/shalomb/springfield/internal/llm"
 	"github.com/shalomb/springfield/internal/orchestrator"
 	"github.com/shalomb/springfield/internal/sandbox"
+	"github.com/shalomb/springfield/internal/testutils"
 	"github.com/spf13/cobra"
 )
 
@@ -28,18 +29,17 @@ var rootCmd = &cobra.Command{
 			return cmd.Help()
 		}
 
-		role := "Assistant"
-		switch strings.ToLower(agentName) {
-		case "marge":
-			role = "Product Agent"
-		case "lisa":
-			role = "Planning Agent"
-		case "ralph":
-			role = "Build Agent"
-		case "bart":
-			role = "Quality Agent"
-		case "lovejoy":
-			role = "Release Agent"
+		roles := map[string]string{
+			"marge":   "Product Agent",
+			"lisa":    "Planning Agent",
+			"ralph":   "Build Agent",
+			"bart":    "Quality Agent",
+			"lovejoy": "Release Agent",
+		}
+
+		role, ok := roles[strings.ToLower(agentName)]
+		if !ok {
+			role = "Assistant"
 		}
 
 		fmt.Printf("Agent: %s (%s)\n", agentName, role)
@@ -54,7 +54,7 @@ var rootCmd = &cobra.Command{
 		// Setup dependencies
 		var l llm.LLMClient
 		if os.Getenv("USE_MOCK_LLM") == "true" {
-			l = &mockLLM{}
+			l = &testutils.MockLLM{}
 		} else {
 			primaryModel := cfg.Agent.PrimaryModel
 			if primaryModel == "" {
@@ -100,24 +100,6 @@ var orchestrateCmd = &cobra.Command{
 
 		return orch.Tick()
 	},
-}
-
-
-type mockLLM struct{}
-
-func (m *mockLLM) Chat(ctx context.Context, messages []llm.Message) (llm.Response, error) {
-	if os.Getenv("MOCK_LLM_ERROR") == "true" {
-		return llm.Response{}, fmt.Errorf("mock llm error")
-	}
-	// Very simple mock response to allow the loop to finish in tests
-	return llm.Response{
-		Content: "THOUGHT: I am a mock agent. [[FINISH]]",
-		TokenUsage: llm.TokenUsage{
-			PromptTokens:     10,
-			CompletionTokens: 10,
-			TotalTokens:      20,
-		},
-	}, nil
 }
 
 func init() {
