@@ -25,12 +25,14 @@ func (p *PiLLM) Chat(ctx context.Context, messages []Message) (Response, error) 
 
 	args := []string{"-p", "--no-tools"}
 
-	// Note: We don't pass --model flag because pi CLI defaults to the configured model
-	// and may not recognize "provider/model" format. The pi CLI uses its own configuration
-	// for model selection based on credentials and available providers.
-	// if p.Model != "" {
-	//	args = append(args, "--model", p.Model)
-	// }
+	// Pass the model if configured
+	// The pi CLI does recognize "provider/model" format
+	if p.Model != "" {
+		args = append(args, "--model", p.Model)
+		logger.Debugf("Using model: %s", p.Model)
+	} else {
+		logger.Debugf("No model specified, using pi CLI defaults")
+	}
 
 	// For now, pi CLI doesn't seem to have a temperature flag in this mock implementation
 	// but we could add it if it did.

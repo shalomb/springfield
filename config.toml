@@ -13,8 +13,10 @@
 #   - others (see pi --list-models)
 
 # Global agent defaults
+# DEVELOPMENT MODE: Using claude-haiku-4-5 for all agents during development
+# See PLAN.md for model optimization strategy post-MVP
 [agent]
-model = "google-gemini-cli/gemini-2.0-flash"
+model = "anthropic/claude-haiku-4-5"
 temperature = 0.7
 max_iterations = 20
 budget = 100000
@@ -22,39 +24,48 @@ budget = 100000
 # Per-agent configuration overrides
 [agents]
 
-# Marge: Product Agent - Uses a balanced model for UX reasoning
+# Marge: Product Agent
+# DEVELOPMENT: Using claude-haiku-4-5 (cost-effective during dev)
+# FUTURE: Switch to claude-sonnet-4-5 for better UX reasoning
 [agents.marge]
-model = "anthropic/claude-3.5-sonnet-20241022"
+model = "anthropic/claude-haiku-4-5"
 temperature = 0.5
 max_iterations = 15
 budget = 50000
 
-# Lisa: Planning Agent - Uses the most capable model for Tree of Thought + Self-Consistency
+# Lisa: Planning Agent
+# DEVELOPMENT: Using claude-haiku-4-5 (cost-effective during dev)
+# FUTURE: Switch to claude-opus-4-6 for Tree of Thought + Self-Consistency
 [agents.lisa]
-model = "anthropic/claude-opus-4-1"
+model = "anthropic/claude-haiku-4-5"
 temperature = 0.3
 max_iterations = 10
 budget = 200000
 
-# Ralph: Build Agent - Uses a fast, cost-effective model with fallback for TDD iteration
+# Ralph: Build Agent
+# DEVELOPMENT: Using claude-haiku-4-5 (cost-effective during dev)
+# FUTURE: Switch to claude-sonnet-4-5 with fallback to gemini-2.5-flash
 [agents.ralph]
-# Using OpenRouter for access to multiple providers with single API key
-model = "openrouter/openai/gpt-4o-mini"
-fallback_model = "google-gemini-cli/gemini-2.0-flash"
+model = "anthropic/claude-haiku-4-5"
+fallback_model = "anthropic/claude-haiku-4-5"
 temperature = 0.6
 max_iterations = 30
 budget = 150000
 
-# Bart: Quality Agent - Uses a strong reasoning model for thorough code review
+# Bart: Quality Agent
+# DEVELOPMENT: Using claude-haiku-4-5 (cost-effective during dev)
+# FUTURE: Switch to claude-opus-4-6 for thorough code review
 [agents.bart]
-model = "anthropic/claude-3.5-sonnet-20241022"
+model = "anthropic/claude-haiku-4-5"
 temperature = 0.3
 max_iterations = 20
 budget = 80000
 
-# Lovejoy: Release Agent - Uses the most reliable model for high-stakes decisions
+# Lovejoy: Release Agent
+# DEVELOPMENT: Using claude-haiku-4-5 (cost-effective during dev)
+# FUTURE: Switch to claude-opus-4-6 for high-stakes decisions
 [agents.lovejoy]
-model = "anthropic/claude-opus-4-1"
+model = "anthropic/claude-haiku-4-5"
 temperature = 0.2
 max_iterations = 5
 budget = 40000
