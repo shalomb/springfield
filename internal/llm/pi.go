@@ -3,6 +3,7 @@ package llm
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -182,7 +183,49 @@ func formatExecutionError(cmdName string, err error, stderr, stdout string) stri
 		details = err.Error()
 	}
 
+	// Try to extract Anthropic API error message if present
+	if strings.Contains(details, "rate_limit_error") {
+		if extracted := extractAnthropicErrorMessage(details); extracted != "" {
+			details = extracted
+		}
+	}
+
 	return details
+}
+
+// extractAnthropicErrorMessage parses Anthropic API error JSON and extracts the message
+func extractAnthropicErrorMessage(stderr string) string {
+	// Try to find JSON in the error message
+	// Anthropic errors look like: Error: 429 {"type":"error",...}
+	startIdx := strings.Index(stderr, `{"type":"error"`)
+	if startIdx == -1 {
+		return ""
+	}
+
+	// Find the end of the JSON object
+	endIdx := strings.LastIndex(stderr, "}")
+	if endIdx == -1 || endIdx <= startIdx {
+		return ""
+	}
+
+	jsonStr := stderr[startIdx : endIdx+1]
+
+	// Parse the JSON
+	var errObj map[string]interface{}
+	if err := json.Unmarshal([]byte(jsonStr), &errObj); err != nil {
+		return ""
+	}
+
+	// Extract nested error message
+	if errData, ok := errObj["error"].(map[string]interface{}); ok {
+		if errType, ok := errData["type"].(string); ok {
+			if message, ok := errData["message"].(string); ok {
+				return fmt.Sprintf("Anthropic API error (%s): %s", errType, message)
+			}
+		}
+	}
+
+	return ""
 }
 
 // isQuotaExceeded checks if the error is due to API quota/rate limiting

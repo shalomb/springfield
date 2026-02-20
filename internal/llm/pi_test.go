@@ -82,6 +82,7 @@ func TestIsQuotaExceeded(t *testing.T) {
 		{"random error message", false, "no quota marker"},
 		{"connection timeout", false, "timeout"},
 		{"", false, "empty string"},
+		{`Error: 429 {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your account's rate limit. Please try again later."},"request_id":"req_011CYL3UE3hxCyxpV9ELnHVR"}`, true, "anthropic rate limit error"},
 	}
 
 	for _, tc := range testCases {
@@ -89,6 +90,44 @@ func TestIsQuotaExceeded(t *testing.T) {
 			result := isQuotaExceeded(tc.stderr)
 			if result != tc.expect {
 				t.Errorf("isQuotaExceeded(%q) = %v, expected %v", tc.stderr, result, tc.expect)
+			}
+		})
+	}
+}
+
+func TestExtractAnthropicErrorMessage(t *testing.T) {
+	testCases := []struct {
+		stderr   string
+		expected string
+		name     string
+	}{
+		{
+			name:     "anthropic rate limit error",
+			stderr:   `Error: 429 {"type":"error","error":{"type":"rate_limit_error","message":"This request would exceed your account's rate limit. Please try again later."},"request_id":"req_011CYL3UE3hxCyxpV9ELnHVR"}`,
+			expected: "Anthropic API error (rate_limit_error): This request would exceed your account's rate limit. Please try again later.",
+		},
+		{
+			name:     "anthropic invalid request error",
+			stderr:   `Error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Invalid request body"},"request_id":"req_123"}`,
+			expected: "Anthropic API error (invalid_request_error): Invalid request body",
+		},
+		{
+			name:     "non-json error",
+			stderr:   "Error: 429 plain text error",
+			expected: "",
+		},
+		{
+			name:     "empty string",
+			stderr:   "",
+			expected: "",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := extractAnthropicErrorMessage(tc.stderr)
+			if result != tc.expected {
+				t.Errorf("extractAnthropicErrorMessage got %q, expected %q", result, tc.expected)
 			}
 		})
 	}
