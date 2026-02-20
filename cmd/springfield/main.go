@@ -72,18 +72,23 @@ var rootCmd = &cobra.Command{
 				l = primary
 			}
 		}
-		s, err := sandbox.NewAxonSandbox(configPath)
+		// Note: Sandbox initialization kept for potential future use,
+		// but runners currently only interact with the LLM, not the sandbox.
+		_, err = sandbox.NewAxonSandbox(configPath)
 		if err != nil {
 			return fmt.Errorf("error initializing sandbox: %w", err)
 		}
 
-		a := agent.New(agentName, role, l, s)
-		a.MaxIterations = agentCfg.MaxIterations
-		a.Budget = agentCfg.Budget
 		ctx := context.Background()
 
+		// Create a specialized runner based on the agent type, with budget
+		runner, err := agent.NewRunnerWithBudget(agentName, task, l, agentCfg.Budget)
+		if err != nil {
+			return fmt.Errorf("error creating runner for agent %s: %w", agentName, err)
+		}
+
 		fmt.Println("Starting agent loop...")
-		if err := a.Run(ctx, task); err != nil {
+		if err := runner.Run(ctx); err != nil {
 			return fmt.Errorf("error in agent loop: %w", err)
 		}
 
