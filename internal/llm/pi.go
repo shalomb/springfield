@@ -72,32 +72,46 @@ func (p *PiLLM) Chat(ctx context.Context, messages []Message) (Response, error) 
 // executorWithFallback tries to run 'pi' directly, then falls back to 'npm exec'.
 // This ensures the system works in environments where pi isn't in the PATH.
 func (p *PiLLM) executorWithFallback(ctx context.Context, name string, arg ...string) ([]byte, error) {
+	debug := NewDebugLogger("executorWithFallback")
+	
 	// Try 'pi' directly first
+	debug.Log("Attempting to execute: %s with %d arguments", name, len(arg))
 	cmd := exec.CommandContext(ctx, name, arg...)
 	out, err := cmd.Output()
 	if err == nil {
+		debug.Log("Successfully executed %s, got %d bytes", name, len(out))
 		return out, nil
 	}
 
 	// Check if error is "command not found" (pi not in PATH)
 	// If so, fall back to npm exec
 	if isCommandNotFound(err) {
+		debug.Log("%s not found in PATH, falling back to npm exec", name)
+		
 		// Try 'npm exec' as fallback
 		// 'npm exec @mariozechner/pi-coding-agent -- <args>'
 		npmArgs := []string{"exec", "@mariozechner/pi-coding-agent", "--"}
 		npmArgs = append(npmArgs, arg...)
+		debug.Log("Executing: npm exec @mariozechner/pi-coding-agent with %d arguments", len(arg))
 		cmd := exec.CommandContext(ctx, "npm", npmArgs...)
+		
 		// Use CombinedOutput to capture both stdout and stderr
 		out, npmErr := cmd.CombinedOutput()
 		if npmErr == nil {
+			debug.Log("npm exec succeeded, got %d bytes", len(out))
 			// Filter out npm warnings and only return actual output from pi
-			return filterNpmOutput(out), nil
+			filtered := filterNpmOutput(out)
+			debug.Log("After filtering npm output: %d bytes", len(filtered))
+			return filtered, nil
 		}
+		
 		// If npm also fails, return npm error
+		debug.LogError("npm exec failed", npmErr)
 		return nil, npmErr
 	}
 
 	// If pi failed for reasons other than "not found", return that error
+	debug.LogError("command execution failed", err)
 	return nil, err
 }
 
