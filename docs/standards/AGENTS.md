@@ -95,3 +95,12 @@ We use a **Graduated Test Ladder** to catch issues early. Run `just test` to exe
 - **Environment Variables:** Configuration via `env` vars (12-factor app).
 - **Flags:** CLI flags for runtime overrides (using `cobra`/`viper`).
 - **Defaults:** Sensible defaults for optional settings.
+
+## 8. Task Management (td)
+
+We use `td(1)` for shared planning state across git worktrees. This ensures a consistent view of the project's live state without branch contention.
+
+- **Discovery:** Run `td usage --new-session` at the start of a session to understand current focus.
+- **Progress:** Use `td start {id}` when beginning a task and `td handoff --done` when finished.
+- **Queries:** Use `td query "status = ready"` to see what's ready for work.
+- **Signals:** Bart uses `td log --decision {type}` to signal Epic outcomes to the orchestrator.
