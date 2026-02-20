@@ -12,13 +12,14 @@ type AgentRunner interface {
 
 // Orchestrator manages the execution of Epics.
 type Orchestrator struct {
-	TD    *TDClient
-	Agent AgentRunner
+	TD       *TDClient
+	Agent    AgentRunner
+	Worktree *WorktreeManager
 }
 
 // NewOrchestrator creates a new Orchestrator.
-func NewOrchestrator(td *TDClient, agent AgentRunner) *Orchestrator {
-	return &Orchestrator{TD: td, Agent: agent}
+func NewOrchestrator(td *TDClient, agent AgentRunner, worktree *WorktreeManager) *Orchestrator {
+	return &Orchestrator{TD: td, Agent: agent, Worktree: worktree}
 }
 
 // CommandAgentRunner runs agents by executing the springfield binary.
@@ -64,6 +65,19 @@ func (o *Orchestrator) processEpic(id string) error {
 	switch state {
 	case StatusReady:
 		log.Printf("Transitioning Epic %s to in_progress", id)
+
+		if o.Worktree != nil {
+			log.Printf("Setting up worktree and depositing handoff for Epic %s", id)
+			if _, err := o.Worktree.EnsureWorktree(id); err != nil {
+				return err
+			}
+			if err := o.Worktree.DepositHandoff(id); err != nil {
+				// Don't fail if handoff is missing, just log it.
+				// Sometimes we might not have a handoff file yet.
+				log.Printf("Warning: handoff file for Epic %s not found: %v", id, err)
+			}
+		}
+
 		// Update td status to in_progress and remove 'ready' label
 		if err := o.TD.Update(id, "--status", "in_progress", "--labels", ""); err != nil {
 			return err
