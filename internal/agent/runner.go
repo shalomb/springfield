@@ -87,6 +87,11 @@ func (br *BaseRunner) Run(ctx context.Context) error {
 		return fmt.Errorf("LLM call failed: %w", err)
 	}
 	logger.Infof("✅ LLM responded with %d bytes", len(response.Content))
+	
+	// Show the response content to the user
+	if response.Content != "" {
+		logger.Infof("📝 LLM Response:\n%s", response.Content)
+	}
 
 	// Track token usage
 	br.TotalTokensUsed += response.TokenUsage.TotalTokens
