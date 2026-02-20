@@ -13,12 +13,12 @@ type PiLLM struct {
 }
 
 func (p *PiLLM) Chat(ctx context.Context, messages []Message) (Response, error) {
-	debug := NewDebugLogger("PiLLM.Chat")
+	logger := GetLogger("PiLLM.Chat")
 	
 	// Log call details
-	debug.Log("Starting LLM call with %d messages", len(messages))
+	logger.Debugf("Starting LLM call with %d messages", len(messages))
 	for i, msg := range messages {
-		debug.Log("  Message %d (role=%s): %d chars", i, msg.Role, len(msg.Content))
+		logger.Debugf("  Message %d (role=%s): %d chars", i, msg.Role, len(msg.Content))
 	}
 	
 	args := []string{"-p", "--no-tools"}
@@ -56,62 +56,62 @@ func (p *PiLLM) Chat(ctx context.Context, messages []Message) (Response, error) 
 		execFn = p.executorWithFallback
 	}
 
-	debug.Log("Executing pi CLI...")
+	logger.Debugf("Executing pi CLI...")
 	out, err := execFn(ctx, "pi", args...)
 	if err != nil {
-		debug.LogError("pi CLI execution failed", err)
+		logger.WithError(err).Errorf("pi CLI execution failed")
 		return Response{}, err
 	}
 
 	// For now, pi CLI doesn't return token usage, so we'll leave it at zero.
 	response := Response{Content: string(out)}
-	debug.Log("LLM call completed. Response: %d chars", len(response.Content))
+	logger.Debugf("LLM call completed. Response: %d chars", len(response.Content))
 	return response, nil
 }
 
 // executorWithFallback tries to run 'pi' directly, then falls back to 'npm exec'.
 // This ensures the system works in environments where pi isn't in the PATH.
 func (p *PiLLM) executorWithFallback(ctx context.Context, name string, arg ...string) ([]byte, error) {
-	debug := NewDebugLogger("executorWithFallback")
+	logger := GetLogger("executorWithFallback")
 	
 	// Try 'pi' directly first
-	debug.Log("Attempting to execute: %s with %d arguments", name, len(arg))
+	logger.Debugf("Attempting to execute: %s with %d arguments", name, len(arg))
 	cmd := exec.CommandContext(ctx, name, arg...)
 	out, err := cmd.Output()
 	if err == nil {
-		debug.Log("Successfully executed %s, got %d bytes", name, len(out))
+		logger.Debugf("Successfully executed %s, got %d bytes", name, len(out))
 		return out, nil
 	}
 
 	// Check if error is "command not found" (pi not in PATH)
 	// If so, fall back to npm exec
 	if isCommandNotFound(err) {
-		debug.Log("%s not found in PATH, falling back to npm exec", name)
+		logger.Debugf("%s not found in PATH, falling back to npm exec", name)
 		
 		// Try 'npm exec' as fallback
 		// 'npm exec @mariozechner/pi-coding-agent -- <args>'
 		npmArgs := []string{"exec", "@mariozechner/pi-coding-agent", "--"}
 		npmArgs = append(npmArgs, arg...)
-		debug.Log("Executing: npm exec @mariozechner/pi-coding-agent with %d arguments", len(arg))
+		logger.Debugf("Executing: npm exec @mariozechner/pi-coding-agent with %d arguments", len(arg))
 		cmd := exec.CommandContext(ctx, "npm", npmArgs...)
 		
 		// Use CombinedOutput to capture both stdout and stderr
 		out, npmErr := cmd.CombinedOutput()
 		if npmErr == nil {
-			debug.Log("npm exec succeeded, got %d bytes", len(out))
+			logger.Debugf("npm exec succeeded, got %d bytes", len(out))
 			// Filter out npm warnings and only return actual output from pi
 			filtered := filterNpmOutput(out)
-			debug.Log("After filtering npm output: %d bytes", len(filtered))
+			logger.Debugf("After filtering npm output: %d bytes", len(filtered))
 			return filtered, nil
 		}
 		
 		// If npm also fails, return npm error
-		debug.LogError("npm exec failed", npmErr)
+		logger.WithError(npmErr).Errorf("npm exec failed")
 		return nil, npmErr
 	}
 
 	// If pi failed for reasons other than "not found", return that error
-	debug.LogError("command execution failed", err)
+	logger.WithError(err).Errorf("command execution failed")
 	return nil, err
 }
 

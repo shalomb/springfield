@@ -1,43 +1,28 @@
 package llm
 
 import (
-	"fmt"
 	"os"
-	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
-// DebugLogger provides structured debug logging with timestamps.
-// Output goes to stderr and can be controlled via DEBUG=1 environment variable.
-type DebugLogger struct {
-	name    string
-	enabled bool
-}
+func init() {
+	// Configure logrus for our needs
+	log.SetOutput(os.Stderr)
+	log.SetFormatter(&log.TextFormatter{
+		TimestampFormat: "15:04:05.000",
+		FullTimestamp:   true,
+	})
 
-// NewDebugLogger creates a new debug logger. It's enabled if DEBUG=1 is set.
-func NewDebugLogger(name string) *DebugLogger {
-	enabled := os.Getenv("DEBUG") == "1"
-	return &DebugLogger{
-		name:    name,
-		enabled: enabled,
+	// Set log level based on DEBUG environment variable
+	if os.Getenv("DEBUG") == "1" {
+		log.SetLevel(log.DebugLevel)
+	} else {
+		log.SetLevel(log.WarnLevel)
 	}
 }
 
-// Log logs a message with timestamp and context name.
-// Format: [HH:MM:SS.mmm] [context] message
-func (dl *DebugLogger) Log(format string, args ...interface{}) {
-	if !dl.enabled {
-		return
-	}
-	msg := fmt.Sprintf(format, args...)
-	timestamp := time.Now().Format("15:04:05.000")
-	fmt.Fprintf(os.Stderr, "[%s] [%s] %s\n", timestamp, dl.name, msg)
-}
-
-// LogError logs an error with context.
-func (dl *DebugLogger) LogError(context string, err error) {
-	if !dl.enabled {
-		return
-	}
-	timestamp := time.Now().Format("15:04:05.000")
-	fmt.Fprintf(os.Stderr, "[%s] [%s] ERROR: %s: %v\n", timestamp, dl.name, context, err)
+// GetLogger returns a configured logrus entry with the given context name.
+func GetLogger(context string) *log.Entry {
+	return log.WithField("ctx", context)
 }
