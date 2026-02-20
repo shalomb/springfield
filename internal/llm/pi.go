@@ -13,6 +13,14 @@ type PiLLM struct {
 }
 
 func (p *PiLLM) Chat(ctx context.Context, messages []Message) (Response, error) {
+	debug := NewDebugLogger("PiLLM.Chat")
+	
+	// Log call details
+	debug.Log("Starting LLM call with %d messages", len(messages))
+	for i, msg := range messages {
+		debug.Log("  Message %d (role=%s): %d chars", i, msg.Role, len(msg.Content))
+	}
+	
 	args := []string{"-p", "--no-tools"}
 
 	// Note: We don't pass --model flag because pi CLI defaults to the configured model
@@ -48,13 +56,17 @@ func (p *PiLLM) Chat(ctx context.Context, messages []Message) (Response, error) 
 		execFn = p.executorWithFallback
 	}
 
+	debug.Log("Executing pi CLI...")
 	out, err := execFn(ctx, "pi", args...)
 	if err != nil {
+		debug.LogError("pi CLI execution failed", err)
 		return Response{}, err
 	}
 
 	// For now, pi CLI doesn't return token usage, so we'll leave it at zero.
-	return Response{Content: string(out)}, nil
+	response := Response{Content: string(out)}
+	debug.Log("LLM call completed. Response: %d chars", len(response.Content))
+	return response, nil
 }
 
 // executorWithFallback tries to run 'pi' directly, then falls back to 'npm exec'.
