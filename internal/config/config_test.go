@@ -45,3 +45,60 @@ func TestLoadConfig_Defaults(t *testing.T) {
 		t.Error("expected default model to be set")
 	}
 }
+
+func TestGetAgentConfig(t *testing.T) {
+	tomlContent := `
+[agent]
+model = "default-model"
+temperature = 0.5
+max_iterations = 10
+
+[agents.lisa]
+model = "claude-opus-4-1"
+temperature = 0.3
+max_iterations = 15
+
+[agents.ralph]
+model = "gpt-4o-mini"
+fallback_model = "gemini-2.0-flash"
+`
+	err := os.WriteFile(".springfield.toml", []byte(tomlContent), 0644)
+	if err != nil {
+		t.Fatalf("failed to create temp config: %v", err)
+	}
+	defer os.Remove(".springfield.toml")
+
+	cfg, err := LoadConfig(".")
+	if err != nil {
+		t.Fatalf("LoadConfig failed: %v", err)
+	}
+
+	tests := []struct {
+		agent     string
+		wantModel string
+		wantTemp  float64
+	}{
+		{"lisa", "claude-opus-4-1", 0.3},
+		{"ralph", "gpt-4o-mini", 0.5},
+		{"bart", "default-model", 0.5},
+		{"LISA", "claude-opus-4-1", 0.3}, // Test case-insensitivity
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.agent, func(t *testing.T) {
+			agentCfg := cfg.GetAgentConfig(tt.agent)
+			if agentCfg.Model != tt.wantModel {
+				t.Errorf("GetAgentConfig(%s).Model = %s, want %s", tt.agent, agentCfg.Model, tt.wantModel)
+			}
+			if agentCfg.Temperature != tt.wantTemp {
+				t.Errorf("GetAgentConfig(%s).Temperature = %f, want %f", tt.agent, agentCfg.Temperature, tt.wantTemp)
+			}
+		})
+	}
+
+	// Test fallback model for Ralph
+	ralphCfg := cfg.GetAgentConfig("ralph")
+	if ralphCfg.FallbackModel != "gemini-2.0-flash" {
+		t.Errorf("Expected Ralph fallback_model to be gemini-2.0-flash, got %s", ralphCfg.FallbackModel)
+	}
+}

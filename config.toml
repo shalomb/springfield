@@ -1,4 +1,68 @@
-# Springfield Axon Configuration
+# Springfield Configuration
+#
+# Model specification:
+#   - "model-name" uses default provider
+#   - "provider/model-name" specifies provider explicitly
+#
+# Available providers (as of pi 3.x):
+#   - anthropic (Claude models)
+#   - openai (GPT models)
+#   - google-gemini-cli (Gemini models)
+#   - github-copilot (models via GitHub Copilot)
+#   - openrouter (multi-provider router)
+#   - others (see pi --list-models)
+
+# Global agent defaults
+[agent]
+model = "google-gemini-cli/gemini-2.0-flash"
+temperature = 0.7
+max_iterations = 20
+budget = 100000
+
+# Per-agent configuration overrides
+[agents]
+
+# Marge: Product Agent - Uses a balanced model for UX reasoning
+[agents.marge]
+model = "anthropic/claude-3.5-sonnet-20241022"
+temperature = 0.5
+max_iterations = 15
+budget = 50000
+
+# Lisa: Planning Agent - Uses the most capable model for Tree of Thought + Self-Consistency
+[agents.lisa]
+model = "anthropic/claude-opus-4-1"
+temperature = 0.3
+max_iterations = 10
+budget = 200000
+
+# Ralph: Build Agent - Uses a fast, cost-effective model with fallback for TDD iteration
+[agents.ralph]
+# Using OpenRouter for access to multiple providers with single API key
+model = "openrouter/openai/gpt-4o-mini"
+fallback_model = "google-gemini-cli/gemini-2.0-flash"
+temperature = 0.6
+max_iterations = 30
+budget = 150000
+
+# Bart: Quality Agent - Uses a strong reasoning model for thorough code review
+[agents.bart]
+model = "anthropic/claude-3.5-sonnet-20241022"
+temperature = 0.3
+max_iterations = 20
+budget = 80000
+
+# Lovejoy: Release Agent - Uses the most reliable model for high-stakes decisions
+[agents.lovejoy]
+model = "anthropic/claude-opus-4-1"
+temperature = 0.2
+max_iterations = 5
+budget = 40000
+
+# Sandbox / Axon Configuration
+[sandbox]
+image = "docker.io/library/debian:trixie-slim"
+image_builder = "podman"
 
 [axon]
 version = "1.0.0"

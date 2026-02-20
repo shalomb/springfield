@@ -51,19 +51,22 @@ var rootCmd = &cobra.Command{
 			return fmt.Errorf("error loading config: %w", err)
 		}
 
+		// Get agent-specific config (falls back to defaults if not configured)
+		agentCfg := cfg.GetAgentConfig(agentName)
+
 		// Setup dependencies
 		var l llm.LLMClient
 		if os.Getenv("USE_MOCK_LLM") == "true" {
 			l = &testutils.MockLLM{}
 		} else {
-			primaryModel := cfg.Agent.PrimaryModel
+			primaryModel := agentCfg.PrimaryModel
 			if primaryModel == "" {
-				primaryModel = cfg.Agent.Model
+				primaryModel = agentCfg.Model
 			}
 			primary := &llm.PiLLM{Model: primaryModel}
 
-			if cfg.Agent.FallbackModel != "" {
-				fallback := &llm.PiLLM{Model: cfg.Agent.FallbackModel}
+			if agentCfg.FallbackModel != "" {
+				fallback := &llm.PiLLM{Model: agentCfg.FallbackModel}
 				l = &llm.FallbackLLM{Primary: primary, Fallback: fallback}
 			} else {
 				l = primary
@@ -75,8 +78,8 @@ var rootCmd = &cobra.Command{
 		}
 
 		a := agent.New(agentName, role, l, s)
-		a.MaxIterations = cfg.Agent.MaxIterations
-		a.Budget = cfg.Agent.Budget
+		a.MaxIterations = agentCfg.MaxIterations
+		a.Budget = agentCfg.Budget
 		ctx := context.Background()
 
 		fmt.Println("Starting agent loop...")
