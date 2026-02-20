@@ -6,7 +6,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func init() {
+// InitLogger configures logrus for Springfield.
+// This is called from main() to ensure consistent logging across all packages.
+func InitLogger() {
 	// Configure logrus for our needs
 	log.SetOutput(os.Stderr)
 	log.SetFormatter(&log.TextFormatter{
@@ -18,8 +20,14 @@ func init() {
 	if os.Getenv("DEBUG") == "1" {
 		log.SetLevel(log.DebugLevel)
 	} else {
-		log.SetLevel(log.WarnLevel)
+		log.SetLevel(log.InfoLevel)
 	}
+}
+
+func init() {
+	// Initialize logger on package import
+	// This ensures logging is configured even if InitLogger() isn't called explicitly
+	InitLogger()
 }
 
 // GetLogger returns a configured logrus entry with the given context name.

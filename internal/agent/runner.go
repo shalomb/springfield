@@ -6,6 +6,7 @@ import (
 
 	"github.com/shalomb/springfield/internal/config"
 	"github.com/shalomb/springfield/internal/llm"
+	log "github.com/sirupsen/logrus"
 )
 
 // Runner defines the interface for agent runners.
@@ -45,6 +46,8 @@ func (br *BaseRunner) SetBudget(budget int) {
 
 // Run executes the agent runner by loading the prompt and calling the LLM.
 func (br *BaseRunner) Run(ctx context.Context) error {
+	logger := log.WithField("agent", br.Agent)
+	
 	// Determine the prompt path
 	promptPath := br.PromptPath
 	if promptPath == "" {
@@ -52,10 +55,13 @@ func (br *BaseRunner) Run(ctx context.Context) error {
 	}
 
 	// Load the prompt from the file
+	logger.Debugf("Loading prompt from: %s", promptPath)
 	prompt, err := config.LoadPrompt(promptPath)
 	if err != nil {
+		logger.WithError(err).Errorf("Failed to load prompt")
 		return fmt.Errorf("failed to load prompt for agent %s: %w", br.Agent, err)
 	}
+	logger.Debugf("Prompt loaded, %d bytes", len(prompt))
 
 	// Build the initial message with the system prompt
 	messages := []llm.Message{
@@ -74,14 +80,18 @@ func (br *BaseRunner) Run(ctx context.Context) error {
 	}
 
 	// Call the LLM
+	logger.Infof("🤖 Calling LLM with %d messages...", len(messages))
 	response, err := br.LLMClient.Chat(ctx, messages)
 	if err != nil {
+		logger.WithError(err).Errorf("LLM call failed")
 		return fmt.Errorf("LLM call failed: %w", err)
 	}
+	logger.Infof("✅ LLM responded with %d bytes", len(response.Content))
 
 	// Track token usage
 	br.TotalTokensUsed += response.TokenUsage.TotalTokens
 	if br.Budget > 0 && br.TotalTokensUsed > br.Budget {
+		logger.Warnf("Budget exceeded: %d tokens used of %d allocated", br.TotalTokensUsed, br.Budget)
 		return fmt.Errorf("budget exceeded: %d tokens used of %d allocated", br.TotalTokensUsed, br.Budget)
 	}
 

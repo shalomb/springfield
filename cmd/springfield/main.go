@@ -22,8 +22,10 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "springfield",
-	Short: "Springfield is an AI agent orchestration tool",
+	Use:           "springfield",
+	Short:         "Springfield is an AI agent orchestration tool",
+	SilenceUsage:  true,
+	SilenceErrors: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if agentName == "" || task == "" {
 			return cmd.Help()
@@ -89,9 +91,13 @@ var rootCmd = &cobra.Command{
 
 		fmt.Println("Starting agent loop...")
 		if err := runner.Run(ctx); err != nil {
+			// Format error message more clearly
+			errMsg := fmt.Sprintf("%v", err)
+			fmt.Fprintf(os.Stderr, "❌ Error: %s\n", errMsg)
 			return fmt.Errorf("error in agent loop: %w", err)
 		}
 
+		fmt.Println("✅ Agent completed successfully")
 		return nil
 	},
 }
@@ -119,7 +125,7 @@ func init() {
 
 func main() {
 	if err := runMain(); err != nil {
-		fmt.Println(err)
+		// Don't print error here - it's already printed in the RunE function
 		os.Exit(1)
 	}
 }
