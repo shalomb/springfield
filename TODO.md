@@ -8,7 +8,7 @@
   - **Success Criteria:** `just bart` should pass if `FEEDBACK.md` contains explanatory text with the word "critical" but not the actual Status line.
   - **ACP:** `fix: use stricter regex for feedback evaluation in Justfile`
 
-- [ ] **[FEAT] Implement decision logging in Agent loop**
+- [x] **[FEAT] Implement decision logging in Agent loop**
   - **Context:** The orchestrator relies on `td` decisions (e.g., `ralph_done`, `bart_ok`) to transition states. Currently, agents have no easy way to signal completion to the orchestrator.
   - **Action:** Ensure agents are instructed (via prompt or tool) to log decisions using `td log <epic-id> <decision> --decision`.
   - **Success Criteria:** An agent can successfully log a decision (e.g., `ralph_done`) that the orchestrator can then detect via `o.hasDecision`.
