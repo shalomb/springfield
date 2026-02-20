@@ -113,19 +113,19 @@ func (p *PiLLM) executorWithFallback(ctx context.Context, name string, arg ...st
 		npmArgs := []string{"exec", "@mariozechner/pi-coding-agent", "--"}
 		npmArgs = append(npmArgs, arg...)
 		logger.Debugf("Executing: npm exec @mariozechner/pi-coding-agent with %d arguments", len(arg))
-		
+
 		// Capture stdout and stderr separately for better error reporting
 		cmd := exec.CommandContext(ctx, "npm", npmArgs...)
 		var stdout, stderr bytes.Buffer
 		cmd.Stdout = &stdout
 		cmd.Stderr = &stderr
-		
+
 		npmErr := cmd.Run()
 		stdoutBytes := stdout.Bytes()
 		stderrBytes := stderr.Bytes()
 		stdoutStr := string(stdoutBytes)
 		stderrStr := string(stderrBytes)
-		
+
 		if npmErr == nil {
 			logger.Debugf("npm exec succeeded, got %d bytes stdout", len(stdoutBytes))
 			logger.Debugf("Raw npm output:\n%s", stdoutStr)
@@ -137,24 +137,24 @@ func (p *PiLLM) executorWithFallback(ctx context.Context, name string, arg ...st
 		}
 
 		// npm failed - provide detailed error information
-		
+
 		logger.Debugf("npm exec failed with stderr: %s", stderrStr)
 		logger.Debugf("npm exec stdout: %s", stdoutStr)
-		
+
 		// Check for quota/rate limit errors (these are terminal conditions)
 		if isQuotaExceeded(stderrStr) {
 			errMsg := formatExecutionError("npm exec", npmErr, stderrStr, stdoutStr)
 			logger.WithError(npmErr).Errorf("QUOTA EXCEEDED: %s", errMsg)
 			return nil, &QuotaExceededError{
-				Message: errMsg,
+				Message:  errMsg,
 				Original: npmErr,
 			}
 		}
-		
+
 		// Build a detailed error message
 		errMsg := formatExecutionError("npm exec", npmErr, stderrStr, stdoutStr)
 		logger.WithError(npmErr).Errorf("npm exec failed: %s", errMsg)
-		
+
 		return nil, fmt.Errorf("npm exec failed: %s", errMsg)
 	}
 
@@ -166,7 +166,7 @@ func (p *PiLLM) executorWithFallback(ctx context.Context, name string, arg ...st
 // formatExecutionError creates a detailed error message from command execution failure
 func formatExecutionError(cmdName string, err error, stderr, stdout string) string {
 	var details string
-	
+
 	if stderr != "" {
 		details = stderr
 	} else if stdout != "" {
@@ -174,7 +174,7 @@ func formatExecutionError(cmdName string, err error, stderr, stdout string) stri
 	} else {
 		details = err.Error()
 	}
-	
+
 	return details
 }
 
@@ -182,17 +182,17 @@ func formatExecutionError(cmdName string, err error, stderr, stdout string) stri
 func isQuotaExceeded(stderr string) bool {
 	// Check for common quota/rate limit error patterns
 	quotaPatterns := []string{
-		"429",                          // HTTP 429 Too Many Requests
-		"exhausted your capacity",      // Google Gemini
-		"rate limit",                   // Generic rate limit
-		"quota",                        // Generic quota error
-		"too many requests",            // Generic rate limit message
-		"request limit exceeded",       // Some APIs
-		"billing_exception",            // Anthropic billing
-		"401",                          // Unauthorized (may include quota)
-		"403",                          // Forbidden (may include quota)
+		"429",                     // HTTP 429 Too Many Requests
+		"exhausted your capacity", // Google Gemini
+		"rate limit",              // Generic rate limit
+		"quota",                   // Generic quota error
+		"too many requests",       // Generic rate limit message
+		"request limit exceeded",  // Some APIs
+		"billing_exception",       // Anthropic billing
+		"401",                     // Unauthorized (may include quota)
+		"403",                     // Forbidden (may include quota)
 	}
-	
+
 	stderrLower := strings.ToLower(stderr)
 	for _, pattern := range quotaPatterns {
 		if strings.Contains(stderrLower, pattern) {

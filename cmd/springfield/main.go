@@ -99,7 +99,7 @@ var rootCmd = &cobra.Command{
 				fmt.Fprintf(os.Stderr, "   Please resolve the quota issue and try again.\n\n")
 				return fmt.Errorf("quota exceeded - execution halted")
 			}
-			
+
 			// Format other error messages more clearly
 			errMsg := fmt.Sprintf("%v", err)
 			fmt.Fprintf(os.Stderr, "❌ Error: %s\n", errMsg)

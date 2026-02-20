@@ -47,7 +47,7 @@ func (br *BaseRunner) SetBudget(budget int) {
 // Run executes the agent runner by loading the prompt and calling the LLM.
 func (br *BaseRunner) Run(ctx context.Context) error {
 	logger := log.WithField("agent", br.Agent)
-	
+
 	// Determine the prompt path
 	promptPath := br.PromptPath
 	if promptPath == "" {
@@ -87,7 +87,7 @@ func (br *BaseRunner) Run(ctx context.Context) error {
 		return fmt.Errorf("LLM call failed: %w", err)
 	}
 	logger.Infof("✅ LLM responded with %d bytes", len(response.Content))
-	
+
 	// Show the response content to the user
 	if response.Content != "" {
 		logger.Infof("📝 LLM Response:\n%s", response.Content)

@@ -3,7 +3,9 @@ package agent
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/shalomb/springfield/internal/config"
 	"github.com/shalomb/springfield/internal/llm"
@@ -66,6 +68,17 @@ func (br *BartRunner) Run(ctx context.Context) error {
 		return fmt.Errorf("budget exceeded: %d tokens used of %d allocated", br.TotalTokensUsed, br.Budget)
 	}
 
+	// Write feedback to FEEDBACK.md
+	// TODO(EPIC-005): Implement proper feedback parsing and extraction from response
+	// For now, write the full response with a header
+	feedbackContent := fmt.Sprintf("# FEEDBACK.md - Quality Gate Report\n\n**Agent:** Bart Simpson (Quality Agent)\n**Date:** %s\n\n%s\n",
+		getCurrentDate(), response.Content)
+	
+	if err := writeContextFile("FEEDBACK.md", feedbackContent); err != nil {
+		// Don't fail the run if we can't write feedback - it's secondary to the review
+		fmt.Printf("⚠️  Warning: Could not write FEEDBACK.md: %v\n", err)
+	}
+
 	return nil
 }
 
@@ -88,4 +101,14 @@ func (br *BartRunner) aggregateFeedbackContext() string {
 	}
 
 	return strings.Join(parts, "\n\n")
+}
+
+// getCurrentDate returns the current date in a readable format
+func getCurrentDate() string {
+	return time.Now().Format("2006-01-02 15:04 MST")
+}
+
+// writeContextFile writes content to a file
+func writeContextFile(filename string, content string) error {
+	return os.WriteFile(filename, []byte(content), 0644)
 }
