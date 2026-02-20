@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/shalomb/springfield/internal/config"
 	"github.com/shalomb/springfield/internal/llm"
@@ -64,6 +65,16 @@ func (lr *LisaRunner) Run(ctx context.Context) error {
 	lr.TotalTokensUsed += response.TokenUsage.TotalTokens
 	if lr.Budget > 0 && lr.TotalTokensUsed > lr.Budget {
 		return fmt.Errorf("budget exceeded: %d tokens used of %d allocated", lr.TotalTokensUsed, lr.Budget)
+	}
+
+	// Write planning output to PLAN.md (temporary: just append LLM response)
+	// TODO(EPIC-005): Implement proper plan parsing and extraction from response
+	planContent := fmt.Sprintf("# PLAN.md - Product Backlog\n\n**Agent:** Lisa Simpson (Planning Agent)\n**Date:** %s\n\n%s\n",
+		time.Now().Format("2006-01-02 15:04 MST"), response.Content)
+	
+	if err := os.WriteFile("PLAN.md", []byte(planContent), 0644); err != nil {
+		// Don't fail the run if we can't write plan - it's secondary to the planning
+		fmt.Printf("⚠️  Warning: Could not write PLAN.md: %v\n", err)
 	}
 
 	return nil
