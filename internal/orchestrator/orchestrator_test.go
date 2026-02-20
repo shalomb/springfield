@@ -9,7 +9,7 @@ type mockAgentRunner struct {
 	runs []string
 }
 
-func (m *mockAgentRunner) Run(agent string, epicID string) error {
+func (m *mockAgentRunner) Run(agent string, epicID string, worktreeDir string) error {
 	m.runs = append(m.runs, agent+":"+epicID)
 	return nil
 }

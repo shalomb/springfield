@@ -47,12 +47,12 @@ func (m *WorktreeManager) EnsureWorktree(epicID string) (string, error) {
 	return worktreePath, nil
 }
 
-// DepositHandoff copies the TODO-{id}.md handoff document into the worktree.
+// DepositHandoff copies the TODO-{id}.md handoff document into the worktree as TODO.md.
 func (m *WorktreeManager) DepositHandoff(epicID string) error {
 	handoffFile := "TODO-" + epicID + ".md"
 	sourcePath := filepath.Join(m.BaseDir, handoffFile)
 	worktreePath := filepath.Join(m.BaseDir, "worktrees", "epic-"+epicID)
-	destPath := filepath.Join(worktreePath, handoffFile)
+	destPath := filepath.Join(worktreePath, "TODO.md")
 
 	if _, err := os.Stat(sourcePath); os.IsNotExist(err) {
 		return fmt.Errorf("handoff file not found: %s", sourcePath)

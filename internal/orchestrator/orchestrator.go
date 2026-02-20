@@ -9,7 +9,7 @@ import (
 
 // AgentRunner provides an interface for running agents.
 type AgentRunner interface {
-	Run(agent string, epicID string) error
+	Run(agent string, epicID string, worktreeDir string) error
 }
 
 // Orchestrator manages the execution of Epics.
@@ -29,9 +29,10 @@ type CommandAgentRunner struct {
 	BinaryPath string
 }
 
-func (r *CommandAgentRunner) Run(agent string, epicID string) error {
-	log.Printf("INVOKING AGENT: %s for Epic %s (binary: %s)", agent, epicID, r.BinaryPath)
+func (r *CommandAgentRunner) Run(agent string, epicID string, worktreeDir string) error {
+	log.Printf("INVOKING AGENT: %s for Epic %s (binary: %s) in worktree %s", agent, epicID, r.BinaryPath, worktreeDir)
 	cmd := exec.Command(r.BinaryPath, "--agent", agent, "--task", fmt.Sprintf("Work on epic %s", epicID))
+	cmd.Dir = worktreeDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
@@ -69,21 +70,24 @@ func (o *Orchestrator) processEpic(id string) error {
 	case StatusPlanned:
 		log.Printf("Epic %s is planned. Invoking Lisa for breakdown.", id)
 		if o.Agent != nil {
-			return o.Agent.Run("lisa", id)
+			return o.Agent.Run("lisa", id, "")
 		}
 		return nil
 	case StatusBlocked:
 		log.Printf("Epic %s is blocked. Invoking Lisa for replanning.", id)
 		if o.Agent != nil {
-			return o.Agent.Run("lisa", id)
+			return o.Agent.Run("lisa", id, "")
 		}
 		return nil
 	case StatusReady:
 		log.Printf("Transitioning Epic %s to in_progress", id)
 
+		worktreeDir := ""
 		if o.Worktree != nil {
 			log.Printf("Setting up worktree and depositing handoff for Epic %s", id)
-			if _, err := o.Worktree.EnsureWorktree(id); err != nil {
+			var err error
+			worktreeDir, err = o.Worktree.EnsureWorktree(id)
+			if err != nil {
 				return err
 			}
 			if err := o.Worktree.DepositHandoff(id); err != nil {
@@ -98,7 +102,7 @@ func (o *Orchestrator) processEpic(id string) error {
 			return err
 		}
 		if o.Agent != nil {
-			return o.Agent.Run("ralph", id)
+			return o.Agent.Run("ralph", id, worktreeDir)
 		}
 		return nil
 	case StatusInProgress:
@@ -110,7 +114,11 @@ func (o *Orchestrator) processEpic(id string) error {
 				return err
 			}
 			if o.Agent != nil {
-				return o.Agent.Run("bart", id)
+				worktreeDir := ""
+				if o.Worktree != nil {
+					worktreeDir, _ = o.Worktree.EnsureWorktree(id)
+				}
+				return o.Agent.Run("bart", id, worktreeDir)
 			}
 			return nil
 		}
@@ -121,7 +129,11 @@ func (o *Orchestrator) processEpic(id string) error {
 				return err
 			}
 			if o.Agent != nil {
-				return o.Agent.Run("lovejoy", id)
+				worktreeDir := ""
+				if o.Worktree != nil {
+					worktreeDir, _ = o.Worktree.EnsureWorktree(id)
+				}
+				return o.Agent.Run("lovejoy", id, worktreeDir)
 			}
 			return nil
 		}
@@ -131,7 +143,11 @@ func (o *Orchestrator) processEpic(id string) error {
 				return err
 			}
 			if o.Agent != nil {
-				return o.Agent.Run("ralph", id)
+				worktreeDir := ""
+				if o.Worktree != nil {
+					worktreeDir, _ = o.Worktree.EnsureWorktree(id)
+				}
+				return o.Agent.Run("ralph", id, worktreeDir)
 			}
 			return nil
 		}
@@ -147,7 +163,7 @@ func (o *Orchestrator) processEpic(id string) error {
 			log.Printf("Successfully updated Epic %s to blocked", id)
 			// In a real implementation, we would invoke Lisa here.
 			if o.Agent != nil {
-				return o.Agent.Run("lisa", id)
+				return o.Agent.Run("lisa", id, "")
 			}
 			return nil
 		}

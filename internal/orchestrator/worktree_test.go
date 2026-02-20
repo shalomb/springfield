@@ -52,10 +52,10 @@ func TestWorktreeManager(t *testing.T) {
 		t.Fatalf("DepositHandoff failed: %v", err)
 	}
 
-	// Verify handoff was deposited in worktree
-	depositedPath := filepath.Join(worktreePath, handoffFile)
+	// Verify handoff was deposited in worktree as TODO.md
+	depositedPath := filepath.Join(worktreePath, "TODO.md")
 	if _, err := os.Stat(depositedPath); os.IsNotExist(err) {
-		t.Errorf("handoff file was not deposited at %s", depositedPath)
+		t.Errorf("handoff file was not deposited as TODO.md at %s", depositedPath)
 	}
 }
 
