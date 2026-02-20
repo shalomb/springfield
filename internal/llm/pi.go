@@ -8,6 +8,22 @@ import (
 	"strings"
 )
 
+// QuotaExceededError represents an API quota/rate limit error
+type QuotaExceededError struct {
+	Message  string
+	Original error
+}
+
+func (e *QuotaExceededError) Error() string {
+	return fmt.Sprintf("API quota exceeded: %s", e.Message)
+}
+
+// IsQuotaExceededError checks if an error is a QuotaExceededError
+func IsQuotaExceededError(err error) bool {
+	_, ok := err.(*QuotaExceededError)
+	return ok
+}
+
 // PiLLM implements LLMClient by calling the 'pi' CLI.
 type PiLLM struct {
 	Model    string
@@ -125,6 +141,16 @@ func (p *PiLLM) executorWithFallback(ctx context.Context, name string, arg ...st
 		logger.Debugf("npm exec failed with stderr: %s", stderrStr)
 		logger.Debugf("npm exec stdout: %s", stdoutStr)
 		
+		// Check for quota/rate limit errors (these are terminal conditions)
+		if isQuotaExceeded(stderrStr) {
+			errMsg := formatExecutionError("npm exec", npmErr, stderrStr, stdoutStr)
+			logger.WithError(npmErr).Errorf("QUOTA EXCEEDED: %s", errMsg)
+			return nil, &QuotaExceededError{
+				Message: errMsg,
+				Original: npmErr,
+			}
+		}
+		
 		// Build a detailed error message
 		errMsg := formatExecutionError("npm exec", npmErr, stderrStr, stdoutStr)
 		logger.WithError(npmErr).Errorf("npm exec failed: %s", errMsg)
@@ -150,6 +176,30 @@ func formatExecutionError(cmdName string, err error, stderr, stdout string) stri
 	}
 	
 	return details
+}
+
+// isQuotaExceeded checks if the error is due to API quota/rate limiting
+func isQuotaExceeded(stderr string) bool {
+	// Check for common quota/rate limit error patterns
+	quotaPatterns := []string{
+		"429",                          // HTTP 429 Too Many Requests
+		"exhausted your capacity",      // Google Gemini
+		"rate limit",                   // Generic rate limit
+		"quota",                        // Generic quota error
+		"too many requests",            // Generic rate limit message
+		"request limit exceeded",       // Some APIs
+		"billing_exception",            // Anthropic billing
+		"401",                          // Unauthorized (may include quota)
+		"403",                          // Forbidden (may include quota)
+	}
+	
+	stderrLower := strings.ToLower(stderr)
+	for _, pattern := range quotaPatterns {
+		if strings.Contains(stderrLower, pattern) {
+			return true
+		}
+	}
+	return false
 }
 
 // isCommandNotFound checks if an error is due to a command not being found.

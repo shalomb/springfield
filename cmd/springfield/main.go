@@ -91,7 +91,16 @@ var rootCmd = &cobra.Command{
 
 		fmt.Println("Starting agent loop...")
 		if err := runner.Run(ctx); err != nil {
-			// Format error message more clearly
+			// Check for quota errors (terminal conditions)
+			if llm.IsQuotaExceededError(err) {
+				fmt.Fprintf(os.Stderr, "\n🛑 CRITICAL: API QUOTA EXCEEDED\n")
+				fmt.Fprintf(os.Stderr, "   %s\n", err.Error())
+				fmt.Fprintf(os.Stderr, "\n⚠️  Execution halted to preserve uncommitted changes.\n")
+				fmt.Fprintf(os.Stderr, "   Please resolve the quota issue and try again.\n\n")
+				return fmt.Errorf("quota exceeded - execution halted")
+			}
+			
+			// Format other error messages more clearly
 			errMsg := fmt.Sprintf("%v", err)
 			fmt.Fprintf(os.Stderr, "❌ Error: %s\n", errMsg)
 			return fmt.Errorf("error in agent loop: %w", err)

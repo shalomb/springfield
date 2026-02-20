@@ -2,6 +2,7 @@ package llm
 
 import (
 	"context"
+	"fmt"
 	"testing"
 )
 
@@ -61,5 +62,46 @@ func TestPiLLM_Chat_Error(t *testing.T) {
 	_, err := p.Chat(context.Background(), []Message{{Role: "user", Content: "hi"}})
 	if err == nil {
 		t.Error("expected error, got nil")
+	}
+}
+
+func TestIsQuotaExceeded(t *testing.T) {
+	testCases := []struct {
+		stderr string
+		expect bool
+		name   string
+	}{
+		{"Cloud Code Assist API error (429): You have exhausted your capacity", true, "gemini quota"},
+		{"429 Too Many Requests", true, "http 429"},
+		{"exhausted your capacity on this model", true, "exhausted capacity"},
+		{"rate limit exceeded", true, "rate limit"},
+		{"quota_exceeded", true, "quota keyword"},
+		{"billing_exception", true, "billing error"},
+		{"401 Unauthorized", true, "unauthorized"},
+		{"403 Forbidden", true, "forbidden"},
+		{"random error message", false, "no quota marker"},
+		{"connection timeout", false, "timeout"},
+		{"", false, "empty string"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := isQuotaExceeded(tc.stderr)
+			if result != tc.expect {
+				t.Errorf("isQuotaExceeded(%q) = %v, expected %v", tc.stderr, result, tc.expect)
+			}
+		})
+	}
+}
+
+func TestIsQuotaExceededError(t *testing.T) {
+	quotaErr := &QuotaExceededError{Message: "quota exceeded"}
+	if !IsQuotaExceededError(quotaErr) {
+		t.Error("IsQuotaExceededError failed to detect QuotaExceededError")
+	}
+
+	genericErr := fmt.Errorf("some error")
+	if IsQuotaExceededError(genericErr) {
+		t.Error("IsQuotaExceededError incorrectly detected generic error as quota error")
 	}
 }
