@@ -49,7 +49,7 @@ func (c *TDClient) GetEpic(id string) (*Issue, error) {
 	}
 
 	var issue Issue
-	if err := json.Unmarshal(output, &issue); err != nil {
+	if err := c.robustUnmarshal(output, &issue); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal td output: %w", err)
 	}
 
@@ -69,7 +69,13 @@ func (c *TDClient) QueryEpics(expression string) ([]Issue, error) {
 
 	var issues []Issue
 	if err := json.Unmarshal(output, &issues); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal td output: %w", err)
+		// Try single object fallback for Query too, though Query usually returns array
+		var issue Issue
+		if err := json.Unmarshal(output, &issue); err == nil {
+			issues = []Issue{issue}
+		} else {
+			return nil, fmt.Errorf("failed to unmarshal td output: %w", err)
+		}
 	}
 
 	// Filter only epics
@@ -122,4 +128,26 @@ func (c *TDClient) runTD(args ...string) ([]byte, error) {
 		return nil, fmt.Errorf("td %v failed: %w (output: %s)", args, err, string(output))
 	}
 	return output, nil
+}
+
+func (c *TDClient) robustUnmarshal(data []byte, target interface{}) error {
+	// Try to unmarshal as single object first
+	if err := json.Unmarshal(data, target); err == nil {
+		return nil
+	}
+
+	// If that fails, try to unmarshal as array and take first element
+	var list []json.RawMessage
+	if err := json.Unmarshal(data, &list); err == nil {
+		if len(list) == 0 {
+			return fmt.Errorf("empty array")
+		}
+		if len(list) > 1 {
+			return fmt.Errorf("multiple objects in array, expected one")
+		}
+		return json.Unmarshal(list[0], target)
+	}
+
+	// Return original error if both failed
+	return json.Unmarshal(data, target)
 }
