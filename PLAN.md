@@ -113,6 +113,7 @@
 ## 🚩 Technical Debt, Risks & Known Issues
 
 ### ⚠️ Known Issues (Minor Feedback)
+- **Justfile Fragility (FIXED IN TODO):** Greedy grep on `FEEDBACK.md` causes false positives.
 - **Logger Inefficiency:** Current `pkg/logger` opens and closes two log files for every entry. Needs optimization for high-throughput (e.g., buffered writer).
 - **Ghost Feature:** `docs/features/automated_feedback_loop.feature` exists but has no tests.
 - **Linting Error:** `internal/sandbox/axon_test.go:88:16` - unchecked `os.Chdir`.
