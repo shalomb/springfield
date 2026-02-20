@@ -73,7 +73,7 @@ func (br *BartRunner) Run(ctx context.Context) error {
 	// For now, write the full response with a header
 	feedbackContent := fmt.Sprintf("# FEEDBACK.md - Quality Gate Report\n\n**Agent:** Bart Simpson (Quality Agent)\n**Date:** %s\n\n%s\n",
 		getCurrentDate(), response.Content)
-	
+
 	if err := writeContextFile("FEEDBACK.md", feedbackContent); err != nil {
 		// Don't fail the run if we can't write feedback - it's secondary to the review
 		fmt.Printf("⚠️  Warning: Could not write FEEDBACK.md: %v\n", err)
