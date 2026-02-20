@@ -2,7 +2,6 @@ package orchestrator
 
 import (
 	"os"
-	"os/exec"
 	"path/filepath"
 	"testing"
 )
@@ -82,13 +81,5 @@ func TestWorktreeManager_ExistingBranch(t *testing.T) {
 	_, err = wm.EnsureWorktree(epicID)
 	if err != nil {
 		t.Fatalf("EnsureWorktree failed with existing branch: %v", err)
-	}
-}
-
-func runCmd(t *testing.T, dir string, name string, args ...string) {
-	cmd := exec.Command(name, args...)
-	cmd.Dir = dir
-	if output, err := cmd.CombinedOutput(); err != nil {
-		t.Fatalf("cmd %s %v failed in %s: %v (output: %s)", name, args, dir, err, string(output))
 	}
 }

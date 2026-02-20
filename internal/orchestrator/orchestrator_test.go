@@ -2,7 +2,6 @@ package orchestrator
 
 import (
 	"os"
-	"os/exec"
 	"testing"
 )
 
@@ -188,13 +187,5 @@ func TestOrchestrator_StrictHandoff(t *testing.T) {
 	epic, _ := client.GetEpic(id)
 	if epic.Status == "in_progress" {
 		t.Error("expected status not to be in_progress after failed handoff deposit")
-	}
-}
-
-func runCmd(t *testing.T, dir string, name string, args ...string) {
-	cmd := exec.Command(name, args...)
-	cmd.Dir = dir
-	if output, err := cmd.CombinedOutput(); err != nil {
-		t.Fatalf("cmd %s %v failed in %s: %v (output: %s)", name, args, dir, err, string(output))
 	}
 }
