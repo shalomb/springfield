@@ -87,6 +87,15 @@ var rootCmd = &cobra.Command{
 	},
 }
 
+var orchestrateCmd = &cobra.Command{
+	Use:   "orchestrate",
+	Short: "Run the orchestration loop",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("Orchestration loop starting...")
+		return nil
+	},
+}
+
 type mockLLM struct{}
 
 func (m *mockLLM) Chat(ctx context.Context, messages []llm.Message) (llm.Response, error) {
@@ -105,6 +114,7 @@ func (m *mockLLM) Chat(ctx context.Context, messages []llm.Message) (llm.Respons
 }
 
 func init() {
+	rootCmd.AddCommand(orchestrateCmd)
 	rootCmd.Flags().StringVarP(&agentName, "agent", "a", "", "Name of the agent (marge/lisa/ralph/bart/lovejoy)")
 	rootCmd.Flags().StringVarP(&task, "task", "t", "", "Task to execute")
 	rootCmd.Flags().StringVarP(&configPath, "config", "c", "", "Path to axon config.toml")
