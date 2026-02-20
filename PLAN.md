@@ -1,61 +1,34 @@
 # PLAN.md - Product Backlog
 
-> **Marge's Note:** This backlog has been reprioritized using WSJF (Weighted Shortest Job First). Focus is on finishing the Autonomous Loop (EPIC-007) and then moving to Governance (EPIC-005) to control costs before we scale.
-> *Last Updated: 2026-02-19*
+> **Marge's Note:** This backlog has been reprioritized using WSJF (Weighted Shortest Job First). Focus is on transitioning to the Springfield Binary Orchestrator and td(1) for more robust planning.
+> *Last Updated: 2026-02-20*
 
 ## 🚀 Active Focus
 
-### EPIC-004: Agent Sandboxing
-**WSJF Score: 1.65** (CoD: 33 / Size: 20)
-**Value Statement:** For **System Administrators**, who **fear agents destroying the host system**, the **Sandboxing Environment** is a **security boundary** that **ensures safe execution of arbitrary code**.
+### EPIC-009: Springfield Binary Orchestrator & td(1) Integration
+**td:** `td-3cc3c3`
+**WSJF Score: 4.5** (CoD: 36 / Size: 8)
+**Value Statement:** For **the Agent Crew**, who **suffer from fragile orchestration and branch contention**, the **Springfield Binary** is a **type-safe Go orchestrator** that **replaces shell-based Justfile loops** and **uses td(1) for shared planning state**.
 
-**The "Why":** Agents like Ralph execute code. Running this as root/user on the host is dangerous. We need containment.
+**The "Why":** Shell-based orchestration cannot be unit tested and is prone to string-matching errors. Shared state in `td` (SQLite) eliminates planning conflicts across git worktrees.
 **Scope:**
-- [x] Axon library-based execution context (Migrated from CLI)
-- [x] Workspace mounting strategy (Workspace isolation)
-- [x] Resource constraints (CPU/Memory)
-- ❌ Network restriction policies (Deferred)
-- ❌ Full VM virtualization (Out of Scope)
+- [ ] **cmd/springfield:** Implement the orchestration state machine in Go.
+- [ ] **td(1) Integration:** Use `td` as the source of truth for Epic/Task state.
+- [ ] **Typed Signals:** Replace keyword grep in `FEEDBACK.md` with `td log --decision`.
+- [ ] **TODO-{id}.md:** Implement the handoff context deposit protocol.
 
 **Acceptance Criteria:**
-- [x] Agents run inside an isolated Axon container (via `pkg/executor`).
-- [x] Agents cannot access host files outside the mounted workspace.
-- [x] Workspace state is preserved between runs.
-- [x] **BDD Scenarios:** `features/sandboxing.feature`
-- [x] **Marge Gate:** Performance impact is measured and accepted by stakeholders.
-- [x] **Marge Gate:** Security model is validated against common "jailbreak" patterns.
+- [ ] `just do` delegates entirely to `cmd/springfield`.
+- [ ] State transitions follow the table in ADR-008.
+- [ ] Multiple Ralph worktrees can run concurrently without `PLAN.md` conflicts.
+- [ ] **Marge Gate:** Orchestration logic is covered by 90%+ unit test coverage.
 
 **Attributes:**
-- **Status:** ✅ Done
+- **Status:** 🏗️ In Progress
 - **Complexity:** High
-- **Urgency:** High (Security)
-- **Dependencies:** EPIC-003 (Logging)
-- **ADRs:** `docs/adr/ADR-004-agent-sandboxing.md`, `docs/adr/ADR-005-axon-library-migration.md`
-
-**Retrospective (2026-02-19):**
-- **Learning:** Security guardrails (`isUnsafeAction`) were too restrictive, blocking standard shell redirection (`>`) which Ralph needs.
-- **Learning:** Simple string matching for `[[FINISH]]` triggers prematurely if not bounded to the end or its own line.
-- **Action:** Move safety logic refinement to Known Issues for further optimization, but immediately fix blockers.
-
-**Risks:**
-- **TR-005:** `pi` environment constraints may prevent Docker-in-Docker or nested virtualization.
-- **TR-006:** Filesystem mounting latency could impact Ralph's performance.
-
-**Corrective Actions (Priority):**
-- [x] **CA-1: Robust `FINISH` Detection.** Use `[[FINISH]]` marker or similar to avoid false positives.
-- [x] **CA-2: Explicit Error Handling.** Ensure `logger.Log` and `os.Chdir` errors are not ignored.
-- [x] **CA-3: Regex Action Extraction.** Use `(?m)^ACTION:\s*(.+)$` for reliable extraction.
-- [x] **CA-4: Strengthen Safety Guardrails.** Refine `isUnsafeAction` or migrate to Axon-native allowlist.
-- [x] **CA-5: Repair Test Infrastructure.** Fix `tests/unit/test_logger_concurrency.py` and missing scripts.
-
-**Tasks:**
-- [x] Task 1: Research `pi` environment capabilities for isolation (Docker, podman, nsenter)
-- [x] Task 2: Draft ADR-004 with proposed isolation strategy
-- [x] Task 3: Create `features/sandboxing.feature`
-- [x] Task 4: CLI Prototype (Superseded by library integration)
-- [x] Task 10: Integrate Axon Library (`pkg/executor`)
-- [x] Task 11: Implement Workspace Isolation via Axon Volume Mounting
-- [x] Task 12: Implement Resource Constraints (CPU/Memory) in `internal/sandbox/axon.go`
+- **Urgency:** Critical
+- **Dependencies:** EPIC-007 (Loop logic), ADR-008
+- **ADRs:** `docs/adr/ADR-008-planning-state-td-springfield-orchestrator.md`
 
 ---
 
@@ -67,22 +40,24 @@
 
 **The "Why":** "Infinite loops" in agent logic can bankrupt us. We need a way to say "use this model, for this task, within this budget."
 **Scope:**
+- [x] **Governance Framework:** ADRs (007, 008) and Quality Indices (Farley, Adzic).
 - [ ] **Unified Config (`.springfield.yaml`)** & Global Fallback.
 - [ ] **Budget Enforcer:** Per-session and per-day hard limits.
 - [ ] **Model Selection Logic:** Swap models based on task complexity.
 - [ ] **Tool/Sandbox Mapping:** Define accessible tools.
 
 **Acceptance Criteria:**
+- [x] Governance standards (Feedback, Farley, Adzic) are documented and applied.
 - [ ] Every LLM call is logged with token count and cost.
 - [ ] System rejects requests when budget is exceeded.
 - [ ] Agents can be configured via a `.springfield.yaml`.
 - [ ] **Marge Gate:** Budget thresholds are agreed upon.
 
 **Attributes:**
-- **Status:** 📋 Ready
+- **Status:** 📋 Ready (Phase 1 Done)
 - **Complexity:** Medium
 - **Urgency:** Medium
-- **Dependencies:** EPIC-003 (Logging)
+- **Dependencies:** EPIC-009 (Orchestrator), EPIC-003 (Logging)
 
 ### EPIC-006: Existing Agent Compatibility
 **WSJF Score: 2.0** (CoD: 10 / Size: 5)
@@ -107,29 +82,31 @@
 
 ## ✅ Completed History
 
+### EPIC-005 (Phase 1): Governance Framework
+- **Status:** ✅ Done (2026-02-20)
+- **Outcome:** Established ADR-007 (Planning Loop) and ADR-008 (State Boundary). Implemented Farley and Adzic quality indices. Created feedback standard.
+- **Retrospective (2026-02-20):**
+    - **Learning:** Governance is empirical. ADR-007 Amendment A ensures ADRs are treated as hypotheses to be verified by Ralph's implementation.
+    - **Learning:** "Premature refinement is waste" (EPIC-007) is solved by the Fidelity Gradient (Stub -> Options -> Ready).
+    - **Signals:** Bart's approval of the framework validates the "Shift-Left" quality model.
+
+### EPIC-004: Agent Sandboxing
+- **Status:** ✅ Done (2026-02-19)
+- **Outcome:** Agents run inside isolated Axon containers with workspace mounting and resource constraints.
+- **Retrospective (2026-02-19):**
+    - **Learning:** Security guardrails (`isUnsafeAction`) were too restrictive, blocking standard shell redirection (`>`) which Ralph needs.
+    - **Learning:** Simple string matching for `[[FINISH]]` triggers prematurely if not bounded to the end or its own line.
+
 ### EPIC-007: Autonomous Development Loop ("just do")
-- **Status:** ✅ Done
-- **Outcome:** Implemented sequential agent chaining (Lisa -> Ralph -> Bart) with `TODO.md` and `FEEDBACK.md` context persistence. Consolidated Quality Review role into Bart (static + dynamic verification). `just do` entrypoint stabilized.
+- **Status:** ✅ Done (2026-02-19)
+- **Outcome:** Implemented sequential agent chaining (Lisa -> Ralph -> Bart) with `TODO.md` and `FEEDBACK.md` context persistence.
 - **Retrospective (2026-02-19):** 
     - **Learning:** Simple string matching for `FINISH` and `ACTION:` is too fragile for LLM responses.
     - **Learning:** Ignoring errors in logging/filesystem calls leads to silent failures and QA rejection.
-    - **Signals:** Bart's pessimism is a necessary filter for "happy path" implementation.
 
 ### EPIC-008: Knowledge Architecture (Diataxis)
-- **Status:** ✅ Done
+- **Status:** ✅ Done (2026-02-18)
 - **Outcome:** Replaced monolithic `AGENTS.md` with a structured index. Established `docs/standards/` and `docs/adr/`.
-
-### EPIC-001: Git Branching Standard
-- **Status:** ✅ Done
-- **Outcome:** Defined `feat/` and `fix/` conventions. Ratified `docs/standards/git-branching.md`.
-
-### EPIC-002: Tmux Agent Orchestration
-- **Status:** ✅ Done
-- **Outcome:** `just flow` launches agent mesh. Named windows and detached logging implemented.
-
-### EPIC-003: Logging & Observability
-- **Status:** ✅ Done
-- **Outcome:** JSON structured logging with `agent_id` and `task_id`. `just logs` created.
 
 ---
 
@@ -137,12 +114,12 @@
 
 ### ⚠️ Known Issues (Minor Feedback)
 - **Logger Inefficiency:** Current `pkg/logger` opens and closes two log files for every entry. Needs optimization for high-throughput (e.g., buffered writer).
-- **Ghost Feature:** `docs/features/automated_feedback_loop.feature` exists but has no tests. (Moved to TODO for implementation).
+- **Ghost Feature:** `docs/features/automated_feedback_loop.feature` exists but has no tests.
 - **Linting Error:** `internal/sandbox/axon_test.go:88:16` - unchecked `os.Chdir`.
-- **Inconsistent safety guardrails:** `isUnsafeAction` blocks `;` and `||` but allows `&&`. Both `&&` and `;` can be used to chain malicious commands. Blocking `||` (logical OR) prevents common fallback patterns in shell scripts.
-- **Multi-action inefficiency:** `extractAction` only extracts the first `ACTION:` from an LLM response. If the LLM provides multiple actions, they must be processed one-by-one in subsequent loop iterations.
+- **Inconsistent safety guardrails:** `isUnsafeAction` blocks `;` and `||` but allows `&&`.
+- **Integration Test Debt:** `tests/integration/feedback_loop_test.go:46, 136` - unchecked `os.WriteFile` errors. (Found by Bart).
 
----
-
-## EPIC-XXX: Continuous Improvement
-Recurring epic for retrospective and process iteration.
+### ⚡ Risks
+- **TR-007:** Springfield binary implementation slip (delays type-safe orchestration).
+- **TR-008:** Lisa's ToT/Self-Consistency logic cost/latency (bottleneck).
+- **TR-009:** `td(1)` data loss or corruption (single-host SQLite risk).
