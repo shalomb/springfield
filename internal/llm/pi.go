@@ -14,13 +14,13 @@ type PiLLM struct {
 
 func (p *PiLLM) Chat(ctx context.Context, messages []Message) (Response, error) {
 	logger := GetLogger("PiLLM.Chat")
-	
+
 	// Log call details
 	logger.Debugf("Starting LLM call with %d messages", len(messages))
 	for i, msg := range messages {
 		logger.Debugf("  Message %d (role=%s): %d chars", i, msg.Role, len(msg.Content))
 	}
-	
+
 	args := []string{"-p", "--no-tools"}
 
 	// Note: We don't pass --model flag because pi CLI defaults to the configured model
@@ -73,7 +73,7 @@ func (p *PiLLM) Chat(ctx context.Context, messages []Message) (Response, error) 
 // This ensures the system works in environments where pi isn't in the PATH.
 func (p *PiLLM) executorWithFallback(ctx context.Context, name string, arg ...string) ([]byte, error) {
 	logger := GetLogger("executorWithFallback")
-	
+
 	// Try 'pi' directly first
 	logger.Debugf("Attempting to execute: %s with %d arguments", name, len(arg))
 	cmd := exec.CommandContext(ctx, name, arg...)
@@ -87,14 +87,14 @@ func (p *PiLLM) executorWithFallback(ctx context.Context, name string, arg ...st
 	// If so, fall back to npm exec
 	if isCommandNotFound(err) {
 		logger.Debugf("%s not found in PATH, falling back to npm exec", name)
-		
+
 		// Try 'npm exec' as fallback
 		// 'npm exec @mariozechner/pi-coding-agent -- <args>'
 		npmArgs := []string{"exec", "@mariozechner/pi-coding-agent", "--"}
 		npmArgs = append(npmArgs, arg...)
 		logger.Debugf("Executing: npm exec @mariozechner/pi-coding-agent with %d arguments", len(arg))
 		cmd := exec.CommandContext(ctx, "npm", npmArgs...)
-		
+
 		// Use CombinedOutput to capture both stdout and stderr
 		out, npmErr := cmd.CombinedOutput()
 		if npmErr == nil {
@@ -104,7 +104,7 @@ func (p *PiLLM) executorWithFallback(ctx context.Context, name string, arg ...st
 			logger.Debugf("After filtering npm output: %d bytes", len(filtered))
 			return filtered, nil
 		}
-		
+
 		// If npm also fails, return npm error
 		logger.WithError(npmErr).Errorf("npm exec failed")
 		return nil, npmErr
