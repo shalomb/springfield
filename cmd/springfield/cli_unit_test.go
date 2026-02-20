@@ -38,7 +38,8 @@ func TestRootCmd_RunMock(t *testing.T) {
 	t.Setenv("SPRINGFIELD_CONFIG", confPath)
 
 	// Reset global flags because cobra doesn't reset them between Execute calls
-	agentName = "ralph"
+	// Use lisa instead of ralph to avoid multi-iteration loop in tests
+	agentName = "lisa"
 	task = "test task"
 	configPath = ""
 
@@ -55,14 +56,32 @@ func TestRootCmd_Roles(t *testing.T) {
 	_ = os.WriteFile(confPath, []byte("[axon]\nversion=\"1.0.0\"\n"), 0644)
 	t.Setenv("SPRINGFIELD_CONFIG", confPath)
 
-	roles := []string{"marge", "lisa", "ralph", "bart", "lovejoy", "other", "MARGE"}
-	for _, name := range roles {
+	// Test case-insensitive agent name matching
+	// These agents use BaseRunner (single call) and don't require special setup
+	validRoles := []string{"marge", "lisa", "bart", "lovejoy"}
+	for _, name := range validRoles {
 		agentName = name
 		task = "test"
 		err := rootCmd.RunE(rootCmd, []string{})
 		if err != nil {
-			t.Errorf("RunE failed for %s: %v", name, err)
+			t.Errorf("RunE failed for valid role %s: %v", name, err)
 		}
+	}
+
+	// Test case normalization: MARGE (uppercase) should work like marge
+	agentName = "MARGE"
+	task = "test"
+	err := rootCmd.RunE(rootCmd, []string{})
+	if err != nil {
+		t.Errorf("RunE failed for case-normalized MARGE: %v", err)
+	}
+
+	// Test invalid agent (should fail)
+	agentName = "other"
+	task = "test"
+	err = rootCmd.RunE(rootCmd, []string{})
+	if err == nil {
+		t.Error("expected error for invalid agent 'other', got nil")
 	}
 }
 

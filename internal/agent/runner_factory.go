@@ -2,6 +2,7 @@ package agent
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/shalomb/springfield/internal/llm"
 )
@@ -14,14 +15,17 @@ func NewRunner(agentName string, task string, llmClient llm.LLMClient) (Runner, 
 
 // NewRunnerWithBudget creates a specialized runner with a specified budget.
 func NewRunnerWithBudget(agentName string, task string, llmClient llm.LLMClient, budget int) (Runner, error) {
+	// Normalize agent name to lowercase for case-insensitive matching
+	normalizedAgent := strings.ToLower(agentName)
+
 	baseRunner := &BaseRunner{
-		Agent:     agentName,
+		Agent:     normalizedAgent,
 		Task:      task,
 		LLMClient: llmClient,
 		Budget:    budget,
 	}
 
-	switch agentName {
+	switch normalizedAgent {
 	case "ralph":
 		return &RalphRunner{
 			BaseRunner: baseRunner,
