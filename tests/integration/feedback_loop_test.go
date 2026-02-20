@@ -41,9 +41,14 @@ func (t *feedbackLoopTest) lisaAnalyzesFEEDBACKmd() error {
 	} else if strings.Contains(fbStr, "Minor") {
 		// Lisa updates PLAN.md and clears FEEDBACK.md
 		planPath := filepath.Join(t.tempDir, "PLAN.md")
-		plan, _ := os.ReadFile(planPath)
+		plan, err := os.ReadFile(planPath)
+		if err != nil {
+			return fmt.Errorf("failed to read plan: %w", err)
+		}
 		newPlan := string(plan) + "\n- Minor issue moved to debt"
-		os.WriteFile(planPath, []byte(newPlan), 0644)
+		if err := os.WriteFile(planPath, []byte(newPlan), 0644); err != nil {
+			return fmt.Errorf("failed to write plan: %w", err)
+		}
 		return os.Remove(filepath.Join(t.tempDir, "FEEDBACK.md"))
 	}
 	return nil
@@ -97,7 +102,10 @@ func (t *feedbackLoopTest) sheShouldClearFEEDBACKmd() error {
 	if os.IsNotExist(err) {
 		return nil
 	}
-	content, _ := os.ReadFile(filepath.Join(t.tempDir, "FEEDBACK.md"))
+	content, err := os.ReadFile(filepath.Join(t.tempDir, "FEEDBACK.md"))
+	if err != nil {
+		return fmt.Errorf("failed to read feedback: %w", err)
+	}
 	if len(strings.TrimSpace(string(content))) > 0 {
 		return fmt.Errorf("FEEDBACK.md is not empty")
 	}
@@ -133,7 +141,9 @@ func InitializeFeedbackLoopScenario(ctx *godog.ScenarioContext) {
 			return ctx, err
 		}
 		t.tempDir = dir
-		os.WriteFile(filepath.Join(t.tempDir, "PLAN.md"), []byte("# PLAN\n## Technical Debt\n"), 0644)
+		if err := os.WriteFile(filepath.Join(t.tempDir, "PLAN.md"), []byte("# PLAN\n## Technical Debt\n"), 0644); err != nil {
+			return ctx, err
+		}
 		return ctx, nil
 	})
 
@@ -151,7 +161,7 @@ func InitializeFeedbackLoopScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^she should add a "([^"]*)" task to TODO\.md$`, t.sheShouldAddATaskToTODOmd)
 	ctx.Step(`^the system should trigger Ralph again$`, t.theSystemShouldTriggerRalphAgain)
 
-	ctx.Step(`^Bart finds a minor code style issue and updates FEEDBACK\.md$`, t.bartFindsAMinorCodeStyleIssueAndUpdatesFEEDBACKmd)
+	ctx.Step(`^Herb finds a minor style issue and updates FEEDBACK\.md$`, t.bartFindsAMinorCodeStyleIssueAndUpdatesFEEDBACKmd)
 	ctx.Step(`^she should add a note to PLAN\.md under "([^"]*)"$`, t.sheShouldAddANoteToPLANmdUnder)
 	ctx.Step(`^she should clear FEEDBACK\.md$`, t.sheShouldClearFEEDBACKmd)
 	ctx.Step(`^the system should proceed to Release$`, t.theSystemShouldProceedToRelease)
