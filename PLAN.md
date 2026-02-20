@@ -1,208 +1,125 @@
-# PLAN.md - Springfield Product Backlog
+# PLAN.md - Product Backlog
 
-**Last Updated:** 2026-02-20 22:55 GMT+1  
-**Status:** EPIC-009 (Orchestrator) Complete & Shipped  
-**Next:** EPIC-005 Phase 2 (Governance & Agent Autonomy)
+> **Marge's Note:** This backlog has been reprioritized using WSJF (Weighted Shortest Job First). Focus is on transitioning to the Springfield Binary Orchestrator and td(1) for more robust planning.
+> *Last Updated: 2026-02-20*
 
----
+## 🚀 Active Focus
 
-## 🚀 Current Release: v0.5.0-beta
+### EPIC-009: Springfield Binary Orchestrator & td(1) Integration
+**td:** `td-3cc3c3`
+**WSJF Score: 4.5** (CoD: 36 / Size: 8)
+**Value Statement:** For **the Agent Crew**, who **suffer from fragile orchestration and branch contention**, the **Springfield Binary** is a **type-safe Go orchestrator** that **replaces shell-based Justfile loops** and **uses td(1) for shared planning state**.
 
-### EPIC-009: Springfield Binary Orchestrator ✅ COMPLETE
-**Status:** Production Ready (pending Anthropic quota reset)  
-**Commits:** 102 (since v0.4.0)  
-**Test Coverage:** 90%+  
-**PR:** https://github.com/shalomb/springfield/tree/feat/epic-td-3cc3c3-orchestrator
+**The "Why":** Shell-based orchestration cannot be unit tested and is prone to string-matching errors. Shared state in `td` (SQLite) eliminates planning conflicts across git worktrees.
+**Scope:**
+- [ ] **cmd/springfield:** Implement the orchestration state machine in Go.
+- [ ] **td(1) Integration:** Use `td` as the source of truth for Epic/Task state.
+- [ ] **Typed Signals:** Replace keyword grep in `FEEDBACK.md` with `td log --decision`.
+- [ ] **TODO-{id}.md:** Implement the handoff context deposit protocol.
 
-**What Shipped:**
-- ✅ `springfield orchestrate` command (type-safe Go CLI)
-- ✅ td(1) integration for shared planning state
-- ✅ Multi-agent orchestration (Lisa → Ralph → Bart → Lovejoy)
-- ✅ Worktree management preventing branch conflicts
-- ✅ Anthropic rate limit error extraction & display
-- ✅ Quota detection with graceful halt (no infinite loops)
+**Acceptance Criteria:**
+- [ ] `just do` delegates entirely to `cmd/springfield`.
+- [ ] State transitions follow the table in ADR-008.
+- [ ] Multiple Ralph worktrees can run concurrently without `PLAN.md` conflicts.
+- [ ] **Marge Gate:** Orchestration logic is covered by 90%+ unit test coverage.
 
-**Known Limitations (Non-blocking):**
-- ⚠️ Agent LLM outputs not parsed into directives (scheduled EPIC-005 Phase 2)
-- ⚠️ Orchestrator tests flaky under `go test -cover` (pass in `just test`)
-
----
-
-## 📋 Next: EPIC-2e90ba - Unified Agent Runner Architecture ✅ COMPLETE
-
-### Planned (High Priority)
-
-#### Task: Define AgentProfile and update Agent struct for parameterization
-**Status:** ✅ COMPLETE (td-2b0e28)
-**Details:** Consolidate specialized runners into a single, data-driven agent model.
-
-#### Task: Implement file-based context injection in unified Agent.Run
-**Status:** ✅ COMPLETE (td-892fb7)
-**Details:** Allow agents to automatically load source files and state into their context.
-
-#### Task: Implement output parsing and file persistence
-**Status:** ✅ COMPLETE (td-64973c)
-**Details:** Extract [[FINISH]] markers and write agent results to target files (PLAN.md, FEEDBACK.md).
-
-#### Task: Migrate all Agents to Unified Runner
-**Status:** ✅ COMPLETE (td-61289a, td-97bf7f)
-**Details:** Switch Lisa, Ralph, Bart, and Lovejoy to the autonomous loop.
+**Attributes:**
+- **Status:** 🏗️ In Progress
+- **Complexity:** High
+- **Urgency:** Critical
+- **Dependencies:** EPIC-007 (Loop logic), ADR-008
+- **ADRs:** `docs/adr/ADR-008-planning-state-td-springfield-orchestrator.md`
 
 ---
 
-## 📋 Next: EPIC-005 Phase 2 - Agent Governance & Autonomy
+## 📋 Backlog (Prioritized)
 
-### Planned (High Priority)
+### EPIC-005: Agent Governance & Selection
+**WSJF Score: 3.25** (CoD: 26 / Size: 8)
+**Value Statement:** For **Budget Owners & Developers**, who **need to manage costs and tailor agent behavior**, the **Agent Governance Layer** is a **configuration and control system** that **balances operational flexibility with financial safety**.
 
-#### Task: Model Temperature Parameter Support
-**Status:** 🔴 DEPRIORITIZED  
-**Reason:** Not critical for MVP; all agents work correctly with pi CLI defaults  
-**Details:**
-- Temperature is configured but not passed to pi CLI (pi v3.x has no `--temperature` parameter)
-- Different agents (Lisa 0.3, Ralph 0.6) aren't receiving different temperatures
-- **Impact:** Low - behavioral difference subtle, cost/latency unaffected
-- **Action:** Document limitation, defer to future phase when pi CLI adds support
+**The "Why":** "Infinite loops" in agent logic can bankrupt us. We need a way to say "use this model, for this task, within this budget."
+**Scope:**
+- [x] **Governance Framework:** ADRs (007, 008) and Quality Indices (Farley, Adzic).
+- [ ] **Unified Config (`.springfield.yaml`)** & Global Fallback.
+- [ ] **Budget Enforcer:** Per-session and per-day hard limits.
+- [ ] **Model Selection Logic:** Swap models based on task complexity.
+- [ ] **Tool/Sandbox Mapping:** Define accessible tools.
 
-**Recommendation:** Skip for v0.5.0. Add to backlog marked NICE-TO-HAVE.
+**Acceptance Criteria:**
+- [x] Governance standards (Feedback, Farley, Adzic) are documented and applied.
+- [ ] Every LLM call is logged with token count and cost.
+- [ ] System rejects requests when budget is exceeded.
+- [ ] Agents can be configured via a `.springfield.yaml`.
+- [ ] **Marge Gate:** Budget thresholds are agreed upon.
 
-#### Task: Structured LLM Output Parsing ⭐ HIGH PRIORITY
-**Status:** 🟡 IN BACKLOG  
-**Why:** Currently agents write raw LLM responses to files; need to parse ACTION: and DECISION: directives  
-**Implementation:** Parse FEEDBACK.md for [[PASS]]/[[FAIL]], PLAN.md for task breakdown  
-**Acceptance:** Agents can extract structured decisions from LLM output
+**Attributes:**
+- **Status:** 📋 Ready (Phase 1 Done)
+- **Complexity:** Medium
+- **Urgency:** Medium
+- **Dependencies:** EPIC-009 (Orchestrator), EPIC-003 (Logging)
 
-#### Task: Agent Cost Controls
-**Status:** 🟡 IN BACKLOG  
-**Why:** Budget exists in config but not enforced; need per-session and per-day limits  
-**Implementation:** 
-- Track tokens per agent (from LLM response.TokenUsage)
-- Halt if per-session budget exceeded
-- Track daily spend across all runs
-**Acceptance:** Ralph stops if session exceeds $N budget
+### EPIC-006: Existing Agent Compatibility
+**WSJF Score: 2.0** (CoD: 10 / Size: 5)
+**Value Statement:** For **Adopters**, who **have existing agent definitions**, the **Compatibility Layer** is a **bridge** that **allows Springfield to run legacy/external agent structures**.
 
-#### Task: Model Selection Optimization
-**Status:** 🟡 IN BACKLOG  
-**Why:** All agents use claude-haiku-4-5 (development); should tune per agent in production  
-**Implementation:** Switch config to per-agent models post-MVP
-- Lisa → claude-opus-4-6 (planning, needs reasoning)
-- Bart → claude-opus-4-6 (code review, needs depth)
-- Ralph → claude-sonnet-4-5 (building, good speed/quality)
-- Lovejoy → claude-opus-4-6 (releases, high-stakes decisions)
-**Acceptance:** Production config reflects agent capabilities
+**The "Why":** We shouldn't force a rewrite of all existing `.github/agents` definitions.
+**Scope:**
+- [ ] Support for `.github/agents`, `.claude/agents`, etc.
+- [ ] Precedence logic (Repo > Default)
 
----
+**Acceptance Criteria:**
+- [ ] Springfield agents are primed to load from existing folder structures.
+- [ ] **Marge Gate:** Identified legacy agents map successfully.
 
-## 🗂️ Backlog (Lower Priority)
-
-### Nice-To-Have Features
-
-| Task | Reason | Status |
-|------|--------|--------|
-| Temperature parameter support | pi CLI needs --temperature flag | 🔴 DEPRIORITIZED |
-| Environment variable overrides | `SPRINGFIELD_MODEL=...` | ⏳ BACKLOG |
-| Dynamic model selection | Select model based on task/budget | ⏳ BACKLOG |
-| Multi-provider fallback chains | More than 2 fallbacks | ⏳ BACKLOG |
-| Agent resource limits | Memory/CPU constraints | ⏳ BACKLOG |
-| Streaming output display | Real-time pi CLI output | ⏳ BACKLOG |
+**Attributes:**
+- **Status:** 📋 Ready
+- **Complexity:** Medium
+- **Urgency:** Low
+- **Dependencies:** None
 
 ---
 
-## 📊 Success Metrics (v0.5.0)
+## ✅ Completed History
 
-| Metric | Target | Current | Status |
-|--------|--------|---------|--------|
-| **Test Coverage** | 90%+ | 90%+ | ✅ |
-| **Agents Coordinating** | Lisa→Ralph→Bart→Lovejoy | All 4 working | ✅ |
-| **Quota Handling** | Detect & halt gracefully | Anthropic 429 detected | ✅ |
-| **Branch Conflicts** | Zero (worktree isolation) | Isolated per epic | ✅ |
-| **Error Messages** | Actionable (show actual API errors) | Anthropic JSON parsed | ✅ |
-| **Deployed** | GitHub public | https://github.com/shalomb/springfield | ✅ |
+### EPIC-005 (Phase 1): Governance Framework
+- **Status:** ✅ Done (2026-02-20)
+- **Outcome:** Established ADR-007 (Planning Loop) and ADR-008 (State Boundary). Implemented Farley and Adzic quality indices. Created feedback standard.
+- **Retrospective (2026-02-20):**
+    - **Learning:** Governance is empirical. ADR-007 Amendment A ensures ADRs are treated as hypotheses to be verified by Ralph's implementation.
+    - **Learning:** "Premature refinement is waste" (EPIC-007) is solved by the Fidelity Gradient (Stub -> Options -> Ready).
+    - **Signals:** Bart's approval of the framework validates the "Shift-Left" quality model.
 
----
+### EPIC-004: Agent Sandboxing
+- **Status:** ✅ Done (2026-02-19)
+- **Outcome:** Agents run inside isolated Axon containers with workspace mounting and resource constraints.
+- **Retrospective (2026-02-19):**
+    - **Learning:** Security guardrails (`isUnsafeAction`) were too restrictive, blocking standard shell redirection (`>`) which Ralph needs.
+    - **Learning:** Simple string matching for `[[FINISH]]` triggers prematurely if not bounded to the end or its own line.
 
-## 🚦 Release Gating Criteria
+### EPIC-007: Autonomous Development Loop ("just do")
+- **Status:** ✅ Done (2026-02-19)
+- **Outcome:** Implemented sequential agent chaining (Lisa -> Ralph -> Bart) with `TODO.md` and `FEEDBACK.md` context persistence.
+- **Retrospective (2026-02-19):** 
+    - **Learning:** Simple string matching for `FINISH` and `ACTION:` is too fragile for LLM responses.
+    - **Learning:** Ignoring errors in logging/filesystem calls leads to silent failures and QA rejection.
 
-**BLOCKERS (must fix before v0.5.0 tag):**
-- [ ] Anthropic quota reset (needed for final QA)
-- [ ] All tests passing locally
-- [ ] CHANGELOG.md updated with v0.5.0 notes
-
-**NICE-TO-HAVE (not blocking):**
-- [ ] Temperature support (deprioritized per this update)
-- [ ] Streaming output (ADR-011 documented why deferred)
-
----
-
-## 📝 Notes
-
-### Why Temperature Support is Deprioritized
-
-1. **Not blocking:** Agents work correctly with pi CLI defaults
-2. **Subtle impact:** Difference between 0.3 and 0.6 temperature is semantic
-3. **External dependency:** Requires pi CLI enhancement (not our code)
-4. **Config debt:** Storing unused config is acceptable technical debt for MVP
-5. **Cost/Performance:** Temperature doesn't affect speed or cost, only response variance
-
-**Decision:** Keep configuration in place for documentation, skip implementation.
-
-### Streaming Output (ADR-011)
-
-Investigated but rejected for v0.5.0:
-- pi CLI outputs via JSON events (no text_delta events)
-- Real-time streaming adds complexity without MVP value
-- Post-execution analysis sufficient
-
-**Decision:** Defer to future iteration when pi CLI adds streaming support.
+### EPIC-008: Knowledge Architecture (Diataxis)
+- **Status:** ✅ Done (2026-02-18)
+- **Outcome:** Replaced monolithic `AGENTS.md` with a structured index. Established `docs/standards/` and `docs/adr/`.
 
 ---
 
-## 🎯 Definition of Done for v0.5.0
+## 🚩 Technical Debt, Risks & Known Issues
 
-- [x] EPIC-009 code complete and pushed
-- [x] All tests passing (41 unit + 16 BDD)
-- [x] EPIC-COMPLETION-ASSESSMENT.md written
-- [x] MODEL_PROVIDER_SELECTION.md documented
-- [x] Anthropic error parsing implemented & tested
-- [ ] CHANGELOG.md entry written (Lovejoy task)
-- [ ] v0.5.0 tag created on main (Lovejoy task)
-- [ ] Release notes published (Lovejoy task)
+### ⚠️ Known Issues (Minor Feedback)
+- **Logger Inefficiency:** Current `pkg/logger` opens and closes two log files for every entry. Needs optimization for high-throughput (e.g., buffered writer).
+- **Ghost Feature:** `docs/features/automated_feedback_loop.feature` exists but has no tests.
+- **Linting Error:** `internal/sandbox/axon_test.go:88:16` - unchecked `os.Chdir`.
+- **Inconsistent safety guardrails:** `isUnsafeAction` blocks `;` and `||` but allows `&&`.
+- **Integration Test Debt:** `tests/integration/feedback_loop_test.go:46, 136` - unchecked `os.WriteFile` errors. (Found by Bart).
 
----
-
-## Handoff Status
-
-### To Lovejoy (Release)
-- ✅ Feature branch ready
-- ✅ Code reviewed and approved
-- ⚠️ Waiting for Anthropic quota to reset for final QA
-- 📋 Document temperature limitation in release notes (NICE-TO-HAVE)
-
-### To Ralph (Build)
-- ✅ Orchestrator ready for integration
-- 📋 Next epic: Structured output parsing
-- 📋 Future: Agent cost controls
-
-### To Bart (Quality)
-- ✅ Full test suite passing
-- ✅ No blockers for v0.5.0
-- 📋 Next: Review EPIC-005 Phase 2 scope
-
-### To Lisa (Planning)
-- ✅ EPIC-009 scope delivered
-- 📋 Next: Plan EPIC-005 Phase 2 breakdown
-- 📋 Review model selection optimization strategy
-
----
-
-## Deprecations & Tech Debt
-
-| Item | Status | Action |
-|------|--------|--------|
-| Shell-based Justfile loop | Replaced by Go orchestrator | Remove in v0.6.0 |
-| Temperature config unused | Acceptable debt | Document & revisit post-MVP |
-| Orchestrator tests flaky under -cover | Known issue | Add test workaround in CI/CD |
-| Agent output unstructured | Design gap, not blocking | EPIC-005 Phase 2 |
-
----
-
-*Maintained by Lisa Simpson (Planning Agent) with input from the team.*
+### ⚡ Risks
+- **TR-007:** Springfield binary implementation slip (delays type-safe orchestration).
+- **TR-008:** Lisa's ToT/Self-Consistency logic cost/latency (bottleneck).
+- **TR-009:** `td(1)` data loss or corruption (single-host SQLite risk).
