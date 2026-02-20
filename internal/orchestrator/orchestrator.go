@@ -157,6 +157,43 @@ func (o *Orchestrator) processEpic(id string) error {
 			}
 			return nil
 		}
+	case StatusImplemented:
+		if o.hasDecision(epic, "bart_ok") {
+			log.Printf("Bart approved Epic %s. Transitioning to verified.", id)
+			if err := o.TD.Update(id, "--labels", "verified"); err != nil {
+				return err
+			}
+			if o.Agent != nil {
+				return o.Agent.Run("lovejoy", id)
+			}
+			return nil
+		}
+		if o.hasDecision(epic, "bart_fail_implementation") {
+			log.Printf("Bart rejected implementation for Epic %s. Transitioning back to in_progress.", id)
+			if err := o.TD.Update(id, "--status", "in_progress", "--labels", ""); err != nil {
+				return err
+			}
+			if o.Agent != nil {
+				return o.Agent.Run("ralph", id)
+			}
+			return nil
+		}
+		if o.hasDecision(epic, "bart_fail_viability") || o.hasDecision(epic, "bart_fail_adr") {
+			log.Printf("Bart rejected viability/ADR for Epic %s. Transitioning to blocked.", id)
+			// td status: blocked (might need to go through in_progress first if td enforces)
+			if err := o.TD.Update(id, "--status", "in_progress"); err != nil {
+				return err
+			}
+			if err := o.TD.Update(id, "--status", "blocked", "--labels", ""); err != nil {
+				return err
+			}
+			log.Printf("Successfully updated Epic %s to blocked", id)
+			// In a real implementation, we would invoke Lisa here.
+			if o.Agent != nil {
+				return o.Agent.Run("lisa", id)
+			}
+			return nil
+		}
 	}
 
 	return nil
