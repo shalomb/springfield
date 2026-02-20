@@ -3,6 +3,8 @@ package orchestrator
 import (
 	"fmt"
 	"log"
+	"os"
+	"os/exec"
 )
 
 // AgentRunner provides an interface for running agents.
@@ -28,10 +30,11 @@ type CommandAgentRunner struct {
 }
 
 func (r *CommandAgentRunner) Run(agent string, epicID string) error {
-	// For now, we just log. In a real implementation, we would execute
-	// the springfield binary with the appropriate flags.
-	log.Printf("INVOKING AGENT: %s for Epic %s", agent, epicID)
-	return nil
+	log.Printf("INVOKING AGENT: %s for Epic %s (binary: %s)", agent, epicID, r.BinaryPath)
+	cmd := exec.Command(r.BinaryPath, "--agent", agent, "--task", fmt.Sprintf("Work on epic %s", epicID))
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
 }
 
 // Tick performs one iteration of the orchestration loop.
@@ -59,7 +62,7 @@ func (o *Orchestrator) processEpic(id string) error {
 	}
 
 	state := o.determineState(epic)
-	
+
 	log.Printf("Epic %s is in state %s", id, state)
 
 	switch state {
@@ -155,7 +158,7 @@ func (o *Orchestrator) hasDecision(epic *Issue, decision string) bool {
 func (o *Orchestrator) determineState(epic *Issue) EpicStatus {
 	// Simple mapping for now. ADR-008 states Lisa updates td Epic status.
 	// Since td only supports a few, we use labels to supplement.
-	
+
 	for _, label := range epic.Labels {
 		switch label {
 		case "ready":
