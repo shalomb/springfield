@@ -75,4 +75,26 @@ func TestTDClient_QueryEpics(t *testing.T) {
 	if !found {
 		t.Errorf("decision log 'bart_ok' not found in epic logs")
 	}
+
+	// Test QueryIDs
+	ids, err := client.QueryIDs("type = epic")
+	if err != nil {
+		t.Fatalf("QueryIDs failed: %v", err)
+	}
+	if len(ids) != 1 || ids[0] != id {
+		t.Errorf("expected ID %s, got %v", id, ids)
+	}
+
+	// Test Update
+	err = client.Update(id, "--priority", "P2")
+	if err != nil {
+		t.Fatalf("Update failed: %v", err)
+	}
+	updatedEpic, err := client.GetEpic(id)
+	if err != nil {
+		t.Fatalf("GetEpic after update failed: %v", err)
+	}
+	if updatedEpic.Priority != "P2" {
+		t.Errorf("expected priority P2, got %s", updatedEpic.Priority)
+	}
 }

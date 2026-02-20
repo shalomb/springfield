@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"strings"
 )
 
 // TDClient is a client for the td(1) binary.
@@ -17,6 +18,7 @@ type Issue struct {
 	Title       string   `json:"title"`
 	Status      string   `json:"status"`
 	Type        string   `json:"type"`
+	Priority    string   `json:"priority"`
 	Labels      []string `json:"labels"`
 	Description string   `json:"description"`
 	Logs        []Log    `json:"logs"`
@@ -73,7 +75,28 @@ func (c *TDClient) QueryEpics(expression string) ([]Issue, error) {
 
 // LogDecision logs a decision to an issue.
 func (c *TDClient) LogDecision(id string, decision string) error {
-	_, err := c.runTD("log", id, "--decision", decision)
+	_, err := c.runTD("log", id, decision, "--decision")
+	return err
+}
+
+// QueryIDs executes a td query and returns matching issue IDs.
+func (c *TDClient) QueryIDs(expression string) ([]string, error) {
+	output, err := c.runTD("query", expression, "--output", "ids")
+	if err != nil {
+		return nil, err
+	}
+
+	trimmed := strings.TrimSpace(string(output))
+	if trimmed == "" {
+		return []string{}, nil
+	}
+	return strings.Split(trimmed, "\n"), nil
+}
+
+// Update updates one or more fields of an issue.
+func (c *TDClient) Update(id string, flags ...string) error {
+	args := append([]string{"update", id}, flags...)
+	_, err := c.runTD(args...)
 	return err
 }
 
