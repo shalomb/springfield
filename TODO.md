@@ -2,7 +2,7 @@
 
 ## 🎯 Active Tasks
 
-- [ ] **[FIX] Patch `Justfile` keyword-matching fragility**
+- [x] **[FIX] Patch `Justfile` keyword-matching fragility**
   - **Context:** Bart found that `grep -qiE "critical|blocker|rejected|fail"` in the `Justfile` causes false positives.
   - **Action:** Update `bart` and `lovejoy` recipes in `Justfile` to use: `grep -qE "Status:.*REJECTED|BLOCKED|❌.*Verdict"`.
   - **Success Criteria:** `just bart` should pass if `FEEDBACK.md` contains explanatory text with the word "critical" but not the actual Status line.
