@@ -10,16 +10,6 @@ set ignore-comments := true
 # =============================================================================
 BINARY_NAME := "springfield"
 BUILD_DIR := "bin"
-PI_FLAGS := "--verbose --mode json --no-session --thinking medium --no-extensions --provider google-gemini-cli --model gemini-3-flash-preview"
-
-# Prompts defined as variables to avoid quoting hell in recipes
-PROMPT_RALPH := "Assume the role of .github/agents/ralph.md. If TODO.md exists, pick the highest priority task and work on it. If there are uncommitted changes but no tasks left in TODO.md, create a clean completion git commit and 'git rm TODO.md' if it still exists. Once finished, log 'ralph_done' to the epic using 'td log <epic-id> ralph_done --decision'. Strictly adhere to the Atomic Commit Protocol (docs/standards/atomic-commit-protocol.md). Employ TDD processes (RED -> GREEN -> REFACTOR) and ensure that every commit is an indivisible unit containing BDD specs, TDD tests, minimal implementation, and documentation. Ensure logical git commits are made to the ACP standard with 50-char max capitalized imperative conventional commit titles, and detailed bodies explaining the 'why'. Ensure that the codebase is in a working state after each commit. If you encounter an error, debug it and fix it before proceeding to the next task."
-
-PROMPT_LISA := "Assume the role of Lisa Simpson (.github/agents/lisa.md). Your mission is to translate high-level intent from PLAN.md into executable tasks for Ralph. 1. Reflect & Learn: Analyze recent commits and branch state. Identify learnings, technical debt, or necessary reprioritizations. Update PLAN.md with a 'Retrospective' section for the completed epic if appropriate. 2. Analyze Feedback: If FEEDBACK.md exists, analyze it against PLAN.md. If errors are critical (breaking functionality, security, crash), create specific corrective tasks in TODO.md. If errors are minor (style, non-blocking edge cases), log them in PLAN.md under 'Known Issues' and clear FEEDBACK.md. DO NOT loop if you have already tried to fix this twice. 3. Technical Breakdown: Identify the next high-priority Epic from PLAN.md. Translate it into a technical breakdown in a new TODO.md. Ensure tasks follow the Atomic Commit Protocol (docs/standards/atomic-commit-protocol.md) - each task should ideally map to one or more atomic commits. 4. Moral Compass: Ensure the plan adheres to Enterprise compliance and safety standards (ADR-000 Building Blocks, RBAC, audit logging). 5. Autonomous Setup: Detect the current branch. If on 'main', create a new git branch for the epic named 'feat/epic-{name}'. Add the TODO.md and updated PLAN.md to this branch. 6. Atomic Handover: Commit the plan with a clear message following ACP standards. You are the intelligent pre-processor. You provide the logic Ralph needs to succeed without eating the paste. Ensure TODO.md tasks are atomic, testable, and include success criteria."
-
-PROMPT_BART := "Assume the role of Bart Simpson (Quality Agent). Your mission is to verify and break the code. 1. Static Review: Review the code for SOLID principles, Clean Code standards, Go best practices, and Atomic Commit Protocol adherence. 2. Dynamic Verification: Run 'just test' to verify the test ladder and BDD scenarios. 3. Adversarial Testing: Think of edge cases Ralph might have missed. 4. Feedback: Document all static issues, test failures, bugs, or missing coverage in FEEDBACK.md. Flag critical issues that block release. Once finished, log 'bart_ok' (if passed) or 'bart_fail_implementation' (if Ralph needs to fix something) or 'bart_fail_viability' (if the plan is flawed) to the epic using 'td log <epic-id> <decision> --decision'. Exit with a non-zero status if any test fails or critical bugs are discovered."
-
-PROMPT_LOVEJOY := "Assume the role of Reverend Lovejoy (Release). Your mission is to perform the release ceremony. 1. Readiness Check: Verify that TODO.md is empty and FEEDBACK.md contains no blocking issues. 2. Merge: Merge the feature branch into main using a squash merge with a clean, descriptive message. 3. Documentation: Update CHANGELOG.md and capture any major learnings for the next cycle. 4. Cleanup: Delete the local and remote feature branch after a successful merge."
 
 # =============================================================================
 # DEFAULT
@@ -148,41 +138,14 @@ ralph *args:
     set -euo pipefail
     printf "🤖 Starting Ralph Loop...\n"
 
-    # Export prompt to avoid shell escaping issues
-    export PROMPT="{{PROMPT_RALPH}}"
-    export EXTRA_INSTRUCTION="{{args}}"
+    # Build the task instruction
+    task_instruction=""
+    if [[ -n "{{args}}" ]]; then
+        task_instruction="{{args}}"
+    fi
 
-    while :; do
-        # Use git status --porcelain for reliable parsing
-        if [[ ! -e TODO.md ]] && [[ -z "$(git status --porcelain --untracked-files=no)" ]]; then
-            printf "✅ No TODO.md found and no uncommitted changes. Work complete!\n"
-            break
-        fi
-
-        if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
-            printf "📝 Uncommitted changes detected. Engaging Ralph to finalize...\n"
-        else
-            printf "📋 Tasks found in TODO.md. Engaging Ralph...\n"
-        fi
-
-        # Build args array safely
-        cmd_args=({{PI_FLAGS}})
-        if [[ -e TODO.md ]]; then
-            cmd_args+=("@TODO.md")
-        fi
-
-        # Append user instruction if present
-        full_prompt="$PROMPT"
-        if [[ -n "$EXTRA_INSTRUCTION" ]]; then
-            full_prompt="${full_prompt} USER INSTRUCTION: $EXTRA_INSTRUCTION"
-        fi
-
-        # Execute
-        npm exec @mariozechner/pi-coding-agent -- "${cmd_args[@]}" -p "$full_prompt"
-
-        printf '\n********\n'
-        sleep 1
-    done
+    # Use the Go-based Springfield binary instead of npm/pi-coding-agent
+    ./bin/springfield --agent ralph --task "$task_instruction"
 
 # Lisa: The Planner
 lisa *args:
@@ -190,20 +153,14 @@ lisa *args:
     set -euo pipefail
     printf "📚 Starting Lisa Simpson (Intelligent Planner)...\n"
 
-    export PROMPT="{{PROMPT_LISA}}"
-    export EXTRA_INSTRUCTION="{{args}}"
-
-    cmd_args=({{PI_FLAGS}})
-    if [[ -e FEEDBACK.md ]]; then
-        cmd_args+=("@FEEDBACK.md")
+    # Build the task instruction
+    task_instruction=""
+    if [[ -n "{{args}}" ]]; then
+        task_instruction="{{args}}"
     fi
 
-    full_prompt="$PROMPT"
-    if [[ -n "$EXTRA_INSTRUCTION" ]]; then
-        full_prompt="${full_prompt} USER INSTRUCTION: $EXTRA_INSTRUCTION"
-    fi
-
-    npm exec @mariozechner/pi-coding-agent -- "${cmd_args[@]}" -p "$full_prompt"
+    # Use the Go-based Springfield binary instead of npm/pi-coding-agent
+    ./bin/springfield --agent lisa --task "$task_instruction"
 
 # Aliases
 plan *args:
@@ -219,12 +176,14 @@ bart *args:
     set -euo pipefail
     printf "🛹 Starting Bart Simpson (Quality Agent)...\n"
 
-    full_prompt="{{PROMPT_BART}}"
+    # Build the task instruction
+    task_instruction=""
     if [[ -n "{{args}}" ]]; then
-        full_prompt="${full_prompt} USER INSTRUCTION: {{args}}"
+        task_instruction="{{args}}"
     fi
 
-    npm exec @mariozechner/pi-coding-agent -- "{{PI_FLAGS}}" -p "$full_prompt"
+    # Use the Go-based Springfield binary instead of npm/pi-coding-agent
+    ./bin/springfield --agent bart --task "$task_instruction"
 
     # Post-Execution Assertion: Fail if Bart found critical issues
     if [[ -f FEEDBACK.md ]] && grep -qE "Status:.*(REJECTED|BLOCKED)|❌.*Verdict" FEEDBACK.md; then
@@ -237,12 +196,14 @@ lovejoy *args:
     set -euo pipefail
     printf "⛪ Starting Reverend Lovejoy (Release Ceremony)...\n"
 
-    full_prompt="{{PROMPT_LOVEJOY}}"
+    # Build the task instruction
+    task_instruction=""
     if [[ -n "{{args}}" ]]; then
-        full_prompt="${full_prompt} USER INSTRUCTION: {{args}}"
+        task_instruction="{{args}}"
     fi
 
-    npm exec @mariozechner/pi-coding-agent -- "{{PI_FLAGS}}" -p "$full_prompt"
+    # Use the Go-based Springfield binary instead of npm/pi-coding-agent
+    ./bin/springfield --agent lovejoy --task "$task_instruction"
 
     # Post-Execution Assertion: Fail if release blocked
     if [[ -f TODO.md ]]; then
