@@ -138,16 +138,15 @@ func (o *Orchestrator) processEpic(id string) error {
 			return nil
 		}
 		if o.hasDecision(epic, "bart_fail_implementation") {
-			log.Printf("Bart rejected implementation for Epic %s. Transitioning back to in_progress.", id)
-			if err := o.TD.Update(id, "--status", "in_progress", "--labels", ""); err != nil {
+			log.Printf("Bart rejected implementation for Epic %s. Transitioning to blocked for Lisa review.", id)
+			if err := o.TD.Update(id, "--status", "in_progress"); err != nil {
+				return err
+			}
+			if err := o.TD.Update(id, "--status", "blocked", "--labels", ""); err != nil {
 				return err
 			}
 			if o.Agent != nil {
-				worktreeDir := ""
-				if o.Worktree != nil {
-					worktreeDir, _ = o.Worktree.EnsureWorktree(id)
-				}
-				return o.Agent.Run("ralph", id, worktreeDir)
+				return o.Agent.Run("lisa", id, "")
 			}
 			return nil
 		}
