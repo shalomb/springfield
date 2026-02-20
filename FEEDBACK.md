@@ -53,26 +53,42 @@ FAIL: 2/41 test functions (4.8% failure rate)
 
 ---
 
-## 🔴 Critical Issue Found: Justfile Integration Broken
+## 🟡 Integration Issues (In Investigation)
 
-**Severity:** 🔴 CRITICAL  
-**Impact:** Justfile recipes (`just bart`, `just ralph`, etc.) show help instead of executing  
+### Issue #1: Justfile Integration — Empty Task Instructions
+
+**Severity:** 🔴 CRITICAL (NOW FIXED)  
+**Impact:** Justfile recipes (`just bart`, `just ralph`, etc.) showed help instead of executing  
 **Root Cause:** Empty task instruction passed to CLI
 
-When running `just bart` with no arguments, the task instruction becomes empty:
-```bash
-task_instruction=""  # ← set to empty string
-./bin/springfield --agent bart --task ""
-```
-
-The Springfield CLI requires both `--agent` and `--task` to be non-empty, so it shows help text.
-
-**Fix Applied:**
+**Status:** ✅ FIXED
 - Changed task_instruction initialization to use positional args directly
-- Added defaults when no args provided (e.g., "Review code quality, test coverage, and git commits" for Bart)
+- Added defaults when no args provided
 - Applied to all 4 agent recipes: ralph, lisa, bart, lovejoy
 
-**Status:** ✅ FIXED in this cycle
+### Issue #2: Pi CLI Exit Status 1 in Go Subprocess Context
+
+**Severity:** 🟡 MEDIUM (UNDER INVESTIGATION)  
+**Impact:** `./bin/springfield --agent bart --task "test"` returns error "LLM call failed: exit status 1"  
+**Root Cause:** When `pi` CLI is invoked from Go's `exec.Command()` in certain npm environment contexts, it returns exit status 1, even though:
+- Direct bash invocation: `pi -p --no-tools ...` returns exit code 0 ✅
+- Go test invocation: `exec.Command("pi", args...).Output()` returns exit code 0 ✅
+- Binary execution: `./bin/springfield` → `exec.Command("pi", ...)` returns exit code 1 ❌
+
+**Investigation findings:**
+- The `pi` CLI works correctly when called directly from bash
+- The same command works in standalone Go programs
+- The issue appears when called from within the Springfield binary running through npm/Justfile
+- Environment variables like `npm_lifecycle_script` are set in npm contexts
+- The npm fallback code is ready but needs the primary `pi` path fixed first
+
+**Next steps:**
+1. Debug why pi returns exit status 1 in the binary context
+2. Verify if this is an npm environment interference issue
+3. Consider using npm exec directly as primary path (not fallback)
+4. Test in isolated environment without npm lifecycle context
+
+**Status:** 🟡 UNRESOLVED - Needs Investigation
 
 ---
 
