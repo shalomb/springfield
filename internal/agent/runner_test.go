@@ -125,3 +125,23 @@ func TestBaseRunnerInitialization(t *testing.T) {
 func TestRunnerInterfaceIsImplemented(t *testing.T) {
 	var _ Runner = (*BaseRunner)(nil)
 }
+
+// TestRalphRunnerInterfaceIsImplemented verifies RalphRunner implements Runner interface.
+func TestRalphRunnerInterfaceIsImplemented(t *testing.T) {
+	var _ Runner = (*RalphRunner)(nil)
+}
+
+// TestBartRunnerInterfaceIsImplemented verifies BartRunner implements Runner interface.
+func TestBartRunnerInterfaceIsImplemented(t *testing.T) {
+	var _ Runner = (*BartRunner)(nil)
+}
+
+// TestLisaRunnerInterfaceIsImplemented verifies LisaRunner implements Runner interface.
+func TestLisaRunnerInterfaceIsImplemented(t *testing.T) {
+	var _ Runner = (*LisaRunner)(nil)
+}
+
+// TestLovejoyRunnerInterfaceIsImplemented verifies LovejoyRunner implements Runner interface.
+func TestLovejoyRunnerInterfaceIsImplemented(t *testing.T) {
+	var _ Runner = (*LovejoyRunner)(nil)
+}

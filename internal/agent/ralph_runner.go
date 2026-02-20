@@ -15,10 +15,10 @@ type RalphRunner struct {
 	maxLoops int // For testing: limit the number of loops to prevent infinite runs
 }
 
-// Execute runs Ralph's multi-iteration loop.
+// Run executes Ralph's multi-iteration loop.
 // The loop continues while TODO.md exists OR there are uncommitted changes.
 // It exits when TODO.md is removed AND there are no uncommitted changes.
-func (rr *RalphRunner) Execute(ctx context.Context) error {
+func (rr *RalphRunner) Run(ctx context.Context) error {
 	// Set default maxLoops if not set (for production use)
 	if rr.maxLoops == 0 {
 		rr.maxLoops = 100 // Arbitrary large number for production
