@@ -14,7 +14,7 @@
   - **Success Criteria:** An agent can successfully log a decision (e.g., `ralph_done`) that the orchestrator can then detect via `o.hasDecision`.
   - **ACP:** `feat: enable agents to log decisions to td`
 
-- [ ] **[FEAT] Enhance `orchestrate` loop with Lisa invocation**
+- [x] **[FEAT] Enhance `orchestrate` loop with Lisa invocation**
   - **Context:** Currently `processEpic` in `internal/orchestrator/orchestrator.go` has a TODO/comment for invoking Lisa when blocked, and doesn't handle the `Planned` -> `InProgress` transition via Lisa.
   - **Action:** Ensure Lisa is invoked when an epic is in `StatusPlanned` or `StatusBlocked`.
   - **Success Criteria:** `springfield orchestrate` calls Lisa for new or blocked epics to generate a `TODO.md`.

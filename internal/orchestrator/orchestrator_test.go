@@ -124,3 +124,40 @@ func TestOrchestrator_Tick(t *testing.T) {
 	}
 }
 
+func TestOrchestrator_Planned(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "orchestrator-test-planned")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	client := NewTDClient(tempDir)
+	_, err = client.runTD("init")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Create a planned epic (open, no ready label)
+	_, err = client.runTD("create", "--type", "epic", "Implement new feature")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	agentRunner := &mockAgentRunner{}
+	orch := NewOrchestrator(client, agentRunner, nil)
+
+	// Planned -> Lisa
+	err = orch.Tick()
+	if err != nil {
+		t.Fatal(err)
+	}
+	ids, _ := client.QueryIDs("status = open")
+	if len(ids) != 1 {
+		t.Fatalf("expected 1 open epic, got %d", len(ids))
+	}
+	id := ids[0]
+	if len(agentRunner.runs) != 1 || agentRunner.runs[0] != "lisa:"+id {
+		t.Errorf("expected lisa to be run for epic %s, got %v", id, agentRunner.runs)
+	}
+}
+

@@ -66,6 +66,18 @@ func (o *Orchestrator) processEpic(id string) error {
 	log.Printf("Epic %s is in state %s", id, state)
 
 	switch state {
+	case StatusPlanned:
+		log.Printf("Epic %s is planned. Invoking Lisa for breakdown.", id)
+		if o.Agent != nil {
+			return o.Agent.Run("lisa", id)
+		}
+		return nil
+	case StatusBlocked:
+		log.Printf("Epic %s is blocked. Invoking Lisa for replanning.", id)
+		if o.Agent != nil {
+			return o.Agent.Run("lisa", id)
+		}
+		return nil
 	case StatusReady:
 		log.Printf("Transitioning Epic %s to in_progress", id)
 
