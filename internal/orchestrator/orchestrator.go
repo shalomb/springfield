@@ -50,6 +50,7 @@ func (o *Orchestrator) Tick() error {
 		log.Printf("Processing Epic %s", id)
 		if err := o.processEpic(id); err != nil {
 			log.Printf("Error processing Epic %s: %v", id, err)
+			return err // Return error to stop Tick if an epic fails
 		}
 	}
 
@@ -82,19 +83,9 @@ func (o *Orchestrator) processEpic(id string) error {
 	case StatusReady:
 		log.Printf("Transitioning Epic %s to in_progress", id)
 
-		worktreeDir := ""
-		if o.Worktree != nil {
-			log.Printf("Setting up worktree and depositing handoff for Epic %s", id)
-			var err error
-			worktreeDir, err = o.Worktree.EnsureWorktree(id)
-			if err != nil {
-				return err
-			}
-			if err := o.Worktree.DepositHandoff(id); err != nil {
-				// Don't fail if handoff is missing, just log it.
-				// Sometimes we might not have a handoff file yet.
-				log.Printf("Warning: handoff file for Epic %s not found: %v", id, err)
-			}
+		worktreeDir, err := o.setupWorktree(id)
+		if err != nil {
+			return err
 		}
 
 		// Update td status to in_progress and remove 'ready' label
@@ -169,6 +160,24 @@ func (o *Orchestrator) processEpic(id string) error {
 	}
 
 	return nil
+}
+
+func (o *Orchestrator) setupWorktree(id string) (string, error) {
+	if o.Worktree == nil {
+		return "", nil
+	}
+
+	log.Printf("Setting up worktree and depositing handoff for Epic %s", id)
+	worktreeDir, err := o.Worktree.EnsureWorktree(id)
+	if err != nil {
+		return "", err
+	}
+
+	if err := o.Worktree.DepositHandoff(id); err != nil {
+		return "", fmt.Errorf("failed to deposit handoff for Epic %s: %w", id, err)
+	}
+
+	return worktreeDir, nil
 }
 
 func (o *Orchestrator) hasDecision(epic *Issue, decision string) bool {

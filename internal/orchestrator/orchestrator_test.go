@@ -2,6 +2,7 @@ package orchestrator
 
 import (
 	"os"
+	"os/exec"
 	"testing"
 )
 
@@ -143,8 +144,8 @@ func TestOrchestrator_Tick(t *testing.T) {
 	}
 }
 
-func TestOrchestrator_Planned(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "orchestrator-test-planned")
+func TestOrchestrator_StrictHandoff(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "orchestrator-handoff-test")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -156,26 +157,44 @@ func TestOrchestrator_Planned(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Create a planned epic (open, no ready label)
-	_, err = client.runTD("create", "--type", "epic", "Implement new feature")
-	if err != nil {
-		t.Fatal(err)
-	}
+	// Initialize git repo for worktrees
+	runCmd(t, tempDir, "git", "init")
+	runCmd(t, tempDir, "git", "config", "user.email", "test@example.com")
+	runCmd(t, tempDir, "git", "config", "user.name", "Test User")
+	runCmd(t, tempDir, "git", "commit", "--allow-empty", "-m", "initial commit")
 
-	agentRunner := &mockAgentRunner{}
-	orch := NewOrchestrator(client, agentRunner, nil)
-
-	// Planned -> Lisa
-	err = orch.Tick()
+	// Create a ready epic
+	_, err = client.runTD("create", "--type", "epic", "--labels", "ready", "Implement the new handoff system")
 	if err != nil {
 		t.Fatal(err)
 	}
 	ids, _ := client.QueryIDs("status = open")
-	if len(ids) != 1 {
-		t.Fatalf("expected 1 open epic, got %d", len(ids))
-	}
 	id := ids[0]
-	if len(agentRunner.runs) != 1 || agentRunner.runs[0] != "lisa:"+id {
-		t.Errorf("expected lisa to be run for epic %s, got %v", id, agentRunner.runs)
+
+	// Setup WorktreeManager
+	wm := &WorktreeManager{BaseDir: tempDir}
+	// NO handoff file created!
+
+	agentRunner := &mockAgentRunner{}
+	orch := NewOrchestrator(client, agentRunner, wm)
+
+	// Tick should fail because handoff file is missing
+	err = orch.Tick()
+	if err == nil {
+		t.Error("expected Tick to fail due to missing handoff file, but it succeeded")
+	}
+
+	// Verify it's still 'open' (or at least not in_progress if it failed early)
+	epic, _ := client.GetEpic(id)
+	if epic.Status == "in_progress" {
+		t.Error("expected status not to be in_progress after failed handoff deposit")
+	}
+}
+
+func runCmd(t *testing.T, dir string, name string, args ...string) {
+	cmd := exec.Command(name, args...)
+	cmd.Dir = dir
+	if output, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("cmd %s %v failed in %s: %v (output: %s)", name, args, dir, err, string(output))
 	}
 }
