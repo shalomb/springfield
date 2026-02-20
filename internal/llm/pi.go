@@ -120,21 +120,21 @@ func (p *PiLLM) executorWithFallback(ctx context.Context, name string, arg ...st
 		// but also stream them to console for real-time visibility
 		cmd := exec.CommandContext(ctx, "npm", npmArgs...)
 		var stdout, stderr bytes.Buffer
-		
+
 		// Pipe stdout and stderr to both buffer and console
 		cmd.Stdout = io.MultiWriter(&stdout, os.Stdout)
 		cmd.Stderr = io.MultiWriter(&stderr, os.Stderr)
-		
+
 		npmErr := cmd.Run()
 		// Flush output streams to ensure they display immediately
 		os.Stdout.Sync()
 		os.Stderr.Sync()
-		
+
 		stdoutBytes := stdout.Bytes()
 		stderrBytes := stderr.Bytes()
 		stdoutStr := string(stdoutBytes)
 		stderrStr := string(stderrBytes)
-		
+
 		if npmErr == nil {
 			logger.Debugf("npm exec succeeded, got %d bytes stdout", len(stdoutBytes))
 			// Filter out npm warnings and only return actual output from pi
@@ -144,7 +144,7 @@ func (p *PiLLM) executorWithFallback(ctx context.Context, name string, arg ...st
 		}
 
 		// npm failed - provide detailed error information
-		
+
 		logger.Debugf("npm exec failed with stderr: %s", stderrStr)
 		logger.Debugf("npm exec stdout: %s", stdoutStr)
 

@@ -2,6 +2,7 @@ package agent
 
 import (
 	"context"
+	"os"
 	"testing"
 )
 
@@ -117,6 +118,14 @@ func TestNewRunnerLLMClientIsSet(t *testing.T) {
 func TestNewRunnerImplementsRunner(t *testing.T) {
 	tests := []string{"ralph", "lisa", "bart", "lovejoy", "marge"}
 	mock := &mockLLMClient{responses: []string{"response"}}
+
+	// Run in a clean tmpdir with a committed git repo so ralph's
+	// exit condition (no TODO.md, no uncommitted changes) is satisfied.
+	tmpDir := t.TempDir()
+	origDir, _ := os.Getwd()
+	defer os.Chdir(origDir)
+	os.Chdir(tmpDir)
+	initGitRepo(t, tmpDir)
 
 	for _, agentName := range tests {
 		t.Run(agentName, func(t *testing.T) {

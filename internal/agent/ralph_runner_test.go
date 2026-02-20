@@ -154,7 +154,7 @@ func initGitRepo(t *testing.T, dir string) {
 		t.Fatalf("Failed to git add: %v", err)
 	}
 
-	cmd = exec.Command("git", "commit", "-m", "initial commit")
+	cmd = exec.Command("git", "commit", "--no-gpg-sign", "-m", "initial commit")
 	cmd.Dir = dir
 	if err := cmd.Run(); err != nil {
 		t.Fatalf("Failed to git commit: %v", err)

@@ -71,7 +71,7 @@ func (lr *LisaRunner) Run(ctx context.Context) error {
 	// TODO(EPIC-005): Implement proper plan parsing and extraction from response
 	planContent := fmt.Sprintf("# PLAN.md - Product Backlog\n\n**Agent:** Lisa Simpson (Planning Agent)\n**Date:** %s\n\n%s\n",
 		time.Now().Format("2006-01-02 15:04 MST"), response.Content)
-	
+
 	if err := os.WriteFile("PLAN.md", []byte(planContent), 0644); err != nil {
 		// Don't fail the run if we can't write plan - it's secondary to the planning
 		fmt.Printf("⚠️  Warning: Could not write PLAN.md: %v\n", err)
