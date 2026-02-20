@@ -38,6 +38,11 @@ type BaseRunner struct {
 	TotalTokensUsed int
 }
 
+// SetBudget sets the budget for this runner.
+func (br *BaseRunner) SetBudget(budget int) {
+	br.Budget = budget
+}
+
 // Run executes the agent runner by loading the prompt and calling the LLM.
 func (br *BaseRunner) Run(ctx context.Context) error {
 	// Determine the prompt path
