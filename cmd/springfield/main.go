@@ -9,6 +9,7 @@ import (
 	"github.com/shalomb/springfield/internal/agent"
 	"github.com/shalomb/springfield/internal/config"
 	"github.com/shalomb/springfield/internal/llm"
+	"github.com/shalomb/springfield/internal/orchestrator"
 	"github.com/shalomb/springfield/internal/sandbox"
 	"github.com/spf13/cobra"
 )
@@ -92,7 +93,11 @@ var orchestrateCmd = &cobra.Command{
 	Short: "Run the orchestration loop",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("Orchestration loop starting...")
-		return nil
+		tdClient := orchestrator.NewTDClient("")
+		agentRunner := &orchestrator.CommandAgentRunner{BinaryPath: os.Args[0]}
+		orch := orchestrator.NewOrchestrator(tdClient, agentRunner)
+
+		return orch.Tick()
 	},
 }
 

@@ -12,6 +12,11 @@ type TDClient struct {
 	WorkDir string
 }
 
+// NewTDClient creates a new TDClient.
+func NewTDClient(workDir string) *TDClient {
+	return &TDClient{WorkDir: workDir}
+}
+
 // Issue represents a td issue.
 type Issue struct {
 	ID          string   `json:"id"`
@@ -87,7 +92,7 @@ func (c *TDClient) QueryIDs(expression string) ([]string, error) {
 	}
 
 	trimmed := strings.TrimSpace(string(output))
-	if trimmed == "" {
+	if trimmed == "" || strings.Contains(trimmed, "No issues matching query") {
 		return []string{}, nil
 	}
 	return strings.Split(trimmed, "\n"), nil

@@ -211,39 +211,7 @@ plan *args:
 
 # Orchestrator
 do *args:
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    # Greg says: Don't use uppercase for private vars
-    max_iterations=2
-    iteration=1
-
-    while (( iteration <= max_iterations )); do
-        printf "\n🚀 [Iteration %d/%d] Starting Autonomous Loop...\n" "$iteration" "$max_iterations"
-
-        just plan {{args}}
-        just ralph {{args}}
-        just bart {{args}}
-
-        if [[ ! -e FEEDBACK.md ]]; then
-            printf "\n✅ No FEEDBACK.md found. Cycle complete!\n"
-            break
-        fi
-
-        # Grep quiet, case-insensitive, extended regex
-        if grep -qiE "critical|blocker|rejected|fail" FEEDBACK.md; then
-            printf "\n⚠️ Critical issues found in FEEDBACK.md. Re-looping for corrective planning...\n"
-            ((iteration++))
-        else
-            printf "\n✅ Only minor issues found in FEEDBACK.md. Ending loop.\n"
-            break
-        fi
-    done
-
-    if (( iteration > max_iterations )); then
-        printf "\n🛑 [HARD STOP] Loop limit reached (%d iterations). Human review required!\n" "$max_iterations"
-        exit 1
-    fi
+    @./bin/springfield orchestrate {{args}}
 
 # Reviewers
 bart *args:
