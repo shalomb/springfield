@@ -49,7 +49,7 @@ func TestRalphRunnerLoopsUntilTODOEmpty(t *testing.T) {
 
 	// Remove TODO.md after the first LLM call to trigger loop exit
 	// We'll simulate this by not having TODO.md cause an error on the second pass
-	err = rr.Execute(context.Background())
+	err = rr.Run(context.Background())
 
 	// We expect the runner to complete successfully even if it hits the max loops
 	// since we're in test mode with limited iterations
@@ -111,7 +111,7 @@ func TestRalphRunnerStopsWhenTODOGoneAndNoChanges(t *testing.T) {
 		maxLoops: 1,
 	}
 
-	err := rr.Execute(context.Background())
+	err := rr.Run(context.Background())
 	if err != nil {
 		t.Errorf("Execute() returned error: %v", err)
 	}
