@@ -1,58 +1,56 @@
-# Agent & Skills Reference
+# The Team (Agents & Skills)
 
-The Springfield Protocol uses a **5-Agent "Single Pizza" Team** model. Each agent represents a focused mindset and exercises specific standardized skills.
-
----
-
-## The 5-Agent Team
-
-| Agent | Mindset | Focus | Primary Skills | Primary Persona |
-| :--- | :--- | :--- | :--- | :--- |
-| **Product** | Empathy | What & Why | `discovery`, `triage` | Marge |
-| **Planning** | Logic | How & Structure | `planning`, `architecture` | Lisa |
-| **Build** | Optimism | Doing | `implementation`, `testing` | Ralph |
-| **Quality** | Pessimism | Critiquing | `review`, `verification` | Bart |
-| **Release** | Ceremony | Shipping | `release`, `learning` | Lovejoy |
+We operate as a "Single Pizza" team of 5 specialized agents. Each one has a specific job, a specific personality, and a specific set of permissions.
 
 ---
 
-## 1. Product Agent (Marge)
-- **Mindset:** Empathy & User Alignment.
-- **Role:** Investigates user needs, defines the problem, and enforces the "Definition of Ready."
-- **Output:** Feature Briefs (`Feature.md`), Problem Statements.
-- **Skills:** `discovery`, `triage`.
+## 1. @Marge (Product)
+**"I just think they're neat."**
 
-## 2. Planning Agent (Lisa)
-- **Mindset:** Logical Strategy & Structure.
-- **Role:** Breaks down features into tasks, validates architectural fit (ADRs), and plans dependencies.
-- **Output:** `PLAN.md`, `TODO.md`, `ADRs`.
-- **Skills:** `planning`, `architecture`.
+*   **Role:** The Voice of the User.
+*   **Obsession:** The "Why." She doesn't care about your cool tech stack; she cares if it solves the user's problem.
+*   **Deliverables:** `Feature.md`. She writes the brief that tells everyone else what to do.
+*   **When to call her:** When you don't know *what* to build.
 
-## 3. Build Agent (Ralph)
-- **Mindset:** Persistent Optimism & TDD.
-- **Role:** Implementation of tasks following strict TDD practices.
-- **Output:** Tested code, infrastructure config.
-- **Skills:** `implementation`, `testing`.
+## 2. @Lisa (Planning)
+**"We need a plan."**
 
-## 4. Quality Agent (Bart)
-- **Mindset:** Adversarial Pessimism ("I'm going to break this").
-- **Role:** Finding what the Build Agent missed; enforcing standards.
-- **Output:** `FEEDBACK.md`, Gate sign-offs.
-- **Skills:** `review`, `verification`.
+*   **Role:** The Architect.
+*   **Obsession:** Structure and Logic. She turns Marge's vague ideas into concrete plans and tasks. She hates technical debt.
+*   **Deliverables:** `PLAN.md`, `TODO.md`, `ADRs`.
+*   **When to call her:** When you know *what* to build but not *how*.
 
-## 5. Release Agent (Lovejoy)
-- **Mindset:** Ceremony & Learning.
-- **Role:** Master of publishing and organizational learning.
-- **Output:** `CHANGELOG.md`, Release tags.
-- **Skills:** `release`, `learning`.
+## 3. @Ralph (Build)
+**"I'm helping!"**
+
+*   **Role:** The Builder.
+*   **Obsession:** Doing the work. He is optimistic, persistent, and eager to please. He writes code, runs tests, and fixes things.
+*   **Deliverables:** Code, Tests, Green builds.
+*   **When to call him:** When you have a `TODO.md` ready to go.
+
+## 4. @Bart (Quality)
+**"Eat my shorts."**
+
+*   **Role:** The Critic & Verifier.
+*   **Obsession:** Breaking things and ensuring quality. He assumes Ralph messed up. He tries to find bugs, security holes, logic errors, and ACP violations.
+*   **Responsibilities:**
+    - **Static Analysis:** Code review for SOLID principles, Clean Code standards, Go best practices, and Atomic Commit Protocol adherence.
+    - **Dynamic Verification:** Test execution (unit, integration, BDD), coverage validation, and adversarial edge case discovery.
+*   **Deliverables:** `FEEDBACK.md`. He tells you why your code isn't good enough yet.
+
+## 5. @Lovejoy (Release)
+**"And now, the reading of the logs."**
+
+*   **Role:** The Shipper.
+*   **Obsession:** Ceremony. He ensures everything is documented, tagged, and officially released.
+*   **Deliverables:** `CHANGELOG.md`, git tags, releases.
+*   **When to call him:** When `TODO.md` is empty and the tests are green.
 
 ---
 
-## Retired Personas
-The following personas have been consolidated into the core 5-agent team to simplify coordination:
-- **Troy McClure & Wiggum:** Merged into **Product (Marge)**.
-- **Frink:** Merged into **Planning (Lisa)**.
-- **Homer:** Merged into **Build (Ralph)**.
-- **Herb Powell:** Merged into **Quality (Bart)**.
+## The Sandbox (Where they live)
 
-For detailed persona instructions, see individual profiles in [.github/agents/](../../.github/agents/).
+All agents run inside a secure **Axon Sandbox**. This means:
+*   **Isolation:** They can't mess up your host machine (mostly).
+*   **Context:** They get a clean environment every time.
+*   **Memory:** They have none. They only know what they read in the files.

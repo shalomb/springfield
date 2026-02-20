@@ -31,7 +31,7 @@
 - **Feature**: A high-level capability (e.g., "Logging"). Defined in a `Feature.md`.
 - **Epic**: A logical grouping of work delivering a **verifiable increment** (e.g., "Implement Structured Logger"). In `PLAN.md`.
 - **User Story**: Mapped to **BDD Scenarios** in `features/*.feature`. We treat stories as *executable specifications*, not just tickets.
-- **Task**: An atomic, executable unit of work (e.g., "Write `logger.py`"). In `TODO.md`.
+- **Task**: An atomic, executable unit of work (e.g., "Write `logger.go`"). In `TODO.md`.
 
 ## Processes & Loops
 - **Ralph Wiggum Loop**: The core engine. Pick Task -> Clean Context -> Implement -> Verify.

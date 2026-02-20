@@ -1,445 +1,66 @@
-# Getting Started with Springfield Protocol v0.2
+# Getting Started
 
-## Quick Start (5 minutes)
+So you've joined the team. Welcome to Springfield.
 
-### 1. Understand the Model
-```bash
-# Read the core concepts
-cat docs/concepts/model.md          # The complete model
-cat docs/concepts/architecture.md   # Architecture overview
-cat docs/reference/documents.md     # The 7 documents
-```
+This guide assumes you have the repository cloned and your environment set up. If not, ask your lead where the coffee machine is.
 
-### 2. Try the CLI
-```bash
-# List available commands
-just
+## 1. The Interface: `just`
 
-# See what agents are available
-just agents
-
-# See what skills are available
-just skills
-
-# See the phases
-just phases
-```
-
-### 3. Impersonate an Agent
-```bash
-# Load the product agent
-just impersonate product-agent
-
-# You're now "in" the product agent
-# Try a skill:
-#   > just utilize discovery-skill
-```
-
-### 4. Flow Through Discovery
-```bash
-# Navigate the discovery diamond
-just flow discovery
-
-# This will show the discovery flow
-# and guide you to utilize relevant skills
-```
-
----
-
-## Implementation Steps (Full Setup)
-
-### Step 1: Create Your Justfile
-
-Copy this minimal justfile to your project root:
-
-```justfile
-# Springfield Protocol v0.2
-# Command interface for agents and skills
-
-impersonate AGENT:
-    @cat .github/agents/{{AGENT}}.md
-    @echo ""
-    @bash
-
-utilize SKILL:
-    @cat .github/skills/{{SKILL}}/SKILL.md
-    @echo ""
-
-flow PHASE="delivery":
-    @echo "Flowing through {{PHASE}} phase..."
-    @just --list | grep -i {{PHASE}}
-
-loop:
-    @echo "🔄 Ralph Wiggum Loop - monitoring PLAN.md"
-    @echo "Find next unstarted task and spawn agent"
-
-agents:
-    @echo "🎭 Available Agents:"
-    @ls -1 .github/agents/*.md 2>/dev/null | xargs -I {} basename {} .md | sed 's/^/  /'
-
-skills:
-    @echo "📚 Available Skills:"
-    @ls -1d .github/skills/*/ 2>/dev/null | xargs -I {} basename {} | sed 's/^/  /'
-
-phases:
-    @echo "🔷 Phases:"
-    @echo "  - discovery    (Design Thinking diamond)"
-    @echo "  - delivery     (Agile diamond)"
-    @echo "  - devops       (Continuous cycle)"
-
-help:
-    @echo "Springfield Protocol v0.2"
-    @echo ""
-    @echo "just impersonate {agent}    Load an agent"
-    @echo "just utilize {skill}        Exercise a skill"
-    @echo "just flow {phase}           Navigate a phase"
-    @echo "just loop                   Run Ralph Wiggum Loop"
-    @echo "just agents                 List agents"
-    @echo "just skills                 List skills"
-    @echo "just phases                 Show phases"
-
-default:
-    @just help
-```
-
-### Step 2: Create Directory Structure
+We use `just` to run everything. It's our command center.
 
 ```bash
-mkdir -p .github/skills
-mkdir -p .github/agents
-mkdir -p docs/adr
-mkdir -p features
-touch PLAN.md TODO.md CHANGELOG.md
+just list       # Show all commands
+just agents     # See who's working
+just skills     # See what they can do
 ```
 
-### Step 3: Define Core Agents (5-Agent Team)
+## 2. Your First Feature
 
-Create `.github/agents/product-agent.md`:
+Ready to build something? Here is the lifecycle of a task.
 
-```markdown
-# Product Agent
-
-**Focus:** Discovery & Triage (The "What & Why")
-**Skills:** discovery-skill
-**Persona:** Marge
-
-**Responsibilities:**
-- Investigate user needs
-- Define the problem
-- Enforce definition of ready
-- Create Feature Briefs
-
-**How to use:**
+### Step 1: Start a Branch
+Don't work on main. We aren't savages.
 ```bash
-just impersonate product-agent
+just start-feature my-cool-feature
 ```
-```
 
-Create `.github/agents/planning-agent.md`:
-
-```markdown
-# Planning Agent
-
-**Focus:** Structure & Architecture (The "How")
-**Skills:** planning-skill, architecture-skill
-**Persona:** Lisa
-
-**Responsibilities:**
-- Break features into tasks
-- Validate architecture (ADRs)
-- Plan dependencies
-
-**How to use:**
+### Step 2: Define the Work (Marge & Lisa)
+Before writing code, we need a plan.
+1.  Create or update **Feature.md** to define the "Why" and "What."
+2.  Run the planner to generate the task list.
 ```bash
-just impersonate planning-agent
+just lisa "Analyze Feature.md and create a TODO.md for the implementation"
 ```
-```
 
-Create `.github/agents/build-agent.md`:
+### Step 3: The Loop (Ralph & Bart)
+Now we build. You can run the autonomous loop or drive it manually.
 
-```markdown
-# Build Agent
-
-**Focus:** Implementation (The "Doer")
-**Skills:** implementation-skill, testing-skill
-**Persona:** Ralph
-
-**Responsibilities:**
-- Write code
-- Write tests (TDD)
-- Configure infrastructure
-
-**How to use:**
+**The "Do It All" Command:**
 ```bash
-just impersonate build-agent
+just do
 ```
-```
+*This runs Lisa (Plan) → Ralph (Build) → Bart (Quality Review & Verify) in a cycle.*
 
-Create `.github/agents/quality-agent.md`:
-
-```markdown
-# Quality Agent
-
-**Focus:** Verification (The "Critic")
-**Skills:** review-skill, verification-skill
-**Persona:** Bart
-
-**Responsibilities:**
-- Adversarial review
-- Security checks
-- Verify gates (coverage > 95%)
-
-**How to use:**
+**Or Manual Mode:**
 ```bash
-just impersonate quality-agent
+just ralph    # Build the next task in TODO.md
+just test     # Run the test ladder
 ```
-```
 
-Create `.github/agents/release-agent.md`:
-
-```markdown
-# Release Agent
-
-**Focus:** Ceremony (The "Shipper")
-**Skills:** release-skill, learning-skill
-**Personas:** Lovejoy
-
-**Responsibilities:**
-- Manage releases
-- Update Changelog
-- Capture learning
-
-**How to use:**
+### Step 4: Ship It (Lovejoy)
+When `TODO.md` is empty and `FEEDBACK.md` is clean:
 ```bash
-just impersonate release-agent
-```
-```
-
-### Step 4: Define Discovery Skill
-
-Create `.github/skills/discovery-skill/SKILL.md`:
-
-```markdown
-# Discovery Skill
-
-**Purpose:** Investigate problems, gather requirements, understand root causes
-
-**When to exercise:** Before building anything new
-
-**Procedure:**
-
-1. Read the issue/request
-2. Conduct interviews with stakeholders
-3. Perform Five Whys analysis
-4. Conduct Gemba walk (examine docs, code, systems)
-5. Synthesize findings into Feature.md
-6. Document unknowns (linked to ADRs)
-7. List explicit assumptions
-
-**Inputs:**
-- GitHub issue or request
-- Existing Feature.md (if updating)
-
-**Outputs:**
-- Feature.md (problem + requirements + constraints)
-- Unknowns list (with links to ADRs to be created)
-- Assumptions list
-
-**Tools:**
-- Interview template (tools/interview-template.md)
-- Five Whys template (tools/five-whys.sh)
-- Gemba walk checklist (tools/gemba-walk.md)
-
-**Example:**
-See examples/discover-user-needs.md
+just lovejoy
 ```
 
-Create `.github/skills/discovery-skill/examples/discover-user-needs.md`:
+## 3. The Rules of Engagement
 
-```markdown
-# Example: Discover User Authentication Needs
+1.  **Trust the Tests:** If `just test` fails, you are not done.
+2.  **Atomic Commits:** Ralph will yell at you if you make giant commits. Keep them small.
+3.  **Read the Docs:** If you get stuck, check `docs/reference/loops.md` to find the right tool for the job.
 
-**Scenario:** Users requested login feature
+## 4. Troubleshooting
 
-**Discovery Process:**
-
-1. Interview 5 power users
-   - Why can't you log in now? (Feature doesn't exist)
-   - Why is login critical? (Need multiple accounts per company)
-   - What's the minimum needed? (Email/password + session)
-
-2. Five Whys Analysis
-   - Why no authentication? (Not prioritized)
-   - Why prioritize now? (Enterprise customer feedback)
-   - Why is it critical now? (Account isolation needed)
-
-3. Gemba Walk
-   - Check: User profile schema (email exists? ✓)
-   - Check: Session handling (framework support? ✓)
-   - Check: HTTPS enforcement (all traffic encrypted? ✓)
-
-4. Document Feature.md:
-   ```
-   Problem: Enterprise customers need account isolation
-   Requirements: Email/password login with 24h sessions
-   Unknowns: Session storage (Redis vs database?)
-   Assumptions: Users have email, HTTPS always on
-   ```
-
-5. Link unknowns to ADRs to be created:
-   - Unknown: Session storage → ADR-001 to be created
-```
-
-### Step 5: Create Root Documents
-
-Create `PLAN.md`:
-
-```markdown
-# PLAN.md - Feature Roadmap
-
-## Feature: [Your First Feature]
-
-### Epic 1: [Epic Name]
-- [ ] Task 1: [Task description]
-  - Status: unstarted
-  - Assignee: [agent]
-  - ADR: [if any]
-  - Feature Brief: Feature.md#[anchor]
-  - BDD: scenarios.feature#[anchor]
-```
-
-Create `TODO.md`:
-
-```markdown
-# TODO.md - Sprint Tasks
-
-## Current Sprint
-
-- [ ] Task 1: [Task description]
-  - Assigned to: [agent]
-  - Time estimate: [hours]
-  - Started: [date]
-```
-
-Create `Feature.md`:
-
-```markdown
-# Feature.md - [Feature Name]
-
-## Problem
-[Root cause analysis]
-
-## Requirements
-[User need]
-
-## Acceptance Criteria
-See: scenarios.feature
-
-## Constraints
-- [Hard limit]
-
-## Unknowns
-- [Question] - See ADR-XXX for decision
-
-## Assumptions
-- [What we're betting on]
-
-## Scope
-✅ [In scope]
-❌ [Out of scope]
-```
-
-### Step 6: Test the CLI
-
-```bash
-# List agents
-just agents
-
-# List skills
-just skills
-
-# Impersonate product agent
-just impersonate product-agent
-
-# (You're now in product agent mode)
-# Try:
-just skills
-just flow discovery
-just utilize discovery-skill
-```
-
----
-
-## Common Workflows
-
-### Workflow 1: Discover a Feature
-```bash
-just impersonate product-agent
-just flow discovery
-just utilize discovery-skill            # Investigate
-# Switch to Planning Agent for architecture
-just impersonate planning-agent
-just utilize architecture-skill         # Validate
-# Feature.md + ADRs created
-```
-
-### Workflow 2: Implement a Feature
-```bash
-just impersonate planning-agent
-just flow delivery
-just utilize planning-skill             # Plan: creates PLAN.md + TODO.md
-just loop                               # Ralph Wiggum Loop:
-                                        # - Spawn build-agent
-                                        # - Exercise skills
-                                        # - Spawn quality-agent
-                                        # - Verify results
-                                        # - Loop until done
-```
-
-### Workflow 3: Release
-```bash
-just impersonate release-agent
-just utilize release-skill              # Create CHANGELOG + tag
-# Or via GitHub Actions
-# Automated release workflow
-```
-
----
-
-## Next Steps
-
-1. **Create your skills** - Start with discovery-skill (`.github/skills/discovery-skill/SKILL.md`)
-2. **Create your agents** - Customize agent definitions for your team
-3. **Set up workflows** - Add GitHub Actions for automated testing, coverage, security
-4. **Train your team** - Share the docs, run through workflows
-5. **Iterate** - Refine skills and agents based on experience
-
----
-
-## Resources
-
-- **Model Overview:** [docs/concepts/model.md](../concepts/model.md)
-- **Architecture:** [docs/concepts/architecture.md](../concepts/architecture.md)
-- **Documents Reference:** [docs/reference/documents.md](../reference/documents.md)
-- **All Skills:** See `.github/skills/*/SKILL.md`
-- **All Agents:** See `.github/agents/*.md`
-
----
-
-## Troubleshooting
-
-**"just command not found"**
-- Install justfile: https://github.com/casey/just#installation
-
-**"SKILL.md not found"**
-- Ensure `.github/skills/{skill-name}/SKILL.md` exists
-- Check skill name matches exactly
-
-**"Agent not found"**
-- Ensure `.github/agents/{agent-name}.md` exists
-
-**"Not sure which skill to use"**
-- Run `just skills` to see all available
-- Run `just flow {phase}` to see recommended skills for that phase
-
-This is your entry point to Springfield Protocol v0.2.
+*   **"Agent is hallucinating":** Kill the process. Check `TODO.md` for ambiguous instructions. Clarify them. Retry.
+*   **"Tests failing":** Run `just test-unit` to narrow it down.
+*   **"I don't know what to do":** Run `just plan` and let Lisa tell you.

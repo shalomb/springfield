@@ -12,10 +12,10 @@ Feature: Automated Feedback Loop
     And she should add a "Fix Bug" task to TODO.md
     And the system should trigger Ralph again
 
-  Scenario: Lisa defers a minor issue
+  Scenario: Bart defers a minor issue for later
     Given a feature branch "feat/epic-test" exists
     And Ralph has implemented a change
-    But Herb finds a minor style issue and updates FEEDBACK.md
+    But Bart finds a minor code style issue and updates FEEDBACK.md
     When Lisa analyzes FEEDBACK.md
     Then she should identify the issue as "Minor"
     And she should add a note to PLAN.md under "Technical Debt"

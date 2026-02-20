@@ -1,133 +1,64 @@
-# Essential Documents Reference
+# The 7 Core Documents
 
-Springfield Protocol uses 7 core documents as the shared state across all agents and skills.
-
-## The 7 Core Documents
-
-### 1. PLAN.md — Epic Backlog (Value Roadmap)
-
-**Purpose:** Defines the *Epics* (value increments) and their justification.
-
-**Structure (The "Three Pillars" Model):**
-```markdown
-# PLAN.md - Epic Backlog
-
-## EPIC-XXX: [Epic Name]
-**Value Statement:** For [User], who [Problem], the [Epic] is a [Solution] that [Benefit].
-
-**The "Why":** [Brief summary of Discovery findings].
-**Scope:**
-- ✅ [Included]
-- ❌ [Excluded]
-
-**Acceptance Criteria:**
-- [ ] [Observable outcome]
-
-**Attributes:**
-- **Status:** Ready | In Progress | Blocked | Done
-- **Complexity:** Low/Med/High
-- **Urgency:** Low/Med/High
-- **Dependencies:** [Other Epics]
-```
-
-**Holds:**
-- **Desirability:** Why users want it (Value Statement).
-- **Viability:** Why we should build it (The "Why").
-- **Feasibility:** What exactly is being built (Scope & Criteria).
-- **Prioritization:** Status, complexity, urgency.
-
-**Updated by:** Planning Agent (Flow Planner).
-**Read by:** Implementation Agent (Ralph) to create `TODO.md`.
+These files are the only thing that matters. If an agent learns something and doesn't write it down here, it didn't happen.
 
 ---
 
-### 2. TODO.md — Sprint Tasks (Execution Plan)
+## 1. PLAN.md (The Roadmap)
+**Owner:** @Lisa
+**Lifecycle:** Permanent
 
-**Purpose:** Decomposed, executable tasks for a *single* active Epic.
+This is the big picture. It lists the Epics (large chunks of value) we plan to deliver.
+*   **Contains:** Feature goals, status, and high-level requirements.
+*   **Don't touch if:** You are Ralph. Only Lisa and Marge should be messing with the roadmap.
 
-**Structure:**
-```markdown
-# TODO.md - Sprint for EPIC-XXX
+## 2. TODO.md (The Task List)
+**Owner:** @Ralph
+**Lifecycle:** Ephemeral (Lives for a sprint, dies at release)
 
-## Context
-[Link to PLAN.md#EPIC-XXX]
+This is the immediate work. It breaks down one Epic into tiny, bite-sized tasks.
+*   **Contains:** Checkboxes. Lots of them.
+*   **Rule:** If a task takes more than an hour, break it down.
+*   **Death:** When the Epic is done, `TODO.md` is deleted.
 
-## Tasks
-- [ ] Task 1: [Atomic implementation step]
-  - Assigned to: [agent]
-  - Subtasks: ...
-```
+## 3. Feature.md (The Brief)
+**Owner:** @Marge
+**Lifecycle:** Permanent (per feature)
 
-**Holds:**
-- Immediate, granular work items (10m - 2h).
-- Implementation details.
-- Progress tracking.
+The source of truth for "Why" we are doing this.
+*   **Contains:** The Problem, The User, The Requirements, and The Unknowns.
+*   **Rule:** If you don't understand the user, read this.
 
-**Lifecycle:**
-- Created by **Planning Agent** when an Epic starts.
-- Updated by **Implementation Agent** as work progresses.
-- **Deleted** by Implementation Agent when Epic is complete.
+## 4. FEEDBACK.md (The Roast)
+**Owner:** @Bart
+**Lifecycle:** Ephemeral (Lives during review, dies at success)
 
----
+This is where Bart yells at Ralph.
+*   **Contains:** Bugs, security holes, code smell, and general complaints.
+*   **Rule:** You cannot ship if this file exists and has content.
 
-### 3. Feature.md — Feature Brief
+## 5. CHANGELOG.md (The History)
+**Owner:** @Lovejoy
+**Lifecycle:** Permanent
 
-**Purpose:** Detailed problem definition and requirements.
+The official record of what we shipped and when.
+*   **Contains:** Version numbers, dates, and a summary of value delivered.
+*   **Rule:** Follow [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-**Structure:**
-```markdown
-# Feature.md - [Feature Name]
+## 6. ADRs (The Decisions)
+**Owner:** @Lisa
+**Lifecycle:** Permanent
 
-## Problem
-[Root cause analysis]
+Architectural Decision Records. The "Why" behind the "How."
+*   **Location:** `docs/adr/XXXX-title.md`
+*   **Contains:** Context, Decision, Consequences.
+*   **Rule:** If you make a major technical choice (like "Use Postgres"), write an ADR.
 
-## Requirements
-[User need statement]
+## 7. BDD Specs (The Truth)
+**Owner:** @Bart / @Marge
+**Lifecycle:** Permanent
 
-## Constraints & Unknowns
-...
-```
-
-**Holds:**
-- The source of truth for "What" and "Why".
-- Detailed requirements that feed into `PLAN.md` Epics.
-
----
-
-### 4. ADRs — Architecture Decision Records
-
-**Purpose:** Technical decisions and rationale.
-
-**Holds:**
-- Decisions on "How" to solve technical constraints.
-- Alternatives considered.
-
----
-
-### 5. scenarios.feature — BDD Specs
-
-**Purpose:** Executable tests defining acceptance criteria.
-
-**Holds:**
-- Gherkin syntax scenarios.
-- Used to verify Epics are complete.
-
----
-
-### 6. FEEDBACK.md — Review Results
-
-**Purpose:** Code review and quality gate status.
-
-**Holds:**
-- Issues found during implementation.
-- Approval status.
-
----
-
-### 7. CHANGELOG.md — Release History
-
-**Purpose:** Record of shipped value.
-
-**Holds:**
-- Version history.
-- Features added/fixed.
+Executable requirements written in Gherkin.
+*   **Location:** `features/*.feature`
+*   **Contains:** `Given`, `When`, `Then` scenarios.
+*   **Rule:** These are the definition of "Done." If these pass, the feature works.

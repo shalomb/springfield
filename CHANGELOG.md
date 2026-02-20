@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `.gitignore` with Go and Python standard patterns.
 
 ### Changed
-- Refactored `Justfile` to include targets for Herb (Review), Bart (Quality), and Lovejoy (Release).
+- Refactored `Justfile` to consolidate Quality Review role: Bart now handles both static analysis (code review, ACP verification) and dynamic verification (test execution, BDD validation).
 - Updated `PLAN.md` to reflect completion of EPIC-008.
 
 ### Removed

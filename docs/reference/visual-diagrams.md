@@ -494,15 +494,14 @@ Refactor Phase             ✓ Tests passing
                           ✓ Code optimized
                                               → [In Progress]
 
-Bart Review                ✓ Tests passing
-                          ⚠️  No security issues
-                          ⚠️  Edge cases found
-                                              → [Needs Fix]
+Bart Review (Static)       ✓ ACP adherence
+                          ✓ Code standards
+                          ✓ Security review
                                               → [In Progress]
 
-Herb Verification          ✓ Tests passing
+Bart Verification (Dynamic) ✓ Tests passing
                           ✓ 95%+ coverage
-                          ✓ No mock issues
+                          ✓ Edge cases tested
                                               → [Complete]
 
 ✓ Task Complete & Verified

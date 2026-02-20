@@ -42,7 +42,14 @@ Each agent window will be split into two panes:
 
 ## Consequences
 - **Tooling Dependency:** Requires `tmux` to be installed on the host.
-- **Context Management:** The orchestrator must ensure agents are aware of their specific `TODO.md` and worktree.
+- **Context Management:** The orchestrator must ensure agents are aware of
+  their specific `TODO.md` and worktree. *Resolved by ADR-008: handoff
+  documents are named `TODO-{td-id}.md` — self-identifying by Epic ID. The
+  Springfield binary injects `@TODO-{td-id}.md` as the context document for
+  the correct worktree invocation. No ambiguity under parallel Ralph windows
+  (`ralph-1`, `ralph-2`). Additionally, `td usage` provides live task state
+  at cold-start, independent of which tmux window or worktree the agent
+  occupies.*
 - **Log Volume:** Agent logs will grow; requires a rotation strategy (EPIC-003).
 
 ## Alternatives Considered

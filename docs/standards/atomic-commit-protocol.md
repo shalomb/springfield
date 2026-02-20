@@ -1,67 +1,71 @@
 # Atomic Commit Protocol (ACP)
 
-## Overview
-The Atomic Commit Protocol (ACP) ensures that every commit in the Springfield project is a discrete, functional, and testable unit of work. This practice facilitates easier code reviews, simplifies debugging, and enables reliable rollbacks.
+**The Golden Rule:** Every commit must leave the repo in a working state.
 
-## Core Principles
-1. **Atomicity**: A commit should do one thing and one thing only. If a change involves multiple logical components, it should be split into multiple commits.
-2. **Testability**: Every commit MUST pass all tests. Never commit code that breaks the build or fails existing tests.
-3. **Indivisibility**: A commit should include the implementation, the tests (TDD), and any relevant documentation updates.
-4. **Reversibility**: It should be possible to revert a single commit without breaking the system.
-
-## Commit Message Standard
-
-### Structure
-Commits follow the Conventional Commits specification with additional Springfield-specific requirements:
-
-```
-<type>(<scope>): <Subject line (50 chars max)>
-
-<Body: Detailed explanation of 'why', not 'what'.>
-<Reference any issue or task IDs.>
-
-[BREAKING CHANGE: <description>]
-```
-
-### Subject Line
-- **Length**: Maximum 50 characters.
-- **Format**: Capitalized, imperative mood (e.g., "Add feature" instead of "Added feature").
-- **Prefix**: Use standard types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`.
-
-### Body
-- Wrap at 72 characters.
-- Explain the motivation for the change.
-- Contrast current behavior with new behavior if applicable.
-- Reference `TODO.md` tasks or `PLAN.md` Epics.
-
-## Commit Scope
-- `protocol`: Changes to the core Springfield protocol.
-- `docs`: Documentation updates.
-- `cmd`: Changes to command-line tools.
-- `scripts`: Internal scripts and tools.
-- `tests`: Test suite improvements.
-- `infra`: Infrastructure and CI/CD changes.
-
-## Examples
-
-### Good Commit
-```
-feat(auth): Implement JWT validation
-
-To improve security, we are moving from session-based auth to JWT.
-This commit adds the validation logic and associated unit tests.
-Addresses Task 3 in EPIC-002.
-```
-
-### Bad Commit
-```
-fixed some bugs and updated docs
-```
-
-## Workflow Integration
-- **Ralph (Build)**: Must ensure every commit in a PR follows this protocol.
-- **Bart (Quality)**: Will reject PRs that contain non-atomic or poorly described commits.
-- **Lovejoy (Release)**: Uses these commits to generate the `CHANGELOG.md`.
+If I checkout your commit and run `just test`, it must pass. If it doesn't, your commit is invalid.
 
 ---
-*Related: [Coding Conventions](coding-conventions.md), [Git Branching Standard](git-branching-standard.md)*
+
+## 1. The Philosophy
+
+We don't do "WIP" commits. We don't do "save point" commits.
+
+A commit is a discrete unit of finished work. It includes:
+1.  **The Test:** The proof it works.
+2.  **The Code:** The implementation.
+3.  **The Docs:** The explanation.
+
+If you commit code without tests, you are breaking the protocol.
+
+## 2. The Format (Conventional Commits)
+
+We follow the [Conventional Commits](https://www.conventionalcommits.org/) spec.
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+### The Header
+*   **Type:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`.
+*   **Scope:** `core`, `agent`, `docs`, `cli`.
+*   **Subject:** 50 chars max. Imperative mood. ("Add feature", not "Added feature").
+
+### The Body
+*   **Why:** Explain *why* you made this change. The code explains *what*, the history explains *why*.
+*   **Wrap:** 72 characters.
+
+## 3. Examples
+
+### ✅ Good
+```
+feat(auth): add jwt validation middleware
+
+The legacy session auth was causing race conditions in distributed
+deployments. This moves us to stateless JWTs.
+
+Closes #123
+```
+
+### ❌ Bad
+```
+fix bug
+```
+*(Ralph will reject this commit and laugh at you.)*
+
+### ❌ Bad
+```
+wip
+```
+*(Bart will reject this commit and cry.)*
+
+## 4. Workflow Integration
+
+*   **Ralph** creates the commits.
+*   **Bart** validates the commits.
+*   **Lovejoy** reads the commits to write the Changelog.
+
+If your commits are bad, Lovejoy's changelog will be garbage, and he will be unhappy. Don't make Lovejoy unhappy.

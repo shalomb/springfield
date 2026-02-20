@@ -1,0 +1,25 @@
+mode: set
+github.com/unop/springfield/internal/sandbox/axon.go:21.51,23.2 1 1
+github.com/unop/springfield/internal/sandbox/axon.go:25.48,26.22 1 1
+github.com/unop/springfield/internal/sandbox/axon.go:26.22,28.3 1 1
+github.com/unop/springfield/internal/sandbox/axon.go:31.2,31.49 1 1
+github.com/unop/springfield/internal/sandbox/axon.go:31.49,33.3 1 1
+github.com/unop/springfield/internal/sandbox/axon.go:36.2,36.44 1 0
+github.com/unop/springfield/internal/sandbox/axon.go:36.44,42.38 2 0
+github.com/unop/springfield/internal/sandbox/axon.go:42.38,43.47 1 0
+github.com/unop/springfield/internal/sandbox/axon.go:43.47,45.5 1 0
+github.com/unop/springfield/internal/sandbox/axon.go:49.2,49.15 1 0
+github.com/unop/springfield/internal/sandbox/axon.go:54.63,58.46 4 1
+github.com/unop/springfield/internal/sandbox/axon.go:58.46,60.3 1 1
+github.com/unop/springfield/internal/sandbox/axon.go:61.2,62.71 2 1
+github.com/unop/springfield/internal/sandbox/axon.go:62.71,64.3 1 0
+github.com/unop/springfield/internal/sandbox/axon.go:65.2,65.18 1 1
+github.com/unop/springfield/internal/sandbox/axon.go:71.85,88.60 7 1
+github.com/unop/springfield/internal/sandbox/axon.go:88.60,90.3 1 0
+github.com/unop/springfield/internal/sandbox/axon.go:94.2,95.19 2 1
+github.com/unop/springfield/internal/sandbox/axon.go:95.19,96.50 1 1
+github.com/unop/springfield/internal/sandbox/axon.go:96.50,98.4 1 0
+github.com/unop/springfield/internal/sandbox/axon.go:98.9,101.4 1 1
+github.com/unop/springfield/internal/sandbox/axon.go:104.2,109.57 2 0
+github.com/unop/springfield/internal/sandbox/axon.go:109.57,111.3 1 0
+github.com/unop/springfield/internal/sandbox/axon.go:113.2,117.8 1 0

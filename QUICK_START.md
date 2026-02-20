@@ -211,17 +211,18 @@ PLAN.md → TODO.md tasks
 
 ```
 Project Root/
+├── bin/                    # Build artifacts
+├── cmd/                    # CLI entry points
+├── docs/                   # Documentation (Diataxis)
+│   ├── adr/               # Architecture decisions (Lisa)
+│   └── features/          # Feature briefs (Marge)
+├── internal/               # Core logic (private)
+├── pkg/                    # Shared packages (public)
+├── tests/                  # Integration & BDD tests
 ├── PLAN.md                 # High-level roadmap (Lisa)
 ├── TODO.md                 # Executable tasks (Lisa)
-├── FEEDBACK.md             # Review feedback (Marge)
-├── docs/
-│   ├── adr/               # Architecture decisions (Lisa)
-│   └── RUNBOOK.md         # Operations guide
-├── .github/
-│   ├── agents/            # Agent definitions
-│   └── workflows/         # CI/CD
-└── src/                   # Implementation
-    └── (tests/ + code)
+├── Feature.md              # Active feature brief (Marge)
+└── CHANGELOG.md            # Release history (Lovejoy)
 ```
 
 ---
@@ -242,6 +243,19 @@ Project Root/
 
 ## Invocation Examples
 
+### Using Justfile
+
+```bash
+# Plan a feature
+just lisa "Break down user authentication into tasks"
+
+# Implement a task
+just ralph "Implement login endpoint with TDD"
+
+# Run tests
+just test
+```
+
 ### In Pi CLI
 
 ```bash
@@ -250,12 +264,6 @@ Project Root/
 @ralph "Implement the login endpoint with TDD"
 
 @bart "Review this code for security vulnerabilities"
-
-@bart "Verify test coverage meets 95%"
-
-@marge "Conduct a user feedback review of this PR"
-
-@lisa "Document the decision to use Event Sourcing"
 ```
 
 ### In Other Harnesses

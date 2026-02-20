@@ -1,73 +1,80 @@
-# Standard Operating Workflows
+# Standard Workflows
 
-This guide provides step-by-step procedures for the most common tasks in the Springfield Protocol.
-
----
-
-## 1. Discovery Diamond: From Idea to Brief
-
-The Discovery Diamond ensures we solve the right problem before we start building.
-
-1.  **DIVERGE: Orthogonal Investigation**
-    -   **Product Agent (Marge)** generates options using **Empathy bias** (How does this impact the user?).
-    -   **Planning Agent (Lisa)** adds **Structural bias** (How does this fit our architecture?).
-    -   **Result:** A wide "Tree of Thoughts" of potential problem definitions and solution directions.
-2.  **POOL:** Consolidate all biased options into a candidate list.
-3.  **CONVERGE: Validate & Shortlist**
-    -   **Planning Agent** filters by architectural fit and cost.
-    -   **Product Agent** filters by user alignment.
-    -   **Output:** A validated **Feature.md** (Brief) and necessary **ADRs**.
+This is how we get things done.
 
 ---
 
-## 2. Delivery Diamond: From Brief to Release
+## 1. The New Feature Workflow
+
+**Goal:** Turn an idea into shipped code.
+**Agents:** Marge, Lisa, Ralph, Bart, Lovejoy.
+
+### Phase 1: Discovery (Marge & Lisa)
+1.  **Start:** `just start-feature <name>`
+2.  **Define:** Create `Feature.md`. What is the problem? Who cares?
+3.  **Plan:** Lisa reads `Feature.md` and populates `PLAN.md` with Epics.
+4.  **Architect:** If it's complex, Lisa writes an ADR to decide *how* we build it.
+
+### Phase 2: Delivery (Ralph & Bart)
+1.  **Tasking:** Lisa breaks Epics into atomic tasks in `TODO.md`.
+2.  **The Loop:**
+    *   **Ralph** picks a task, writes a failing test, makes it pass, and commits.
+    *   **Bart** performs comprehensive quality verification:
+        - Static analysis (code review, ACP adherence, best practices)
+        - Dynamic verification (test execution, coverage, BDD validation)
+        - Adversarial testing (edge cases, security, performance)
+3.  **Repeat:** Keep looping until `TODO.md` is empty.
+
+### Phase 3: Release (Lovejoy)
+1.  **Verify:** Ensure `FEEDBACK.md` is empty of blockers.
+2.  **Ship:** Lovejoy merges the branch and updates the `CHANGELOG.md`.
 
 ---
 
-## 2. Debugging an Issue
+## 2. The Bug Fix Workflow
 
-Standard procedure for resolving bugs.
+**Goal:** Fix a bug without creating two new ones.
+**Agents:** Ralph, Bart.
 
-1.  **Product Agent:** Triages issue → Enforces "Definition of Ready."
-2.  **KEDB Check:** Search the Known Error Database for existing solutions.
-3.  **Build Agent:** Uses **ReAct Loop** to reproduce error via failing test → Implements fix.
-4.  **Quality Agent:** Verifies regression tests pass.
-5.  **Release Agent:** Deploys hotfix → Captures learning in KEDB if it was a new error.
-
----
-
-## 3. Designing Architecture
-
-How to make and record technical decisions.
-
-1.  **Planning Agent (Lisa):** Proposes approach based on existing patterns → Drafts ADR.
-2.  **Quality Agent (Bart):** Adversarial review of ADR ("Poke holes" in the design).
-3.  **Planning Agent (Lisa):** Refines ADR based on feedback.
-4.  **Acceptance:** Mark ADR as `Accepted`.
-5.  **Build Agent:** Implements feature using the ADR as a guardrail.
+1.  **Reproduce:** Ralph writes a test case that replicates the bug. **If you can't reproduce it with a test, you can't fix it.**
+2.  **Fix:** Ralph writes the code to make the test pass.
+3.  **Verify:** Bart runs the regression suite to ensure nothing else broke.
+4.  **Ship:** Merge and deploy.
 
 ---
 
-## 4. Releasing a Version
+## 3. The Architecture Workflow
 
-The ceremonial path to shipping code.
+**Goal:** Make a hard technical decision.
+**Agents:** Lisa, Bart, Ralph.
 
-1.  **Verification:** Ensure all tasks in `PLAN.md` are marked `verified`.
-2.  **Release Agent (Lovejoy):**
-    -   Determine next version (SemVer).
-    -   Gather changes from `TODO.md` and `FEEDBACK.md`.
-    -   Generate `CHANGELOG.md` entry.
-    -   Git tag and commit version bump.
-    -   Deploy to production.
-3.  **Learning:** Conduct a brief retrospective → Update `Feature.md` assumptions if any were broken.
+1.  **Propose:** Lisa drafts an ADR (Architectural Decision Record) in `docs/adr/`.
+2.  **Critique:** Bart reviews the ADR for logical soundness, adherence to principles, and potential edge cases.
+3.  **Validate:** Ralph implements a prototype to verify the decision is viable.
+4.  **Refine:** Lisa updates the ADR based on feedback.
+5.  **Decide:** Mark the ADR as `Accepted` or `Rejected`.
+6.  **Comply:** Ralph must now follow this rule forever.
 
 ---
 
-## Workflow Summary Table
+## 4. The Release Workflow
 
-| Task | Primary Agent | Key Output |
-| :--- | :--- | :--- |
-| **New Feature** | Product / Planning | `Feature.md`, `PLAN.md` |
-| **Bug Fix** | Build | Failing reproduction test |
-| **Tech Decision** | Planning | ADR |
-| **Shipping** | Release | git tag, `CHANGELOG.md` |
+**Goal:** Ship code to production.
+**Agents:** Lovejoy.
+
+1.  **Check:** Are all tasks in `PLAN.md` done?
+2.  **Clean:** Is `TODO.md` empty?
+3.  **Review:** Are there any critical issues in `FEEDBACK.md`?
+4.  **Ceremony:** Lovejoy bumps the version, updates `CHANGELOG.md`, and creates a git tag.
+
+---
+
+## Workflow Cheat Sheet
+
+| I want to... | Run this... |
+| :--- | :--- |
+| **Start a feature** | `just start-feature <name>` |
+| **Plan the work** | `just lisa` |
+| **Build the code** | `just ralph` |
+| **Verify quality** | `just bart` |
+| **Ship the code** | `just lovejoy` |

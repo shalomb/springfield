@@ -1,103 +1,105 @@
-# Springfield Protocol v0.2: The Master Model
+# The Master Model
 
-This document defines the core logic, philosophy, and architecture of the Springfield Protocol.
+This is the brain of the operation.
+
+The Springfield Protocol isn't just a random collection of scripts. It's a way of working designed to keep AI agents from hallucinating, getting distracted, or breaking things.
 
 ---
 
 ## 1. Core Principles
 
-The framework is built on nine foundational principles that align Design Thinking and Agile Delivery with the Three Ways of DevOps.
+We built this on nine simple rules.
 
-### 1. Systems Thinking (The First Way)
-Visualize the whole value stream. Plan before you build. The Discovery Diamond must produce a Feature Brief to ensure implementation is aligned with the overall system goal.
+### 1. See the whole board
+Don't just write code. Understand where it fits. We plan before we build so we don't build the wrong thing.
 
-### 2. Flow via Decentralized Coordination
-Maintain progress through loose coupling. Agents monitor the state of the 7 Core Documents (the "Blackboard") and "pull" work when triggers are met, eliminating synchronous hand-offs and silos.
+### 2. No hand-offs
+We don't pass batons. We leave notes. Agents read the "Blackboard" (our core docs) to know what to do next. This lets everyone work at their own speed.
 
-### 3. Amplify Feedback Loops (The Second Way)
-Shorten and sharpen feedback. Use the Ralph Wiggum Loop to ensure the Quality Agent (Critic) catches defects immediately. Feedback is recorded in `FEEDBACK.md` to prevent errors from moving downstream.
+### 3. Fast feedback
+We find bugs immediately, not next week. The **Ralph Wiggum Loop** ensures that for every builder, there's a critic watching closely.
 
-### 4. Continual Experimentation & Learning (The Third Way)
-Treat implementation as discovery. Use Spikes (OHECI loop) and "Steer As You Go" tactics to turn every build cycle into an experiment. Capture insights in `CHANGELOG.md` and the KEDB to build organizational mastery.
+### 4. Treat everything as an experiment
+We don't "implement requirements." We test hypotheses. Every feature is a bet. If it works, we keep it. If not, we learn and try again.
 
-### 5. Iteration Over Perfection
-Embrace stateless resampling. High-quality output emerges through persistent iteration, not one-shot perfection. Starting fresh each time prevents "context rot" where errors compound.
+### 5. Perfection through iteration
+We don't expect to get it right the first time. We expect to get it right eventually. We start fresh often to avoid getting stuck in a bad path.
 
-### 6. Explicit Uncertainty
-Document what you don't know. Don't pretend to have certainty you lack. Use `Feature.md#unknowns` and ADRs to convert risks into documented decisions.
+### 6. Admit what you don't know
+If you're unsure, say so. We document "Unknowns" in `Feature.md` instead of guessing. A documented risk is better than a confident hallucination.
 
-### 7. Avoid the Distracted Agent
-Keep agent context focused and expedient. Split roles by purpose (e.g., Build vs. Quality) to prevent context window overload and "hallucinated" reasoning.
-*Reference:* [Distracted Agent Anti-Pattern](https://lexler.github.io/augmented-coding-patterns/anti-patterns/distracted-agent/)
+### 7. Stay focused
+Agents get distracted easily. We split roles (e.g., Build vs. Quality) so no single agent has to hold the entire world in its head at once.
 
-### 8. Leverage Orthogonal Biases
-Use personas as cognitive filters during Divergence. Generate options independently using different biases (e.g., Marge for user empathy vs. Lisa for architectural logic) before pooling. This ensures a wider "Tree of Thoughts."
+### 8. Use different brains
+We use different personas to solve problems. Marge thinks about users. Lisa thinks about systems. By using different "biases," we get better solutions than one generic AI could produce.
 
-### 9. Documents Are Shared State
-Markdown files are the single source of truth. Agents and skills read from and write to these files to maintain context without direct coupling.
+### 9. If it's not written down, it doesn't exist
+Markdown files are our brain. If an agent learns something but doesn't write it to a file, that knowledge dies when the agent shuts down.
 
 ---
 
-## 2. The 5-Agent Team (Single Pizza)
+## 2. The Team (The 5 Agents)
 
-We use specialized agents to keep context windows lean and reasoning sharp.
+We split the work into five distinct roles.
 
-| Agent | Mindset | Focus | Primary Skills |
+| Who | Role | Mindset | What they care about |
 | :--- | :--- | :--- | :--- |
-| **Product** | Empathetic | What & Why | `discovery`, `triage` |
-| **Planning** | Logical | How & Structure | `planning`, `architecture` |
-| **Build** | Optimistic | Doing | `implementation`, `testing` |
-| **Quality** | Pessimistic | Critiquing | `review`, `verification` |
-| **Release** | Ceremonial | Shipping | `release`, `learning` |
+| **Product** | @Marge | Empathetic | The User. The "Why." |
+| **Planning** | @Lisa | Logical | The System. The "How." |
+| **Build** | @Ralph | Optimistic | The Code. Getting it done. |
+| **Quality** | @Bart | Pessimistic | The Bugs. Breaking things. |
+| **Release** | @Lovejoy | Ceremonial | The Ship. Telling the world. |
 
 ---
 
-## 3. The Two Diamonds Flow
+## 3. The Workflow (Think, then Build)
 
-The protocol coordinates work across two distinct phases of diverging (exploring) and converging (deciding).
+We work in two phases. We call them "Diamonds."
 
-### Discovery Diamond (Design Thinking)
--   **Diverge (Investigate):** Product Agent gathers requirements, conducts Five Whys, and Gemba walks.
--   **Converge (Validate):** Planning Agent selects the best *provisional* option from the pool and creates an ADR. This is a hypothesis to be tested.
--   **Output:** A **Feature Brief** with a Selected Option (Hypothesis).
+### Phase 1: Discovery (The "What")
+*   **Marge** looks at the problem and asks "Why?"
+*   **Lisa** looks at the options and picks the best one.
+*   **Result:** A **Feature Brief** that says exactly what we're going to build.
 
-### Delivery Diamond (Agile)
--   **Diverge (Build):** Build Agent implements the hypothesis (Option A).
--   **Converge (Verify):** Quality Agent verifies the implementation works. **Planning Agent** then confirms the option is proven and locks the ADR as "Verified."
--   **Output:** Verified, production-ready code.
-
----
-
-## 4. The Ralph Wiggum Loop (The Engine)
-
-The core execution engine uses **stateless resampling** to ensure quality.
-
-1.  **Monitor:** Scheduler checks `PLAN.md` for failed or unstarted tasks.
-2.  **Spawn:** Agent is spawned in an **Ephemeral Context** (clean worktree).
-3.  **Execute:** Agent exercises skills (Build Agent implements; Quality Agent verifies).
-4.  **Update:** Documents are updated. If verification fails, the task is marked for a fresh iteration.
+### Phase 2: Delivery (The "How")
+*   **Ralph** writes the code.
+*   **Bart** tries to break it.
+*   **Result:** Working, tested software.
 
 ---
 
-## 5. Shared State: The 7 Core Documents
+## 4. The Engine (Ralph Wiggum Loop)
 
-Agents and skills maintain alignment through these documents:
+How do we actually execute this?
 
-1.  **PLAN.md:** The epic-level roadmap and task status.
-2.  **TODO.md:** Immediate executable tasks and implementation learning.
-3.  **Feature.md:** The intent (Problem, Requirements, Assumptions, Unknowns).
-4.  **ADRs:** Architectural Decision Records (The rationale for the "How").
-5.  **BDD Specs:** Gherkin scenarios defining acceptance criteria.
-6.  **FEEDBACK.md:** Results of reviews and quality gate checks.
-7.  **CHANGELOG.md:** Release history and high-level learning capture.
+1.  **Check the Plan:** We look at `PLAN.md` to see what's next.
+2.  **Start Fresh:** We spawn an agent in a clean environment. No baggage.
+3.  **Do the Work:** The agent writes code or runs tests.
+4.  **Write it Down:** The agent updates the docs (`TODO.md`, `FEEDBACK.md`).
+5.  **Repeat:** If it failed, we try again.
 
 ---
 
-## 6. Architecture & Data Flow
+## 5. The Brain (Shared State)
+
+These 7 files are the only things that matter. They keep us aligned.
+
+1.  **PLAN.md:** The Roadmap.
+2.  **TODO.md:** The Task List.
+3.  **Feature.md:** The Spec.
+4.  **ADRs:** The Decisions.
+5.  **BDD Specs:** The Tests.
+6.  **FEEDBACK.md:** The Review.
+7.  **CHANGELOG.md:** The History.
+
+---
+
+## 6. The Big Picture
 
 ```
-Problem → [Discovery Diamond] → Feature Brief → [Delivery Diamond] → Release
-             (Product/Planning)                    (Build/Quality)      (Release)
+Problem → [Think] → Feature Brief → [Build] → Release
+         (Marge/Lisa)              (Ralph/Bart)   (Lovejoy)
 ```
 
-For a detailed visual guide to these flows, see [docs/reference/visual-diagrams.md](../reference/visual-diagrams.md).
+Want to see how it all connects? Check out the [Visual Diagrams](../reference/visual-diagrams.md).

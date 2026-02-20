@@ -5,7 +5,7 @@ import os
 import shutil
 
 def run_logger(i):
-    subprocess.run(["python3", "scripts/logger.py", f"message {i}", "--agent", "test-agent"])
+    subprocess.run(["./bin/log", "--agent", "test-agent", f"message {i}"])
 
 def test_concurrency():
     if os.path.exists("logs"):

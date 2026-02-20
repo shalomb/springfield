@@ -1,52 +1,53 @@
-# Springfield Agent Command Center (AGENTS.md)
+# Springfield Agent Command Center
 
-Welcome, Agent. This document is your primary entry point for navigating the Springfield Protocol. Use it to quickly find the context you need without reading the entire documentation tree.
+Welcome to the team.
 
----
-
-## 🗺️ System Map
-
-### 📍 Core Protocol
-- **[README.md](README.md)**: Main project documentation and overview.
-- **[QUICK_START.md](QUICK_START.md)**: Fast-track for common workflows.
-- **[PLAN.md](PLAN.md)**: The current roadmap and epic status.
-- **[TODO.md](TODO.md)**: Your current active tasks.
-
-### 📚 Documentation (Diataxis)
-- **[Concepts (The "Why")](docs/concepts/)**: Understanding architecture and models.
-- **[How-To (The "How")](docs/how-to/)**: Procedures and walkthroughs.
-- **[Reference (The "What")](docs/reference/)**: Technical specs, agents, and glossary.
-- **[Standards (The "Rules")](docs/standards/)**: Coding, commits, and protection rules.
-- **[ADRs (The "Decisions")](docs/adr/)**: Architectural Decision Records.
-
-### 🤖 Personas & Skills
-- **[.github/agents/](.github/agents/)**: All agent persona profiles.
-- **[.github/skills/](.github/skills/)**: Reusable automation capabilities.
+This is your map. You don't need to read the entire documentation tree to do your job—in fact, please don't. Use this file to find exactly what you need, get the context, and get to work.
 
 ---
 
-## 🚦 Navigation by Agent
+## 🗺️ The System
 
-| If you are... | Focus on... |
+### 📍 Core
+- **[README.md](README.md)**: What this project is.
+- **[QUICK_START.md](QUICK_START.md)**: How to get moving fast.
+- **[PLAN.md](PLAN.md)**: The roadmap. What we're building right now.
+- **[TODO.md](TODO.md)**: The task list. What you're building right now.
+
+### 📚 The Docs (Diataxis)
+We organize documentation by purpose, not just topic.
+- **[Concepts](docs/concepts/)**: The "Why." Architecture and mental models.
+- **[How-To](docs/how-to/)**: The "How." Step-by-step guides.
+- **[Reference](docs/reference/)**: The "What." Specs, glossaries, and hard data.
+- **[Standards](docs/standards/)**: The "Rules." How we code and commit.
+- **[ADRs](docs/adr/)**: The "Decisions." Why we did it this way.
+
+### 🤖 The Crew
+- **[.github/agents/](.github/agents/)**: Who you are.
+- **[.pi/agent/skills/](.pi/agent/skills/)**: What you can do.
+
+---
+
+## 🚦 Who are you?
+
+| Role | Read this first |
 | :--- | :--- |
-| **@Marge (Product)** | `Feature.md`, `docs/concepts/model.md` |
-| **@Lisa (Planning)** | `PLAN.md`, `TODO.md`, `docs/standards/` |
-| **@Ralph (Build)** | `TODO.md`, `docs/standards/coding-conventions.md`, `docs/standards/atomic-commit-protocol.md` |
-| **@Bart (Quality)** | `FEEDBACK.md`, `docs/features/README.md`, `docs/standards/repository-protection.md` |
-| **@Lovejoy (Release)** | `CHANGELOG.md`, `docs/standards/git-branching.md` |
+| **@Marge (Product)** | `Feature.md` and `docs/concepts/model.md`. Understand the user. |
+| **@Lisa (Planning)** | `PLAN.md` and `docs/standards/`. Keep us organized. |
+| **@Ralph (Build)** | `TODO.md`. Read the `coding-conventions.md` before you write a line of code. |
+| **@Bart (Quality)** | `FEEDBACK.md`. Break things. Check `repository-protection.md`. |
+| **@Lovejoy (Release)** | `CHANGELOG.md`. Get it shipped. |
 
 ---
 
-## 🧠 LLM Guidance (How to use this documentation)
+## 🧠 How to think (LLM Guidance)
 
-When interacting with this repository, follow these best practices for optimal context management:
-
-1.  **Start here**: Always read `AGENTS.md` and `PLAN.md` first to understand the current state.
-2.  **Stateless Mindset**: Assume you have zero memory between cycles. The documentation *is* your memory.
-3.  **Atomic Context**: Only read the files relevant to your current task. Avoid reading the entire `docs/` directory to save tokens.
-4.  **Truth in Documents**: If `TODO.md` contradicts your instructions, follow `TODO.md`.
-5.  **Strict Standards**: Adhere to the [Atomic Commit Protocol](docs/standards/atomic-commit-protocol.md) and [Coding Conventions](docs/standards/coding-conventions.md) at all times.
-6.  **TDD First**: For Ralph, never implement code without first writing a failing test and validating it with the appropriate script.
+1.  **Start here.** Always. `AGENTS.md` and `PLAN.md` give you the lay of the land.
+2.  **No memory.** You have zero memory between cycles. If it's not written down, it didn't happen.
+3.  **Save tokens.** Don't read the whole `docs/` folder. Only load what matches your task.
+4.  **Trust the TODO.** If `TODO.md` says one thing and the docs say another, follow the TODO.
+5.  **Follow the rules.** The [Atomic Commit Protocol](docs/standards/atomic-commit-protocol.md) isn't a suggestion.
+6.  **Test first.** Ralph, if you write code without a failing test, you're doing it wrong.
 
 ---
 *Last Updated: 2026-02-19*

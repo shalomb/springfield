@@ -20,9 +20,16 @@ We will adopt a **Trunk-Based Development** model with short-lived feature branc
 
 ## Consequences
 - **Requires Discipline:** Developers must merge frequently (daily if possible).
-- **Tooling Overhead:** The harness must manage worktree lifecycle (cleanup is critical).
+- **Tooling Overhead:** The harness must manage worktree lifecycle (cleanup is
+  critical). *Partially addressed by ADR-008: the Springfield binary owns
+  worktree creation and deletion as part of the typed state machine. Worktree
+  lifecycle is tied to Epic status transitions — created at `ready → in_progress`,
+  deleted at `verified → done`.*
 - **CI/CD Complexity:** Merge queues require specific provider support (GitHub, GitLab, etc.).
-- **Lisa's Access:** In protected repos, Lisa needs a path to update `PLAN.md` (either a separate branch or an bypass-permission).
+- **Lisa's Access:** In protected repos, Lisa needs a path to update `PLAN.md`
+  (either a separate branch or a bypass-permission). *Partially addressed by
+  ADR-008: PLAN.md narrative stays on `main`/`coordination`; live Epic state
+  moves to `td` which requires no branch access at all.*
 
 ## Alternatives Considered
 - **GitFlow:** Too complex for our team size; excessive branching overhead.

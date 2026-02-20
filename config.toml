@@ -1,0 +1,16 @@
+# Springfield Axon Configuration
+
+[axon]
+version = "1.0.0"
+
+[axon.container]
+base_image = "docker.io/library/debian:trixie-slim"
+image_builder = "podman"
+
+[axon.agents.bash]
+name = "Bash Shell"
+command = "bash"
+args = []
+description = "Bash shell for agent actions"
+dependencies = ["git", "go", "make"]
+bootstrap = true
