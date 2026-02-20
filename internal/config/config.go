@@ -9,6 +9,44 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
+// LoadPrompt reads a prompt from a markdown file and returns its content.
+func LoadPrompt(path string) (string, error) {
+	content, err := os.ReadFile(path)
+	if err != nil {
+		return "", fmt.Errorf("failed to read prompt file %s: %w", path, err)
+	}
+	return string(content), nil
+}
+
+// GetPromptPath returns the path to a prompt markdown file for the given agent.
+// The function looks for files in .github/agents/prompt_{agent}.md relative to the project root.
+func GetPromptPath(agent string) string {
+	// Find the project root by traversing up from the current directory.
+	// Assume we're running from within the project directory.
+	cwd, err := os.Getwd()
+	if err != nil {
+		// If we can't get the current directory, use a default relative path.
+		return filepath.Join(".github", "agents", "prompt_"+agent+".md")
+	}
+
+	// Traverse up to find .git directory (project root indicator).
+	for {
+		if _, err := os.Stat(filepath.Join(cwd, ".git")); err == nil {
+			return filepath.Join(cwd, ".github", "agents", "prompt_"+agent+".md")
+		}
+
+		parent := filepath.Dir(cwd)
+		if parent == cwd {
+			// Reached filesystem root without finding .git
+			break
+		}
+		cwd = parent
+	}
+
+	// Fallback to relative path from current directory.
+	return filepath.Join(".github", "agents", "prompt_"+agent+".md")
+}
+
 // Config holds the Springfield configuration.
 type Config struct {
 	Agent   AgentConfig            `toml:"agent"`
@@ -23,8 +61,8 @@ type AgentConfig struct {
 	// - "anthropic/claude-opus-4-1" (explicit provider)
 	// - "openai/gpt-4o" (explicit provider)
 	// - "google-gemini-cli/gemini-2.0-flash" (explicit provider)
-	Model         string  `toml:"model"`         // Default model or primary model
-	PrimaryModel  string  `toml:"primary_model"` // Override for primary model (can include provider)
+	Model         string  `toml:"model"`          // Default model or primary model
+	PrimaryModel  string  `toml:"primary_model"`  // Override for primary model (can include provider)
 	FallbackModel string  `toml:"fallback_model"` // Fallback model (can include provider)
 	Temperature   float64 `toml:"temperature"`
 	MaxIterations int     `toml:"max_iterations"`
@@ -33,7 +71,7 @@ type AgentConfig struct {
 
 // SandboxConfig holds sandbox/Axon-specific settings.
 type SandboxConfig struct {
-	Image       string `toml:"image"`
+	Image        string `toml:"image"`
 	ImageBuilder string `toml:"image_builder"`
 }
 
