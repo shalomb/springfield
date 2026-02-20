@@ -1,52 +1,36 @@
-# OS
-.DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Build/Deps
-node_modules/
-dist/
-build/
+# Binaries
 bin/
-*.egg-info/
+dist/
 
-# Go
-*.out
-*.exe
+# Dependencies
+vendor/
+go.sum
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.venv/
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Test coverage
-.coverage
-htmlcov/
-.pytest_cache/
-coverage/
-*.out
-
-# Temporary
+# Temporary files
 *.tmp
 *.bak
 .todos/
 
-# Springfield
-FEEDBACK.md
-TODO.md
+# Logs
 logs/
 cmd/springfield/logs/
 tests/integration/logs/
 internal/agent/logs/
+
+# Coverage
 coverage/
+*.out
+*.html
+
+# Documentation artifacts (ephemeral)
+FEEDBACK.md
+TODO.md
+TODO-*.md
+ANALYSIS_*.md
+OPTIONS_*.md
+REFINEMENT_*.md
+
+# Editor Config
+.vscode/
+.idea/
+*.swp
