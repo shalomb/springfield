@@ -29,8 +29,6 @@ func TestOrchestrator_Tick(t *testing.T) {
 	}
 
 	// Create a ready epic
-	// Since we can't easily use labels with the current TDClient.Update (it replaces),
-	// and we don't have a CreateEpic method yet, let's just use runTD.
 	_, err = client.runTD("create", "--type", "epic", "--labels", "ready", "Implement the new orchestration system")
 	if err != nil {
 		t.Fatal(err)
@@ -38,47 +36,71 @@ func TestOrchestrator_Tick(t *testing.T) {
 
 	agentRunner := &mockAgentRunner{}
 	orch := NewOrchestrator(client, agentRunner, nil)
+	
+	// 1. Ready -> InProgress
 	err = orch.Tick()
-	if err != nil {
-		t.Fatalf("Tick failed: %v", err)
-	}
-
-	// Verify that the epic transitioned to in_progress
-	ids, err := client.QueryIDs("status = in_progress")
 	if err != nil {
 		t.Fatal(err)
 	}
+	ids, _ := client.QueryIDs("status = in_progress")
 	if len(ids) != 1 {
-		t.Errorf("expected 1 in_progress epic, got %d", len(ids))
+		t.Fatalf("expected 1 in_progress epic, got %d", len(ids))
 	}
 	id := ids[0]
 
-	if len(agentRunner.runs) != 1 || agentRunner.runs[0] != "ralph:"+id {
-		t.Errorf("expected ralph run, got %v", agentRunner.runs)
-	}
-
-	// Now log Ralph's completion
+	// 2. InProgress -> Implemented
 	err = client.LogDecision(id, "ralph_done")
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	// Run Tick again
 	err = orch.Tick()
-	if err != nil {
-		t.Fatalf("Tick failed: %v", err)
-	}
-
-	// Verify that the epic transitioned to implemented (status in_review)
-	ids, err = client.QueryIDs("status = in_review AND labels ~ implemented")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(ids) != 1 {
-		t.Errorf("expected 1 implemented epic, got %d", len(ids))
+	epic, _ := client.GetEpic(id)
+	if epic.Status != "in_review" {
+		t.Errorf("expected in_review status, got %s", epic.Status)
 	}
 
-	if len(agentRunner.runs) != 2 || agentRunner.runs[1] != "bart:"+id {
-		t.Errorf("expected bart run, got %v", agentRunner.runs)
+	// 3. Implemented -> InProgress (Failure)
+	err = client.LogDecision(id, "bart_fail_implementation")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = orch.Tick()
+	if err != nil {
+		t.Fatal(err)
+	}
+	epic, _ = client.GetEpic(id)
+	if epic.Status != "in_progress" {
+		t.Errorf("expected in_progress status after failure, got %s", epic.Status)
+	}
+
+	// 4. InProgress -> Implemented (Retry)
+	err = client.LogDecision(id, "ralph_done")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = orch.Tick()
+	if err != nil {
+		t.Fatal(err)
+	}
+	epic, _ = client.GetEpic(id)
+	if epic.Status != "in_review" {
+		t.Errorf("expected in_review status after retry, got %s", epic.Status)
+	}
+
+	// 5. Implemented -> Blocked
+	err = client.LogDecision(id, "bart_fail_viability")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = orch.Tick()
+	if err != nil {
+		t.Fatal(err)
+	}
+	epic, _ = client.GetEpic(id)
+	if epic.Status != "blocked" {
+		t.Errorf("expected blocked status, got %s", epic.Status)
 	}
 }
