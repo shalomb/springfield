@@ -22,7 +22,7 @@ func TestWorktreeManager(t *testing.T) {
 
 	wm := &WorktreeManager{BaseDir: tempDir}
 	epicID := "td-123456"
-	
+
 	worktreePath, err := wm.EnsureWorktree(epicID)
 	if err != nil {
 		t.Fatalf("EnsureWorktree failed: %v", err)
@@ -56,6 +56,32 @@ func TestWorktreeManager(t *testing.T) {
 	depositedPath := filepath.Join(worktreePath, handoffFile)
 	if _, err := os.Stat(depositedPath); os.IsNotExist(err) {
 		t.Errorf("handoff file was not deposited at %s", depositedPath)
+	}
+}
+
+func TestWorktreeManager_ExistingBranch(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "worktree-existing-branch-test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	runCmd(t, tempDir, "git", "init")
+	runCmd(t, tempDir, "git", "config", "user.email", "test@example.com")
+	runCmd(t, tempDir, "git", "config", "user.name", "Test User")
+	runCmd(t, tempDir, "git", "commit", "--allow-empty", "-m", "initial commit")
+
+	wm := &WorktreeManager{BaseDir: tempDir}
+	epicID := "td-789"
+	branchName := "feat/epic-" + epicID
+
+	// Manually create the branch
+	runCmd(t, tempDir, "git", "branch", branchName)
+
+	// Now try to EnsureWorktree. It should succeed even if branch exists.
+	_, err = wm.EnsureWorktree(epicID)
+	if err != nil {
+		t.Fatalf("EnsureWorktree failed with existing branch: %v", err)
 	}
 }
 

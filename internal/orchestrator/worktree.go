@@ -22,9 +22,23 @@ func (m *WorktreeManager) EnsureWorktree(epicID string) (string, error) {
 		return worktreePath, nil
 	}
 
+	// Check if branch exists
+	branchExists := false
+	checkBranchCmd := exec.Command("git", "show-ref", "--verify", "--quiet", "refs/heads/"+branchName)
+	checkBranchCmd.Dir = m.BaseDir
+	if err := checkBranchCmd.Run(); err == nil {
+		branchExists = true
+	}
+
 	// Create worktree
-	// git worktree add worktrees/epic-{id} -b feat/epic-{id}
-	cmd := exec.Command("git", "worktree", "add", worktreePath, "-b", branchName)
+	var cmd *exec.Cmd
+	if branchExists {
+		// Use existing branch
+		cmd = exec.Command("git", "worktree", "add", worktreePath, branchName)
+	} else {
+		// Create new branch
+		cmd = exec.Command("git", "worktree", "add", worktreePath, "-b", branchName)
+	}
 	cmd.Dir = m.BaseDir
 	if output, err := cmd.CombinedOutput(); err != nil {
 		return "", fmt.Errorf("git worktree add failed: %w (output: %s)", err, string(output))
