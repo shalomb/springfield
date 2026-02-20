@@ -1,7 +1,9 @@
 package llm
 
 import (
+	"bytes"
 	"context"
+	"fmt"
 	"os/exec"
 	"strings"
 )
@@ -93,26 +95,59 @@ func (p *PiLLM) executorWithFallback(ctx context.Context, name string, arg ...st
 		npmArgs := []string{"exec", "@mariozechner/pi-coding-agent", "--"}
 		npmArgs = append(npmArgs, arg...)
 		logger.Debugf("Executing: npm exec @mariozechner/pi-coding-agent with %d arguments", len(arg))
+		
+		// Capture stdout and stderr separately for better error reporting
 		cmd := exec.CommandContext(ctx, "npm", npmArgs...)
-
-		// Use CombinedOutput to capture both stdout and stderr
-		out, npmErr := cmd.CombinedOutput()
+		var stdout, stderr bytes.Buffer
+		cmd.Stdout = &stdout
+		cmd.Stderr = &stderr
+		
+		npmErr := cmd.Run()
+		stdoutBytes := stdout.Bytes()
+		stderrBytes := stderr.Bytes()
+		stdoutStr := string(stdoutBytes)
+		stderrStr := string(stderrBytes)
+		
 		if npmErr == nil {
-			logger.Debugf("npm exec succeeded, got %d bytes", len(out))
+			logger.Debugf("npm exec succeeded, got %d bytes stdout", len(stdoutBytes))
+			logger.Debugf("Raw npm output:\n%s", stdoutStr)
 			// Filter out npm warnings and only return actual output from pi
-			filtered := filterNpmOutput(out)
+			filtered := filterNpmOutput(stdoutBytes)
 			logger.Debugf("After filtering npm output: %d bytes", len(filtered))
+			logger.Debugf("Filtered output:\n%s", string(filtered))
 			return filtered, nil
 		}
 
-		// If npm also fails, return npm error
-		logger.WithError(npmErr).Errorf("npm exec failed")
-		return nil, npmErr
+		// npm failed - provide detailed error information
+		
+		logger.Debugf("npm exec failed with stderr: %s", stderrStr)
+		logger.Debugf("npm exec stdout: %s", stdoutStr)
+		
+		// Build a detailed error message
+		errMsg := formatExecutionError("npm exec", npmErr, stderrStr, stdoutStr)
+		logger.WithError(npmErr).Errorf("npm exec failed: %s", errMsg)
+		
+		return nil, fmt.Errorf("npm exec failed: %s", errMsg)
 	}
 
 	// If pi failed for reasons other than "not found", return that error
 	logger.WithError(err).Errorf("command execution failed")
 	return nil, err
+}
+
+// formatExecutionError creates a detailed error message from command execution failure
+func formatExecutionError(cmdName string, err error, stderr, stdout string) string {
+	var details string
+	
+	if stderr != "" {
+		details = stderr
+	} else if stdout != "" {
+		details = stdout
+	} else {
+		details = err.Error()
+	}
+	
+	return details
 }
 
 // isCommandNotFound checks if an error is due to a command not being found.
