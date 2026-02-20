@@ -4,29 +4,38 @@ import (
 	"testing"
 )
 
-func TestEpicStatus_Transitions(t *testing.T) {
+func TestEpicStatusTransitions(t *testing.T) {
 	tests := []struct {
-		name   string
-		from   EpicStatus
-		signal string
-		want   EpicStatus
+		current EpicStatus
+		signal  string
+		want    EpicStatus
 	}{
-		{"Planned to Ready", StatusPlanned, "lisa_ready", StatusReady},
-		{"Ready to InProgress", StatusReady, "tick", StatusInProgress},
-		{"InProgress to Implemented", StatusInProgress, "ralph_done", StatusImplemented},
-		{"Implemented to Verified (Bart OK)", StatusImplemented, "bart_ok", StatusVerified},
-		{"Implemented to InProgress (Bart Fail)", StatusImplemented, "bart_fail_impl", StatusInProgress},
-		{"Implemented to Blocked (Bart Viability)", StatusImplemented, "bart_fail_viability", StatusBlocked},
-		{"Implemented to Blocked (Bart ADR)", StatusImplemented, "bart_fail_adr", StatusBlocked},
-		{"Verified to Done", StatusVerified, "lovejoy_merge", StatusDone},
-		{"Blocked to Ready", StatusBlocked, "lisa_redecide", StatusReady},
+		{StatusPlanned, "lisa_ready", StatusReady},
+		{StatusReady, "tick", StatusInProgress},
+		{StatusInProgress, "ralph_done", StatusImplemented},
+		{StatusImplemented, "bart_ok", StatusVerified},
+		{StatusImplemented, "bart_fail_implementation", StatusInProgress},
+		{StatusImplemented, "bart_fail_viability", StatusBlocked},
+		{StatusImplemented, "bart_fail_adr", StatusBlocked},
+		{StatusVerified, "lovejoy_merge", StatusDone},
+		{StatusBlocked, "lisa_redecide", StatusReady},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.from.Next(tt.signal); got != tt.want {
-				t.Errorf("EpicStatus.Next() = %v, want %v", got, tt.want)
-			}
-		})
+		got, err := tt.current.Transition(tt.signal)
+		if err != nil {
+			t.Errorf("%s + %s: unexpected error: %v", tt.current, tt.signal, err)
+			continue
+		}
+		if got != tt.want {
+			t.Errorf("%s + %s: got %s, want %s", tt.current, tt.signal, got, tt.want)
+		}
+	}
+}
+
+func TestInvalidTransitions(t *testing.T) {
+	_, err := StatusDone.Transition("any")
+	if err == nil {
+		t.Errorf("expected error transitioning from StatusDone, got nil")
 	}
 }
