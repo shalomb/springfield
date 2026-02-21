@@ -62,18 +62,20 @@ func GetAgentProfile(agentName string) (AgentProfile, error) {
 	}
 
 	// Specialized profile settings
+	// NOTE: DO NOT load context files here - they're too large and exceed ARG_MAX
+	// instead, instruct agents to use the `read` tool to access PLAN.md, FEEDBACK.md, etc.
 	switch agentName {
 	case "lisa":
-		profile.ContextFiles = []string{"PLAN.md", "FEEDBACK.md"}
+		profile.ContextFiles = []string{} // Use `read` tool instead
 		profile.OutputTarget = "PLAN.md"
 	case "ralph":
-		profile.ContextFiles = []string{"TODO.md", "Justfile"}
+		profile.ContextFiles = []string{} // Use `read` tool instead
 		// Ralph handles his own persistence via git/filesystem actions
 	case "bart":
-		profile.ContextFiles = []string{"FEEDBACK.md"}
+		profile.ContextFiles = []string{} // Use `read` tool instead
 		profile.OutputTarget = "FEEDBACK.md"
 	case "lovejoy":
-		profile.ContextFiles = []string{"CHANGELOG.md", "TODO.md", "FEEDBACK.md"}
+		profile.ContextFiles = []string{} // Use `read` tool instead
 	}
 
 	return profile, nil
