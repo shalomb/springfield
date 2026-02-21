@@ -42,7 +42,7 @@ func (p *PiLLM) Chat(ctx context.Context, messages []Message) (Response, error) 
 		logger.Debugf("  Message %d (role=%s): %d chars", i, msg.Role, len(msg.Content))
 	}
 
-	args := []string{"-p"}
+	args := []string{"-p", "--no-session"}
 
 	// Pass the model if configured
 	// The pi CLI does recognize "provider/model" format

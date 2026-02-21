@@ -1,8 +1,9 @@
 # PLAN.md - Springfield Product Backlog
 
-**Last Updated:** 2026-02-21 17:00 GMT+1  
-**Status:** EPIC-009 shipped (v0.5.0); EPIC-005 Phase 2 complete (Tasks 1-2)  
-**Next Release:** v0.6.0-beta (pending Lovejoy's release orchestration)
+**Last Updated:** 2026-02-21 17:04 GMT+1  
+**Status:** EPIC-009 shipped (v0.5.0); EPIC-005 Phase 2 complete (Tasks 1-2); Ready for v0.6.0-beta merge  
+**Next Release:** v0.6.0-beta (merge-ready, pending Lovejoy's release orchestration)  
+**Branch:** `feat/epic-005-structured-output` (81 commits, all tests passing)
 
 ---
 
