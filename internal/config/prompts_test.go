@@ -28,6 +28,27 @@ func TestLoadPrompt(t *testing.T) {
 	if content != testPromptContent {
 		t.Errorf("Expected prompt content '%s', got '%s'", testPromptContent, content)
 	}
+
+	// Test with YAML front matter
+	testPromptWithFrontMatter := `---
+name: test
+role: tester
+---
+Actual content`
+	err = os.WriteFile(testPromptFile, []byte(testPromptWithFrontMatter), 0644)
+	if err != nil {
+		t.Fatalf("Failed to write test prompt file: %v", err)
+	}
+
+	content, err = LoadPrompt(testPromptFile)
+	if err != nil {
+		t.Fatalf("LoadPrompt failed: %v", err)
+	}
+
+	expectedContent := "Actual content"
+	if content != expectedContent {
+		t.Errorf("Expected prompt content '%s', got '%s'", expectedContent, content)
+	}
 }
 
 // TestLoadPrompt_FileNotFound verifies error handling for missing files.

@@ -10,41 +10,71 @@ import (
 )
 
 // LoadPrompt reads a prompt from a markdown file and returns its content.
+// It supports YAML front matter and strips it if present.
 func LoadPrompt(path string) (string, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
 		return "", fmt.Errorf("failed to read prompt file %s: %w", path, err)
 	}
-	return string(content), nil
+
+	s := string(content)
+	if strings.HasPrefix(s, "---") {
+		// Find the end of the front matter
+		parts := strings.SplitN(s, "---", 3)
+		if len(parts) == 3 {
+			// parts[0] is empty, parts[1] is front matter, parts[2] is markdown
+			return strings.TrimSpace(parts[2]), nil
+		}
+	}
+
+	return s, nil
 }
 
 // GetPromptPath returns the path to a prompt markdown file for the given agent.
-// The function looks for files in .github/agents/prompt_{agent}.md relative to the project root.
+// It searches in .github/prompts/ first, then .github/agents/.
 func GetPromptPath(agent string) string {
-	// Find the project root by traversing up from the current directory.
-	// Assume we're running from within the project directory.
-	cwd, err := os.Getwd()
-	if err != nil {
-		// If we can't get the current directory, use a default relative path.
-		return filepath.Join(".github", "agents", "prompt_"+agent+".md")
-	}
+	cwd, _ := os.Getwd()
+	projectRoot := cwd
 
-	// Traverse up to find .git directory (project root indicator).
+	// Try to find project root by looking for .git
+	tempDir := cwd
 	for {
-		if _, err := os.Stat(filepath.Join(cwd, ".git")); err == nil {
-			return filepath.Join(cwd, ".github", "agents", "prompt_"+agent+".md")
-		}
-
-		parent := filepath.Dir(cwd)
-		if parent == cwd {
-			// Reached filesystem root without finding .git
+		if _, err := os.Stat(filepath.Join(tempDir, ".git")); err == nil {
+			projectRoot = tempDir
 			break
 		}
-		cwd = parent
+		parent := filepath.Dir(tempDir)
+		if parent == tempDir {
+			break
+		}
+		tempDir = parent
 	}
 
-	// Fallback to relative path from current directory.
-	return filepath.Join(".github", "agents", "prompt_"+agent+".md")
+	// Define search locations and patterns
+	searchDirs := []string{
+		filepath.Join(projectRoot, ".github", "prompts"),
+		filepath.Join(projectRoot, ".github", "agents"),
+	}
+
+	// Try specific patterns
+	patterns := []string{
+		agent + ".prompt.md",
+		agent + ".prompt",
+		"prompt_" + agent + ".md",
+		agent + ".md",
+	}
+
+	for _, dir := range searchDirs {
+		for _, pattern := range patterns {
+			path := filepath.Join(dir, pattern)
+			if _, err := os.Stat(path); err == nil {
+				return path
+			}
+		}
+	}
+
+	// Fallback
+	return filepath.Join(projectRoot, ".github", "agents", "prompt_"+agent+".md")
 }
 
 // Config holds the Springfield configuration.
