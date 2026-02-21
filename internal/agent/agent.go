@@ -9,6 +9,7 @@ import (
 
 	"github.com/shalomb/axon/pkg/types"
 	"github.com/shalomb/springfield/internal/llm"
+	"github.com/shalomb/springfield/internal/parser"
 	"github.com/shalomb/springfield/internal/sandbox"
 	"github.com/shalomb/springfield/pkg/logger"
 )
@@ -112,6 +113,7 @@ func (a *Agent) Run(ctx context.Context) error {
 		}
 
 		cost := a.calculateCost(resp.TokenUsage)
+		a.log(fmt.Sprintf("LLM response: %s", resp.Content), "DEBUG", resp.TokenUsage, cost)
 
 		// Extract thought if present
 		thought := extractThought(resp.Content)
@@ -119,29 +121,33 @@ func (a *Agent) Run(ctx context.Context) error {
 			a.log(fmt.Sprintf("Thought: %s", thought), "INFO", nil, 0)
 		}
 
-		a.log(fmt.Sprintf("LLM response: %s", resp.Content), "DEBUG", resp.TokenUsage, cost)
-		messages = append(messages, llm.Message{Role: "assistant", Content: resp.Content})
-
-		if a.isFinished(resp.Content) {
-			a.log("Task complete.", "INFO", nil, 0)
-
-			// Persist output if target is specified
-			if a.Profile.OutputTarget != "" {
-				// Clean up tags from final response if present
-				cleanContent := resp.Content
-				if thought != "" {
-					cleanContent = strings.Replace(cleanContent, fmt.Sprintf("<thought>%s</thought>", thought), "", 1)
-				}
-				// We also want to strip thought tags entirely if they are in different formatting
-				cleanContent = thoughtTagRegex.ReplaceAllString(cleanContent, "")
-
-				if err := a.persistOutput(cleanContent); err != nil {
-					a.log(fmt.Sprintf("Error persisting output to %s: %v", a.Profile.OutputTarget, err), "ERROR", nil, 0)
-					return err
-				}
+		// Check for promise (v0.6.0 standard)
+		promise, pErr := parser.ExtractPromise(resp.Content)
+		if pErr == nil {
+			if promise == parser.PromiseComplete {
+				a.log("Detected promise: COMPLETE. Task complete.", "INFO", nil, 0)
+				return a.finish(resp.Content, thought)
 			}
-			return nil
+			if promise == parser.PromiseFailed {
+				a.log("Agent promised failure. Stopping.", "ERROR", nil, 0)
+				return fmt.Errorf("agent promised failure")
+			}
+		} else {
+			a.log(fmt.Sprintf("Warning: Promise extraction error: %v", pErr), "WARNING", nil, 0)
 		}
+
+		// Fallback to legacy finish marker detection
+		if a.isFinished(resp.Content) {
+			a.log("Detected legacy finish marker. Task complete.", "INFO", nil, 0)
+			return a.finish(resp.Content, thought)
+		}
+
+		// If we reach here and no promise was found, we might want to warn
+		if pErr == nil && promise == parser.PromiseUnknown {
+			a.log("No promise found in response. Continuing loop.", "WARNING", nil, 0)
+		}
+
+		messages = append(messages, llm.Message{Role: "assistant", Content: resp.Content})
 
 		// Improved action extraction
 		action := extractAction(resp.Content)
@@ -173,13 +179,32 @@ func (a *Agent) Run(ctx context.Context) error {
 			a.log(fmt.Sprintf("Action result: %s", resultStr), "DEBUG", nil, 0)
 			messages = append(messages, llm.Message{Role: "user", Content: resultStr})
 		} else {
-			// If no action and no finish, we might be stuck or just talking
-			// For now, let's just continue to the next loop
 			a.log("No action or finish detected.", "WARNING", nil, 0)
 		}
 	}
 
 	return fmt.Errorf("max iterations reached")
+}
+
+func (a *Agent) finish(content, thought string) error {
+	// Persist output if target is specified
+	if a.Profile.OutputTarget != "" {
+		// Clean up tags from final response if present
+		cleanContent := content
+		if thought != "" {
+			cleanContent = strings.Replace(cleanContent, fmt.Sprintf("<thought>%s</thought>", thought), "", 1)
+		}
+		// We also want to strip thought tags entirely if they are in different formatting
+		cleanContent = thoughtTagRegex.ReplaceAllString(cleanContent, "")
+		// Strip promise tags too
+		cleanContent = promiseTagRegex.ReplaceAllString(cleanContent, "")
+
+		if err := a.persistOutput(cleanContent); err != nil {
+			a.log(fmt.Sprintf("Error persisting output to %s: %v", a.Profile.OutputTarget, err), "ERROR", nil, 0)
+			return err
+		}
+	}
+	return nil
 }
 
 func (a *Agent) calculateCost(usage llm.TokenUsage) float64 {
@@ -224,7 +249,9 @@ func (a *Agent) isFinished(resp string) bool {
 	if marker == "" {
 		marker = FinishMarker
 	}
-	return strings.HasSuffix(strings.TrimSpace(resp), marker)
+	trimmed := strings.TrimSpace(resp)
+	finished := strings.HasSuffix(trimmed, marker)
+	return finished
 }
 
 func formatContext(c types.ContextMetadata) string {
@@ -238,16 +265,20 @@ func formatContext(c types.ContextMetadata) string {
 var actionRegex = regexp.MustCompile(`(?m)^ACTION:\s*(.+)$`)
 var actionTagRegex = regexp.MustCompile(`(?s)<action>\s*(.*?)\s*</action>`)
 var thoughtTagRegex = regexp.MustCompile(`(?s)<thought>\s*(.*?)\s*</thought>`)
+var promiseTagRegex = regexp.MustCompile(`(?si)<promise>(.*?)</promise>`)
 
 func extractAction(resp string) string {
+	s := parser.NewMarkdownSanitizer()
+	sanitized := s.StripCodeBlocks(resp)
+
 	// Try tag-based extraction first (more robust)
-	match := actionTagRegex.FindStringSubmatch(resp)
+	match := actionTagRegex.FindStringSubmatch(sanitized)
 	if len(match) >= 2 {
 		return strings.TrimSpace(match[1])
 	}
 
 	// Fallback to legacy ACTION: prefix
-	match = actionRegex.FindStringSubmatch(resp)
+	match = actionRegex.FindStringSubmatch(sanitized)
 	if len(match) >= 2 {
 		return strings.TrimSpace(match[1])
 	}
@@ -255,7 +286,10 @@ func extractAction(resp string) string {
 }
 
 func extractThought(resp string) string {
-	match := thoughtTagRegex.FindStringSubmatch(resp)
+	s := parser.NewMarkdownSanitizer()
+	sanitized := s.StripCodeBlocks(resp)
+
+	match := thoughtTagRegex.FindStringSubmatch(sanitized)
 	if len(match) >= 2 {
 		return strings.TrimSpace(match[1])
 	}

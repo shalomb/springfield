@@ -101,8 +101,20 @@ func (p *PiLLM) executorWithFallback(ctx context.Context, name string, arg ...st
 	// Try 'pi' directly first
 	logger.Debugf("Attempting to execute: %s with %d arguments", name, len(arg))
 	cmd := exec.CommandContext(ctx, name, arg...)
-	out, err := cmd.Output()
+
+	var stdout, stderr bytes.Buffer
+	// Pipe stdout and stderr to both buffer and console for real-time visibility
+	cmd.Stdout = io.MultiWriter(&stdout, os.Stdout)
+	cmd.Stderr = io.MultiWriter(&stderr, os.Stderr)
+
+	err := cmd.Run()
+
+	// Flush output streams to ensure they display immediately
+	_ = os.Stdout.Sync()
+	_ = os.Stderr.Sync()
+
 	if err == nil {
+		out := stdout.Bytes()
 		logger.Debugf("Successfully executed %s, got %d bytes", name, len(out))
 		return out, nil
 	}
