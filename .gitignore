@@ -34,3 +34,7 @@ REFINEMENT_*.md
 .vscode/
 .idea/
 *.swp
+
+# Project
+logs
+worktrees
