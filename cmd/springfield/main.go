@@ -81,8 +81,8 @@ var rootCmd = &cobra.Command{
 			return fmt.Errorf("error initializing sandbox: %w", err)
 		}
 
-		// Use a 60-second timeout for agent execution
-		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+		// Use a 5-minute timeout for agent execution (LLM calls can take time)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 		defer cancel()
 
 		// Create a specialized runner based on the agent type, with budget and sandbox
