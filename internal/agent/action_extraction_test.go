@@ -40,6 +40,26 @@ func TestAgent_ActionExtraction_Safety(t *testing.T) {
 			response: "I will perform the ACTION: ls now.",
 			wantCmd:  "",
 		},
+		{
+			name:     "action tag simple",
+			response: "<action>ls -la</action>",
+			wantCmd:  "ls -la",
+		},
+		{
+			name:     "action tag with surrounding text",
+			response: "Let's do this:\n<action>\n  cat main.go\n</action>\nDone.",
+			wantCmd:  "cat main.go",
+		},
+		{
+			name:     "action tag multiline",
+			response: "<action>\ngo fmt ./...\ngo vet ./...\n</action>",
+			wantCmd:  "go fmt ./...\ngo vet ./...",
+		},
+		{
+			name:     "action tag takes precedence over ACTION:",
+			response: "ACTION: old\n<action>new</action>",
+			wantCmd:  "new",
+		},
 	}
 
 	for _, tt := range tests {

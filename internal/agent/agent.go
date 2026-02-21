@@ -112,6 +112,13 @@ func (a *Agent) Run(ctx context.Context) error {
 		}
 
 		cost := a.calculateCost(resp.TokenUsage)
+
+		// Extract thought if present
+		thought := extractThought(resp.Content)
+		if thought != "" {
+			a.log(fmt.Sprintf("Thought: %s", thought), "INFO", nil, 0)
+		}
+
 		a.log(fmt.Sprintf("LLM response: %s", resp.Content), "DEBUG", resp.TokenUsage, cost)
 		messages = append(messages, llm.Message{Role: "assistant", Content: resp.Content})
 
@@ -120,7 +127,15 @@ func (a *Agent) Run(ctx context.Context) error {
 
 			// Persist output if target is specified
 			if a.Profile.OutputTarget != "" {
-				if err := a.persistOutput(resp.Content); err != nil {
+				// Clean up tags from final response if present
+				cleanContent := resp.Content
+				if thought != "" {
+					cleanContent = strings.Replace(cleanContent, fmt.Sprintf("<thought>%s</thought>", thought), "", 1)
+				}
+				// We also want to strip thought tags entirely if they are in different formatting
+				cleanContent = thoughtTagRegex.ReplaceAllString(cleanContent, "")
+
+				if err := a.persistOutput(cleanContent); err != nil {
 					a.log(fmt.Sprintf("Error persisting output to %s: %v", a.Profile.OutputTarget, err), "ERROR", nil, 0)
 					return err
 				}
@@ -128,14 +143,9 @@ func (a *Agent) Run(ctx context.Context) error {
 			return nil
 		}
 
-		// Very basic action extraction
-		if strings.Contains(resp.Content, "ACTION:") {
-			action := extractAction(resp.Content)
-			if action == "" {
-				a.log("Extracted action is empty.", "WARNING", nil, 0)
-				continue
-			}
-
+		// Improved action extraction
+		action := extractAction(resp.Content)
+		if action != "" {
 			if isUnsafeAction(action) {
 				a.log(fmt.Sprintf("Blocked unsafe action: %s", action), "ERROR", nil, 0)
 				messages = append(messages, llm.Message{Role: "user", Content: "Action blocked for security reasons."})
@@ -226,13 +236,30 @@ func formatContext(c types.ContextMetadata) string {
 }
 
 var actionRegex = regexp.MustCompile(`(?m)^ACTION:\s*(.+)$`)
+var actionTagRegex = regexp.MustCompile(`(?s)<action>\s*(.*?)\s*</action>`)
+var thoughtTagRegex = regexp.MustCompile(`(?s)<thought>\s*(.*?)\s*</thought>`)
 
 func extractAction(resp string) string {
-	match := actionRegex.FindStringSubmatch(resp)
-	if len(match) < 2 {
-		return ""
+	// Try tag-based extraction first (more robust)
+	match := actionTagRegex.FindStringSubmatch(resp)
+	if len(match) >= 2 {
+		return strings.TrimSpace(match[1])
 	}
-	return strings.TrimSpace(match[1])
+
+	// Fallback to legacy ACTION: prefix
+	match = actionRegex.FindStringSubmatch(resp)
+	if len(match) >= 2 {
+		return strings.TrimSpace(match[1])
+	}
+	return ""
+}
+
+func extractThought(resp string) string {
+	match := thoughtTagRegex.FindStringSubmatch(resp)
+	if len(match) >= 2 {
+		return strings.TrimSpace(match[1])
+	}
+	return ""
 }
 
 func isUnsafeAction(action string) bool {

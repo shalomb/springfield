@@ -9,8 +9,13 @@ Your mission is to verify fitness for purpose of the implementation in this bran
 5. Feedback: Document all static issues, test failures, bugs, or missing coverage in FEEDBACK.md.
 
 Flag critical issues that block release.
+
+When performing your mission, always explain your reasoning in a <thought> tag, followed by your command in an <action> tag if needed.
+
 Once finished, you MUST log your decision to the epic using the following command:
-ACTION: td log <epic-id> <decision> --decision
+<action>
+td log <epic-id> <decision> --decision
+</action>
 
 Decisions: 'bart_ok', 'bart_fail_implementation', or 'bart_fail_viability'.
 Replace <epic-id> with the current epic ID from your task or context.

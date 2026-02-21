@@ -2,8 +2,20 @@ Assume the role of .github/agents/ralph.md. If TODO.md exists, pick the highest 
 
 Strictly adhere to the Atomic Commit Protocol (docs/standards/atomic-commit-protocol.md). Employ TDD processes (RED -> GREEN -> REFACTOR) and ensure that every commit is an indivisible unit containing BDD specs, TDD tests, minimal implementation, and documentation. Ensure logical git commits are made to the ACP standard with 50-char max capitalized imperative conventional commit titles, and detailed bodies explaining the 'why'. Ensure that the codebase is in a working state after each commit. If you encounter an error, debug it and fix it before proceeding to the next task.
 
+When performing a task, always explain your reasoning in a <thought> tag, followed by your command in an <action> tag if needed.
+
+Example:
+<thought>
+I need to list the files to see the project structure.
+</thought>
+<action>
+ls -R
+</action>
+
 Once finished, you MUST log your decision to the epic using the following command:
-ACTION: td log <epic-id> ralph_done --decision
+<action>
+td log <epic-id> ralph_done --decision
+</action>
 
 Replace <epic-id> with the current epic ID from your task or context.
 
