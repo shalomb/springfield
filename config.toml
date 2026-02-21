@@ -17,7 +17,6 @@
 # See PLAN.md for model optimization strategy post-MVP
 [agent]
 model = "anthropic/claude-haiku-4-5"
-temperature = 0.7
 max_iterations = 20
 budget = 100000
 
@@ -29,7 +28,6 @@ budget = 100000
 # FUTURE: Switch to claude-sonnet-4-5 for better UX reasoning
 [agents.marge]
 model = "anthropic/claude-haiku-4-5"
-temperature = 0.5
 max_iterations = 15
 budget = 50000
 
@@ -38,7 +36,6 @@ budget = 50000
 # FUTURE: Switch to claude-opus-4-6 for Tree of Thought + Self-Consistency
 [agents.lisa]
 model = "anthropic/claude-haiku-4-5"
-temperature = 0.3
 max_iterations = 10
 budget = 200000
 
@@ -48,7 +45,6 @@ budget = 200000
 [agents.ralph]
 model = "anthropic/claude-haiku-4-5"
 fallback_model = "anthropic/claude-haiku-4-5"
-temperature = 0.6
 max_iterations = 30
 budget = 150000
 
@@ -57,7 +53,6 @@ budget = 150000
 # FUTURE: Switch to claude-opus-4-6 for thorough code review
 [agents.bart]
 model = "anthropic/claude-haiku-4-5"
-temperature = 0.3
 max_iterations = 20
 budget = 80000
 
@@ -66,7 +61,6 @@ budget = 80000
 # FUTURE: Switch to claude-opus-4-6 for high-stakes decisions
 [agents.lovejoy]
 model = "anthropic/claude-haiku-4-5"
-temperature = 0.2
 max_iterations = 5
 budget = 40000
 

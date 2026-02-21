@@ -61,12 +61,11 @@ type AgentConfig struct {
 	// - "anthropic/claude-opus-4-1" (explicit provider)
 	// - "openai/gpt-4o" (explicit provider)
 	// - "google-gemini-cli/gemini-2.0-flash" (explicit provider)
-	Model         string  `toml:"model"`          // Default model or primary model
-	PrimaryModel  string  `toml:"primary_model"`  // Override for primary model (can include provider)
-	FallbackModel string  `toml:"fallback_model"` // Fallback model (can include provider)
-	Temperature   float64 `toml:"temperature"`
-	MaxIterations int     `toml:"max_iterations"`
-	Budget        int     `toml:"budget"`
+	Model         string `toml:"model"`          // Default model or primary model
+	PrimaryModel  string `toml:"primary_model"`  // Override for primary model (can include provider)
+	FallbackModel string `toml:"fallback_model"` // Fallback model (can include provider)
+	MaxIterations int    `toml:"max_iterations"`
+	Budget        int    `toml:"budget"`
 }
 
 // SandboxConfig holds sandbox/Axon-specific settings.
@@ -80,7 +79,6 @@ func LoadConfig(dir string) (*Config, error) {
 	cfg := &Config{
 		Agent: AgentConfig{
 			Model:         "gemini-2.0-flash", // Default model
-			Temperature:   0.7,
 			MaxIterations: 20,
 		},
 		Agents: make(map[string]AgentConfig),
@@ -136,9 +134,6 @@ func (c *Config) mergeWithDefaults(agentConfig AgentConfig) AgentConfig {
 	}
 	if agentConfig.FallbackModel == "" {
 		agentConfig.FallbackModel = c.Agent.FallbackModel
-	}
-	if agentConfig.Temperature == 0 {
-		agentConfig.Temperature = c.Agent.Temperature
 	}
 	if agentConfig.MaxIterations == 0 {
 		agentConfig.MaxIterations = c.Agent.MaxIterations

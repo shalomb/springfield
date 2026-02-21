@@ -9,7 +9,6 @@ func TestLoadConfig(t *testing.T) {
 	tomlContent := `
 [agent]
 model = "gpt-4"
-temperature = 0.5
 max_iterations = 10
 `
 	err := os.WriteFile(".springfield.toml", []byte(tomlContent), 0644)
@@ -25,9 +24,6 @@ max_iterations = 10
 
 	if cfg.Agent.Model != "gpt-4" {
 		t.Errorf("expected model gpt-4, got %s", cfg.Agent.Model)
-	}
-	if cfg.Agent.Temperature != 0.5 {
-		t.Errorf("expected temperature 0.5, got %f", cfg.Agent.Temperature)
 	}
 	if cfg.Agent.MaxIterations != 10 {
 		t.Errorf("expected max_iterations 10, got %d", cfg.Agent.MaxIterations)
@@ -50,12 +46,10 @@ func TestGetAgentConfig(t *testing.T) {
 	tomlContent := `
 [agent]
 model = "default-model"
-temperature = 0.5
 max_iterations = 10
 
 [agents.lisa]
 model = "claude-opus-4-1"
-temperature = 0.3
 max_iterations = 15
 
 [agents.ralph]
@@ -76,12 +70,11 @@ fallback_model = "gemini-2.0-flash"
 	tests := []struct {
 		agent     string
 		wantModel string
-		wantTemp  float64
 	}{
-		{"lisa", "claude-opus-4-1", 0.3},
-		{"ralph", "gpt-4o-mini", 0.5},
-		{"bart", "default-model", 0.5},
-		{"LISA", "claude-opus-4-1", 0.3}, // Test case-insensitivity
+		{"lisa", "claude-opus-4-1"},
+		{"ralph", "gpt-4o-mini"},
+		{"bart", "default-model"},
+		{"LISA", "claude-opus-4-1"}, // Test case-insensitivity
 	}
 
 	for _, tt := range tests {
@@ -89,9 +82,6 @@ fallback_model = "gemini-2.0-flash"
 			agentCfg := cfg.GetAgentConfig(tt.agent)
 			if agentCfg.Model != tt.wantModel {
 				t.Errorf("GetAgentConfig(%s).Model = %s, want %s", tt.agent, agentCfg.Model, tt.wantModel)
-			}
-			if agentCfg.Temperature != tt.wantTemp {
-				t.Errorf("GetAgentConfig(%s).Temperature = %f, want %f", tt.agent, agentCfg.Temperature, tt.wantTemp)
 			}
 		})
 	}

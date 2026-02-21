@@ -53,9 +53,6 @@ func (p *PiLLM) Chat(ctx context.Context, messages []Message) (Response, error) 
 		logger.Debugf("No model specified, using pi CLI defaults")
 	}
 
-	// For now, pi CLI doesn't seem to have a temperature flag in this mock implementation
-	// but we could add it if it did.
-
 	var systemPrompt string
 	var otherMessages []string
 

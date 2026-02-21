@@ -1,5 +1,12 @@
 package integration
 
+/*
+ * DEPRECATED: This test file simulates the old file-based orchestration loop.
+ * It needs to be rewritten to test the Springfield Binary and td(1) integration
+ * as defined in ADR-008 and EPIC-009.
+ * See: tests/integration/features/automated_feedback_loop.feature for updated scenarios.
+ */
+
 import (
 	"context"
 	"fmt"
