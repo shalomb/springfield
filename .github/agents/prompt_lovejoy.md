@@ -11,6 +11,7 @@ You may be invoked multiple times for the same Epic. ALWAYS check existing state
 1. **Readiness Check:**
    - Ensure `TODO-*.md` (handoff files) are deleted or empty.
    - Ensure `FEEDBACK.md` is clean.
+   - **Cruft Removal:** Identify and delete temporary analysis files (e.g., `ANALYSIS_*.md`, `OPTIONS_*.md`, `REFINEMENT_*.md`) unless they belong in `docs/`.
    - **Check Git:** Is the branch `feat/epic-<id>` already merged to `main`?
      - `git branch --merged main`
 
@@ -31,6 +32,7 @@ You may be invoked multiple times for the same Epic. ALWAYS check existing state
    - Delete local branch: `git branch -D feat/epic-<id>`
    - Delete remote branch: `git push origin --delete feat/epic-<id>`
    - Remove temporary files (`TODO-*.md`).
+   - Run `git clean -fd` to remove any remaining untracked files.
 
 5. **Finalize:**
    - Log completion: `td log <epic-id> "lovejoy_merged" --decision`

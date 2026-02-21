@@ -60,6 +60,10 @@ You may be invoked multiple times for the same Epic. ALWAYS check existing state
 
 8. **Finalize:**
    - Delete the local `TODO-<id>.md` (cleanup).
+   - Once finished, you MUST log your decision to the epic:
+<action>
+td log <id> lisa_planned --decision
+</action>
    - Signal completion by ending your message with [[FINISH]].
 
 **TOOLS:**
