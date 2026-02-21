@@ -7,7 +7,7 @@ import (
 
 func TestAxonSandbox_IsolationCheck(t *testing.T) {
 	skipIfNoPodman(t)
-	sb, err := NewAxonSandbox("")
+	sb, err := NewAxonSandbox("", nil)
 	if err != nil {
 		t.Fatalf("NewAxonSandbox failed: %v", err)
 	}

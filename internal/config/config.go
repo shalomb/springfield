@@ -52,6 +52,7 @@ type Config struct {
 	Agent   AgentConfig            `toml:"agent"`
 	Agents  map[string]AgentConfig `toml:"agents"`
 	Sandbox SandboxConfig          `toml:"sandbox"`
+	Env     map[string]string      `toml:"env"`
 }
 
 // AgentConfig holds agent-specific settings.
@@ -85,6 +86,25 @@ func LoadConfig(dir string) (*Config, error) {
 		Sandbox: SandboxConfig{
 			Image:        "docker.io/library/debian:trixie-slim",
 			ImageBuilder: "podman",
+		},
+		Env: map[string]string{
+			// Git interaction: disable interactive prompts and pagers
+			"GIT_EDITOR":          "true",
+			"GIT_PAGER":           "cat",
+			"GIT_ASKPASS":         "false",
+			"GIT_TERMINAL_PROMPT": "0",
+
+			// Automation & CI/CD signals
+			"CI":               "true",
+			"TF_IN_AUTOMATION": "true",
+
+			// Disable color output (for log parsing and clarity)
+			"NO_COLOR": "1",
+			"TERM":     "dumb",
+			"PAGER":    "cat",
+
+			// Prevent interactive prompts from other tools
+			"PROMPT_COMMAND": "",
 		},
 	}
 

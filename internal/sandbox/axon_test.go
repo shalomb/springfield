@@ -28,7 +28,7 @@ func TestAxonSandbox_Execute_Simple(t *testing.T) {
 	// For now, let's just test that it satisfies the interface and handles initialization.
 	var _ Sandbox = (*AxonSandbox)(nil)
 
-	sb, err := NewAxonSandbox("")
+	sb, err := NewAxonSandbox("", nil)
 	if err != nil {
 		t.Fatalf("NewAxonSandbox failed: %v", err)
 	}
@@ -47,7 +47,7 @@ func TestAxonSandbox_Execute_Error(t *testing.T) {
 
 func TestAxonSandbox_GuardrailBlock(t *testing.T) {
 	skipIfNoPodman(t)
-	sb, err := NewAxonSandbox("")
+	sb, err := NewAxonSandbox("", nil)
 	if err != nil {
 		t.Fatalf("NewAxonSandbox failed: %v", err)
 	}
@@ -69,7 +69,7 @@ func TestNewAxonSandbox_Path(t *testing.T) {
 		t.Fatalf("failed to write test config: %v", err)
 	}
 
-	sb, err := NewAxonSandbox(confPath)
+	sb, err := NewAxonSandbox(confPath, nil)
 	if err != nil {
 		t.Fatalf("NewAxonSandbox failed: %v", err)
 	}
@@ -102,7 +102,7 @@ func TestNewAxonSandbox_SearchToRoot(t *testing.T) {
 
 	t.Setenv("SPRINGFIELD_CONFIG", "")
 	// This will search up to root and hit the break
-	_, err = NewAxonSandbox("")
+	_, err = NewAxonSandbox("", nil)
 	if err != nil {
 		t.Fatalf("NewAxonSandbox failed: %v", err)
 	}

@@ -76,7 +76,7 @@ var rootCmd = &cobra.Command{
 			}
 		}
 		// Initialize sandbox
-		sandboxInst, err := sandbox.NewAxonSandbox(configPath)
+		sandboxInst, err := sandbox.NewAxonSandbox(configPath, cfg.Env)
 		if err != nil {
 			return fmt.Errorf("error initializing sandbox: %w", err)
 		}

@@ -21,7 +21,7 @@ func init() {
 	// Probe for library availability by attempting to create a sandbox.
 	// We don't need a real config here; we just want to see if the library
 	// can initialize (e.g. check if podman is available if that's a requirement).
-	_, err := sandbox.NewAxonSandbox("")
+	_, err := sandbox.NewAxonSandbox("", nil)
 	axonAvailable = (err == nil)
 }
 
@@ -41,7 +41,7 @@ func (t *sandboxingTest) skipIfNoAxon(ctx context.Context) (context.Context, err
 
 func (t *sandboxingTest) aSandboxEnvironmentIsConfigured() error {
 	var err error
-	t.sb, err = sandbox.NewAxonSandbox("")
+	t.sb, err = sandbox.NewAxonSandbox("", nil)
 	return err
 }
 
@@ -105,7 +105,7 @@ func (t *sandboxingTest) theOperationShouldFail() error {
 
 func (t *sandboxingTest) aSandboxEnvironmentIsConfiguredWithAWorkspaceVolume() error {
 	var err error
-	t.sb, err = sandbox.NewAxonSandbox("")
+	t.sb, err = sandbox.NewAxonSandbox("", nil)
 	return err
 }
 

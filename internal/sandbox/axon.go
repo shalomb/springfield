@@ -13,10 +13,11 @@ import (
 // AxonSandbox implements the Sandbox interface using the axon library.
 type AxonSandbox struct {
 	exec *executor.Executor
+	env  map[string]string
 }
 
 // NewAxonSandbox creates a new AxonSandbox.
-func NewAxonSandbox(configPath string) (*AxonSandbox, error) {
+func NewAxonSandbox(configPath string, env map[string]string) (*AxonSandbox, error) {
 	if configPath == "" {
 		// Environment variable discovery
 		configPath = os.Getenv("SPRINGFIELD_CONFIG")
@@ -61,7 +62,7 @@ func NewAxonSandbox(configPath string) (*AxonSandbox, error) {
 		return nil, fmt.Errorf("failed to initialize axon executor: %w", err)
 	}
 
-	return &AxonSandbox{exec: ex}, nil
+	return &AxonSandbox{exec: ex, env: env}, nil
 }
 
 // Execute runs a command inside an axon sandbox and returns structured output.
@@ -70,8 +71,14 @@ func (s *AxonSandbox) Execute(ctx context.Context, command string) (*types.Resul
 		return nil, fmt.Errorf("axon executor not initialized")
 	}
 
+	// Prepend environment variables
+	var envPrefix string
+	for k, v := range s.env {
+		envPrefix += fmt.Sprintf("export %s=%q; ", k, v)
+	}
+
 	req := executor.Request{
-		Command: command,
+		Command: envPrefix + command,
 		Agent:   "bash",
 	}
 
