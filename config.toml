@@ -16,7 +16,7 @@
 # DEVELOPMENT MODE: Using claude-haiku-4-5 for all agents during development
 # See PLAN.md for model optimization strategy post-MVP
 [agent]
-model = "anthropic/claude-haiku-4-5"
+model = "google-gemini-cli/gemini-3-flash-preview"
 max_iterations = 20
 budget = 100000
 
@@ -27,7 +27,7 @@ budget = 100000
 # DEVELOPMENT: Using claude-haiku-4-5 (cost-effective during dev)
 # FUTURE: Switch to claude-sonnet-4-5 for better UX reasoning
 [agents.marge]
-model = "anthropic/claude-haiku-4-5"
+model = "google-gemini-cli/gemini-3-flash-preview"
 max_iterations = 15
 budget = 50000
 
@@ -35,7 +35,7 @@ budget = 50000
 # DEVELOPMENT: Using claude-haiku-4-5 (cost-effective during dev)
 # FUTURE: Switch to claude-opus-4-6 for Tree of Thought + Self-Consistency
 [agents.lisa]
-model = "anthropic/claude-haiku-4-5"
+model = "google-gemini-cli/gemini-3-flash-preview"
 max_iterations = 10
 budget = 200000
 
@@ -43,7 +43,7 @@ budget = 200000
 # DEVELOPMENT: Using claude-haiku-4-5 (cost-effective during dev)
 # FUTURE: Switch to claude-sonnet-4-5 with fallback to gemini-2.5-flash
 [agents.ralph]
-model = "anthropic/claude-haiku-4-5"
+model = "google-gemini-cli/gemini-3-flash-preview"
 fallback_model = "anthropic/claude-haiku-4-5"
 max_iterations = 30
 budget = 150000
@@ -52,7 +52,7 @@ budget = 150000
 # DEVELOPMENT: Using claude-haiku-4-5 (cost-effective during dev)
 # FUTURE: Switch to claude-opus-4-6 for thorough code review
 [agents.bart]
-model = "anthropic/claude-haiku-4-5"
+model = "google-gemini-cli/gemini-3-flash-preview"
 max_iterations = 20
 budget = 80000
 
@@ -60,7 +60,7 @@ budget = 80000
 # DEVELOPMENT: Using claude-haiku-4-5 (cost-effective during dev)
 # FUTURE: Switch to claude-opus-4-6 for high-stakes decisions
 [agents.lovejoy]
-model = "anthropic/claude-haiku-4-5"
+model = "google-gemini-cli/gemini-3-flash-preview"
 max_iterations = 5
 budget = 40000
 
