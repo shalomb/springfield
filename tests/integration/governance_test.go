@@ -61,7 +61,7 @@ func (t *governanceTest) aProjectConfigurationWithABudgetOfTokens(budget int) er
 
 func (t *governanceTest) anAgentIsConfiguredWithAModelThatUsesTokensPerCall(tokens int) error {
 	t.mockLLM = &govMockLLM{}
-	t.agent = agent.New("ralph", "Build Agent", t.mockLLM, &simpleMockSB{})
+	t.agent = agent.New(agent.AgentProfile{Name: "ralph", Role: "Build Agent"}, t.mockLLM, &simpleMockSB{})
 	t.agent.Budget = t.cfg.Agent.Budget
 	return nil
 }
@@ -71,7 +71,8 @@ func (t *governanceTest) theAgentAttemptsToPerformATaskThatRequiresLLMCalls(coun
 		t.mockLLM.responses = append(t.mockLLM.responses, "ACTION: ls")
 	}
 	t.mockLLM.responses = append(t.mockLLM.responses, "[[FINISH]]")
-	t.err = t.agent.Run(context.Background(), "do work")
+	t.agent.Task = "do work"
+	t.err = t.agent.Run(context.Background())
 	return nil
 }
 
@@ -114,8 +115,9 @@ func (t *governanceTest) theAgentPerformsATask() error {
 	primary := &mockNamedLLM{name: t.cfg.Agent.PrimaryModel, err: fmt.Errorf("failed")}
 	fallback := &mockNamedLLM{name: t.cfg.Agent.FallbackModel}
 	l := &llm.FallbackLLM{Primary: primary, Fallback: fallback}
-	t.agent = agent.New("ralph", "Build Agent", l, &simpleMockSB{})
-	t.err = t.agent.Run(context.Background(), "task")
+	t.agent = agent.New(agent.AgentProfile{Name: "ralph", Role: "Build Agent"}, l, &simpleMockSB{})
+	t.agent.Task = "task"
+	t.err = t.agent.Run(context.Background())
 	return nil
 }
 

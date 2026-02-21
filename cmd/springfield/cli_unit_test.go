@@ -29,8 +29,23 @@ func TestRootCmd_NoArgs(t *testing.T) {
 	}
 }
 
+func setupPromptFiles(t *testing.T, tmpDir string) {
+	agents := []string{"ralph", "lisa", "bart", "lovejoy", "marge"}
+	for _, a := range agents {
+		path := filepath.Join(tmpDir, ".github", "agents")
+		_ = os.MkdirAll(path, 0755)
+		_ = os.WriteFile(filepath.Join(path, "prompt_"+a+".md"), []byte("You are "+a), 0644)
+	}
+}
+
 func TestRootCmd_RunMock(t *testing.T) {
 	tmpDir := t.TempDir()
+	origDir, _ := os.Getwd()
+	defer func() { _ = os.Chdir(origDir) }()
+	_ = os.Chdir(tmpDir)
+
+	setupPromptFiles(t, tmpDir)
+
 	confPath := filepath.Join(tmpDir, "config.toml")
 	_ = os.WriteFile(confPath, []byte("[axon]\nversion=\"1.0.0\"\n"), 0644)
 
@@ -38,7 +53,8 @@ func TestRootCmd_RunMock(t *testing.T) {
 	t.Setenv("SPRINGFIELD_CONFIG", confPath)
 
 	// Reset global flags because cobra doesn't reset them between Execute calls
-	agentName = "ralph"
+	// Use lisa instead of ralph to avoid multi-iteration loop in tests
+	agentName = "lisa"
 	task = "test task"
 	configPath = ""
 
@@ -51,18 +67,42 @@ func TestRootCmd_RunMock(t *testing.T) {
 func TestRootCmd_Roles(t *testing.T) {
 	t.Setenv("USE_MOCK_LLM", "true")
 	tmpDir := t.TempDir()
+	origDir, _ := os.Getwd()
+	defer func() { _ = os.Chdir(origDir) }()
+	_ = os.Chdir(tmpDir)
+
+	setupPromptFiles(t, tmpDir)
+
 	confPath := filepath.Join(tmpDir, "config.toml")
 	_ = os.WriteFile(confPath, []byte("[axon]\nversion=\"1.0.0\"\n"), 0644)
 	t.Setenv("SPRINGFIELD_CONFIG", confPath)
 
-	roles := []string{"marge", "lisa", "ralph", "bart", "lovejoy", "other", "MARGE"}
-	for _, name := range roles {
+	// Test case-insensitive agent name matching
+	// These agents use BaseRunner (single call) and don't require special setup
+	validRoles := []string{"marge", "lisa", "bart", "lovejoy"}
+	for _, name := range validRoles {
 		agentName = name
 		task = "test"
 		err := rootCmd.RunE(rootCmd, []string{})
 		if err != nil {
-			t.Errorf("RunE failed for %s: %v", name, err)
+			t.Errorf("RunE failed for valid role %s: %v", name, err)
 		}
+	}
+
+	// Test case normalization: MARGE (uppercase) should work like marge
+	agentName = "MARGE"
+	task = "test"
+	err := rootCmd.RunE(rootCmd, []string{})
+	if err != nil {
+		t.Errorf("RunE failed for case-normalized MARGE: %v", err)
+	}
+
+	// Test invalid agent (should fail)
+	agentName = "other"
+	task = "test"
+	err = rootCmd.RunE(rootCmd, []string{})
+	if err == nil {
+		t.Error("expected error for invalid agent 'other', got nil")
 	}
 }
 
@@ -73,6 +113,13 @@ func TestRootCmd_MissingAgent(t *testing.T) {
 }
 
 func TestRootCmd_RunError(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, _ := os.Getwd()
+	defer func() { _ = os.Chdir(origDir) }()
+	_ = os.Chdir(tmpDir)
+
+	setupPromptFiles(t, tmpDir)
+
 	t.Setenv("USE_MOCK_LLM", "true")
 	t.Setenv("MOCK_LLM_ERROR", "true")
 

@@ -131,9 +131,10 @@ func TestAgent_Run_Table(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mLLM := &mockLLM{responses: tt.llmResponses}
 			mSB := &mockSandbox{results: tt.sbResults}
-			a := New("agent", "role", mLLM, mSB)
+			a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+			a.Task = tt.task
 
-			err := a.Run(context.Background(), tt.task)
+			err := a.Run(context.Background())
 
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Run() error = %v, wantErr %v", err, tt.wantErr)
@@ -155,9 +156,10 @@ func TestAgent_Run_Table(t *testing.T) {
 func TestAgent_Run_SystemPromptContainsNameAndRole(t *testing.T) {
 	mLLM := &mockLLM{responses: []string{"[[FINISH]]"}}
 	mSB := &mockSandbox{}
-	a := New("Marge", "Product Agent", mLLM, mSB)
+	a := New(AgentProfile{Name: "Marge", Role: "Product Agent"}, mLLM, mSB)
+	a.Task = "anything"
 
-	_ = a.Run(context.Background(), "anything")
+	_ = a.Run(context.Background())
 
 	if mLLM.calls == 0 {
 		t.Fatal("LLM was never called")
@@ -191,8 +193,9 @@ func TestAgent_Run_SandboxResultFedBackToLLM(t *testing.T) {
 	mSB := &mockSandbox{results: []*types.Result{
 		{Stdout: sandboxOutput, ExitCode: 0},
 	}}
-	a := New("agent", "role", mLLM, mSB)
-	_ = a.Run(context.Background(), "task")
+	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+	a.Task = "task"
+	_ = a.Run(context.Background())
 
 	// Second LLM call should include the sandbox output in conversation history
 	if mLLM.calls < 2 {
@@ -230,8 +233,9 @@ func TestAgent_Run_ContextInjection(t *testing.T) {
 			},
 		},
 	}}
-	a := New("agent", "role", mLLM, mSB)
-	_ = a.Run(context.Background(), "task")
+	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+	a.Task = "task"
+	_ = a.Run(context.Background())
 
 	if mLLM.calls < 2 {
 		t.Fatalf("expected at least 2 LLM calls, got %d", mLLM.calls)
@@ -273,8 +277,9 @@ func TestAgent_Run_ContextPersistence(t *testing.T) {
 			// No context returned in second call
 		},
 	}}
-	a := New("agent", "role", mLLM, mSB)
-	_ = a.Run(context.Background(), "task")
+	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+	a.Task = "task"
+	_ = a.Run(context.Background())
 
 	if mLLM.calls < 3 {
 		t.Fatalf("expected at least 3 LLM calls, got %d", mLLM.calls)
@@ -316,8 +321,9 @@ func TestAgent_Run_ContextUpdate(t *testing.T) {
 			},
 		},
 	}}
-	a := New("agent", "role", mLLM, mSB)
-	_ = a.Run(context.Background(), "task")
+	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+	a.Task = "task"
+	_ = a.Run(context.Background())
 
 	if mLLM.calls < 3 {
 		t.Fatalf("expected at least 3 LLM calls, got %d", mLLM.calls)
@@ -353,9 +359,10 @@ func TestAgent_Run_RespectsContextCancellation(t *testing.T) {
 
 	mLLM := &mockLLM{responses: []string{"ACTION: sleep 60", "[[FINISH]]"}}
 	mSB := &mockSandbox{results: []*types.Result{{Stdout: "", ExitCode: 0}}}
-	a := New("agent", "role", mLLM, mSB)
+	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+	a.Task = "task"
 
-	err := a.Run(ctx, "task")
+	err := a.Run(ctx)
 	if err == nil {
 		// Either cancelled or completed immediately — both acceptable.
 		// What we must NOT do is loop forever.
@@ -376,9 +383,10 @@ func TestAgent_Run_SandboxRetry(t *testing.T) {
 		errors:  []error{errors.New("transient"), nil},
 		results: []*types.Result{nil, {Stdout: "ok\n", ExitCode: 0}},
 	}
-	a := New("agent", "role", mLLM, mSB)
+	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+	a.Task = "ls"
 
-	if err := a.Run(context.Background(), "ls"); err != nil {
+	if err := a.Run(context.Background()); err != nil {
 		t.Fatalf("Run() unexpected error: %v", err)
 	}
 	if mSB.calls != 2 {
@@ -392,9 +400,10 @@ func TestAgent_Run_LLMRetry(t *testing.T) {
 		responses: []string{"", "[[FINISH]]"},
 	}
 	mSB := &mockSandbox{}
-	a := New("agent", "role", mLLM, mSB)
+	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+	a.Task = "task"
 
-	if err := a.Run(context.Background(), "task"); err != nil {
+	if err := a.Run(context.Background()); err != nil {
 		t.Fatalf("Run() unexpected error: %v", err)
 	}
 	if mLLM.calls != 2 {
@@ -407,10 +416,11 @@ func TestAgent_Run_LLMMaxRetriesReached(t *testing.T) {
 		errors.New("e1"), errors.New("e2"), errors.New("e3"), errors.New("e4"),
 	}}
 	mSB := &mockSandbox{}
-	a := New("agent", "role", mLLM, mSB)
+	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+	a.Task = "task"
 	a.MaxRetries = 2 // 3 total attempts
 
-	err := a.Run(context.Background(), "task")
+	err := a.Run(context.Background())
 	if err == nil {
 		t.Fatal("expected error after max retries, got nil")
 	}
@@ -430,13 +440,14 @@ func TestAgent_Run_BudgetExceeded(t *testing.T) {
 	mSB := &mockSandbox{
 		results: []*types.Result{{Stdout: "file.txt", ExitCode: 0}},
 	}
-	a := New("agent", "role", mLLM, mSB)
+	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+	a.Task = "list files"
 	a.Budget = 30 // Initial budget is 30 tokens
 	// In mockLLM, each call consumes 20 tokens.
 	// First call: 20 tokens used. Remaining: 10.
 	// Second call should fail because it would exceed budget (20 > 10).
 
-	err := a.Run(context.Background(), "list files")
+	err := a.Run(context.Background())
 	if err == nil {
 		t.Fatal("expected error due to budget exceed, got nil")
 	}

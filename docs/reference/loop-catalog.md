@@ -325,8 +325,8 @@ The core engine for Agile Agentic Development.
 ```
 ┌────────────────────────────────────────────────┐
 │              Control Loop Monitor              │
-│  while (exists task in PLAN.json where        │
-│         validation == false):                  │
+│  while (exists task in td query               │
+│         where status == ready):                │
 └───────────────────┬────────────────────────────┘
                     │
         ┌───────────┴────────────┐
@@ -344,18 +344,18 @@ The core engine for Agile Agentic Development.
         ┌────────▼──────────────────┐
         │  Verification Loop        │
         │  (Bart Review)            │
-        │  Updates PLAN.json        │
+        │  Updates td status        │
         └────────┬──────────────────┘
                  │
                 [Loop back to Control Loop]
 ```
 
 **Characteristics:**
-- Tracks all tasks in `PLAN.json` with validation state
-- Control loop monitors and schedules work
-- Each iteration uses ephemeral context (clean slate)
+- Tracks all tasks in `td` with machine-readable state
+- Control loop monitors and schedules work via `td`
+- Each iteration uses ephemeral context (clean slate/worktree)
 - Prevents context rot and hallucination accumulation
-- Verification loop feeds results back to plan
+- Verification loop feeds results back to `td`
 - Stateless: no hidden agent memory persists
 
 **Use Case:** High-volume autonomous development, long-running projects, quality-critical work.

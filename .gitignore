@@ -40,3 +40,13 @@ coverage/
 # Temporary
 *.tmp
 *.bak
+.todos/
+
+# Springfield
+FEEDBACK.md
+TODO.md
+logs/
+cmd/springfield/logs/
+tests/integration/logs/
+internal/agent/logs/
+coverage/

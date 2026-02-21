@@ -18,10 +18,11 @@ func TestAgent_Run_MaxIterations(t *testing.T) {
 			{Stdout: "ok", ExitCode: 0},
 		},
 	}
-	a := New("agent", "role", mLLM, mSB)
+	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+	a.Task = "task"
 	a.MaxIterations = 2
 
-	err := a.Run(context.Background(), "task")
+	err := a.Run(context.Background())
 	if err == nil {
 		t.Fatal("expected error on max iterations, got nil")
 	}
@@ -38,9 +39,10 @@ func TestAgent_Run_EmptyAction(t *testing.T) {
 		responses: []string{"ACTION: ", "[[FINISH]]"},
 	}
 	mSB := &mockSandbox{}
-	a := New("agent", "role", mLLM, mSB)
+	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+	a.Task = "task"
 
-	err := a.Run(context.Background(), "task")
+	err := a.Run(context.Background())
 	if err != nil {
 		t.Fatalf("Run() unexpected error: %v", err)
 	}
@@ -55,10 +57,11 @@ func TestAgent_Run_SandboxMaxRetriesReached(t *testing.T) {
 	mSB := &mockSandbox{errors: []error{
 		errors.New("e1"), errors.New("e2"), errors.New("e3"), errors.New("e4"),
 	}}
-	a := New("agent", "role", mLLM, mSB)
+	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+	a.Task = "task"
 	a.MaxRetries = 2
 
-	err := a.Run(context.Background(), "task")
+	err := a.Run(context.Background())
 	if err == nil {
 		t.Fatal("expected error after max retries, got nil")
 	}

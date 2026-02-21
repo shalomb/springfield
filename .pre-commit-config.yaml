@@ -1,0 +1,67 @@
+# Pre-commit framework configuration
+# See https://pre-commit.com for more information
+
+repos:
+  # Local hooks for Springfield
+  - repo: local
+    hooks:
+      - id: test-deps
+        name: Verify Go module integrity
+        entry: just test-deps
+        language: system
+        stages: [pre-commit]
+        pass_filenames: false
+
+      - id: test-structure
+        name: Validate Go structure (fmt, vet)
+        entry: just test-structure
+        language: system
+        stages: [pre-commit]
+        pass_filenames: false
+
+      - id: test-lint
+        name: Code quality (golangci-lint)
+        entry: just test-lint
+        language: system
+        stages: [pre-commit]
+        pass_filenames: false
+
+      - id: test-unit
+        name: Fast unit tests
+        entry: just test-unit
+        language: system
+        stages: [pre-commit]
+        pass_filenames: false
+
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: '\.md$'
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: ['--unsafe']
+      - id: check-json
+      - id: check-toml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # Conventional Commits validation
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.0.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: [feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert]
+
+  # Shell script formatting/linting
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+        args: ['--severity=warning']

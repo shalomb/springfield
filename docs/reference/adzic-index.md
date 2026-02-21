@@ -376,12 +376,13 @@ defined and green.
 ```
 Marge (Feature Brief)
   ↳ Adzic per-scenario checklist     ← applied when WRITING the .feature file
-    → Lisa (PLAN.json)
+    → Lisa (td status: planned)
         ↳ Adzic Living check         ← no Epic is Ready if scenarios are @pending
           → Ralph (step definitions)
               ↳ Adzic self-audit     ← declarative ≥ 7.0, living ≥ 9.0 before PR
                 → Bart (audit)       ← full Adzic Index as adversarial evidence base
-                  → Lovejoy          ← living score as release go/no-go gate
+                  ↳ ADR status change (Proposed -> Accepted)
+                    → Lovejoy        ← living score as release go/no-go gate
 ```
 
 ### Farley + Adzic: The Complete Quality Picture

@@ -83,15 +83,16 @@ How do we actually execute this?
 
 ## 5. The Brain (Shared State)
 
-These 7 files are the only things that matter. They keep us aligned.
+These files and tools are the only things that matter. They keep us aligned.
 
 1.  **PLAN.md:** The Roadmap.
-2.  **TODO.md:** The Task List.
-3.  **Feature.md:** The Spec.
-4.  **ADRs:** The Decisions.
-5.  **BDD Specs:** The Tests.
-6.  **FEEDBACK.md:** The Review.
-7.  **CHANGELOG.md:** The History.
+2.  **td (tool):** The machine-readable state and task store (replaces manual execution tracking).
+3.  **TODO-{id}.md:** The Handoff Context (replaces monolithic TODO.md).
+4.  **Feature.md:** The Spec.
+5.  **ADRs:** The Decisions.
+6.  **BDD Specs:** The Tests.
+7.  **FEEDBACK.md:** The Review.
+8.  **CHANGELOG.md:** The History.
 
 ---
 

@@ -12,7 +12,7 @@ This is your map. You don't need to read the entire documentation tree to do you
 - **[README.md](README.md)**: What this project is.
 - **[QUICK_START.md](QUICK_START.md)**: How to get moving fast.
 - **[PLAN.md](PLAN.md)**: The roadmap. What we're building right now.
-- **[TODO.md](TODO.md)**: The task list. What you're building right now.
+- **`td`**: The command-line task and state manager.
 
 ### 📚 The Docs (Diataxis)
 We organize documentation by purpose, not just topic.

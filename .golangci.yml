@@ -1,0 +1,66 @@
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  enable:
+    - depguard
+    - gofmt
+    - govet
+    - errcheck
+    - staticcheck
+    - unused
+
+linters-settings:
+  errcheck:
+    # Report about not checking of errors in type assertions: `a := b.(MyStruct)`.
+    # Such cases are already reported by staticcheck.
+    check-type-assertions: false
+    # Report about assignment of errors to blank identifier: `num, _ := strconv.Atoi(numStr)`.
+    check-blank: false
+    # List of functions to exclude from checking, where each entry is a single function to exclude.
+    exclude-functions:
+      - os.Remove
+      - os.RemoveAll
+      - os.Chdir
+      - os.Stdout.Sync
+      - os.Stderr.Sync
+      - (*os.File).Close
+
+  depguard:
+    rules:
+      # Prevent internal packages from being imported by things that shouldn't
+      # This enforces the layered architecture
+      base_layers:
+        files:
+          - "**/internal/llm/**"
+          - "**/internal/sandbox/**"
+          - "**/internal/config/**"
+        deny:
+          - pkg: "github.com/shalomb/springfield/internal/agent"
+            desc: "Base layers (llm, sandbox, config) must not depend on agents."
+          - pkg: "github.com/shalomb/springfield/internal/orchestrator"
+            desc: "Base layers must not depend on the orchestrator."
+
+      agent_layer:
+        files:
+          - "**/internal/agent/**"
+        deny:
+          - pkg: "github.com/shalomb/springfield/internal/orchestrator"
+            desc: "Agents must not depend on the orchestrator."
+          - pkg: "github.com/shalomb/springfield/cmd/springfield"
+            desc: "Internal packages must not depend on the CLI command."
+
+      # Global restrictions
+      prevent_logrus:
+        files:
+          - "$all"
+          - "!**/internal/llm/debug.go"
+        deny:
+          - pkg: "github.com/sirupsen/logrus"
+            desc: "Use the logger configured in internal/llm instead of logrus directly."
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0

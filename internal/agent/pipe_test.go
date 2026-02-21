@@ -13,9 +13,10 @@ func TestAgent_Run_PipesAllowed(t *testing.T) {
 	mSB := &mockSandbox{
 		results: []*types.Result{{Stdout: "main.go\n", ExitCode: 0}},
 	}
-	a := New("agent", "role", mLLM, mSB)
+	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+	a.Task = "list go files"
 
-	err := a.Run(context.Background(), "list go files")
+	err := a.Run(context.Background())
 	if err != nil {
 		t.Fatalf("Run() unexpected error: %v", err)
 	}

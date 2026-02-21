@@ -23,6 +23,12 @@ type Entry struct {
 
 var LogDir = "logs"
 
+func init() {
+	if dir := os.Getenv("SPRINGFIELD_LOG_DIR"); dir != "" {
+		LogDir = dir
+	}
+}
+
 // Log writes a message to the agent's log file and the central springfield log file.
 func Log(message string, level string, agent string, epic string, task string, tokenUsage interface{}, cost float64, data map[string]interface{}) error {
 	entry := Entry{
@@ -74,7 +80,9 @@ func appendToFile(path string, data []byte) error {
 	if err != nil {
 		return fmt.Errorf("failed to open log file %s: %w", path, err)
 	}
-	defer f.Close()
+	defer func() {
+		_ = f.Close()
+	}()
 
 	// Append newline and write in a single call for better atomicity in concurrent environments
 	fullData := append(data, '\n')

@@ -326,7 +326,7 @@ Translate the aggregate score into user-impact language for stakeholders:
 
 ```
 Marge (Feature Brief)
-  → Lisa (PLAN.json)
+  → Lisa (td status: planned)
     → Ralph (Red)
         ↳ Farley per-test checklist     ← applied to EVERY test at point of writing
     → Ralph (Green → Refactor)

@@ -1,4 +1,73 @@
-# Springfield Axon Configuration
+# Springfield Configuration
+#
+# Model specification:
+#   - "model-name" uses default provider
+#   - "provider/model-name" specifies provider explicitly
+#
+# Available providers (as of pi 3.x):
+#   - anthropic (Claude models)
+#   - openai (GPT models)
+#   - google-gemini-cli (Gemini models)
+#   - github-copilot (models via GitHub Copilot)
+#   - openrouter (multi-provider router)
+#   - others (see pi --list-models)
+
+# Global agent defaults
+# DEVELOPMENT MODE: Using claude-haiku-4-5 for all agents during development
+# See PLAN.md for model optimization strategy post-MVP
+[agent]
+model = "anthropic/claude-haiku-4-5"
+max_iterations = 20
+budget = 100000
+
+# Per-agent configuration overrides
+[agents]
+
+# Marge: Product Agent
+# DEVELOPMENT: Using claude-haiku-4-5 (cost-effective during dev)
+# FUTURE: Switch to claude-sonnet-4-5 for better UX reasoning
+[agents.marge]
+model = "anthropic/claude-haiku-4-5"
+max_iterations = 15
+budget = 50000
+
+# Lisa: Planning Agent
+# DEVELOPMENT: Using claude-haiku-4-5 (cost-effective during dev)
+# FUTURE: Switch to claude-opus-4-6 for Tree of Thought + Self-Consistency
+[agents.lisa]
+model = "anthropic/claude-haiku-4-5"
+max_iterations = 10
+budget = 200000
+
+# Ralph: Build Agent
+# DEVELOPMENT: Using claude-haiku-4-5 (cost-effective during dev)
+# FUTURE: Switch to claude-sonnet-4-5 with fallback to gemini-2.5-flash
+[agents.ralph]
+model = "anthropic/claude-haiku-4-5"
+fallback_model = "anthropic/claude-haiku-4-5"
+max_iterations = 30
+budget = 150000
+
+# Bart: Quality Agent
+# DEVELOPMENT: Using claude-haiku-4-5 (cost-effective during dev)
+# FUTURE: Switch to claude-opus-4-6 for thorough code review
+[agents.bart]
+model = "anthropic/claude-haiku-4-5"
+max_iterations = 20
+budget = 80000
+
+# Lovejoy: Release Agent
+# DEVELOPMENT: Using claude-haiku-4-5 (cost-effective during dev)
+# FUTURE: Switch to claude-opus-4-6 for high-stakes decisions
+[agents.lovejoy]
+model = "anthropic/claude-haiku-4-5"
+max_iterations = 5
+budget = 40000
+
+# Sandbox / Axon Configuration
+[sandbox]
+image = "docker.io/library/debian:trixie-slim"
+image_builder = "podman"
 
 [axon]
 version = "1.0.0"
