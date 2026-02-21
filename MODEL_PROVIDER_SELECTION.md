@@ -341,6 +341,8 @@ if primaryModel == "" {
 // primaryModel = "anthropic/claude-haiku-4-5"
 
 primary := &llm.PiLLM{Model: primaryModel}
+// NOTE: Temperature is loaded from config but NOT passed to pi CLI
+// (pi CLI does not support --temperature parameter as of v3.x)
 
 if agentCfg.FallbackModel != "" {
     fallback := &llm.PiLLM{Model: agentCfg.FallbackModel}
@@ -491,6 +493,132 @@ func TestAgentWithModel(t *testing.T) {
 
 ---
 
+## ⚠️ Known Limitation: Temperature NOT Passed to pi CLI
+
+### The Issue
+
+**Temperature is configured in `config.toml` but NOT actually used.**
+
+```toml
+[agents.ralph]
+temperature = 0.6      # ← Loaded from config
+                       # ← Stored in AgentConfig struct
+                       # ← BUT NOT PASSED TO pi CLI
+```
+
+### Why?
+
+The `pi` CLI (v3.x) **does not support a `--temperature` parameter**:
+
+```bash
+$ pi --help
+  --model <pattern>              Model pattern or ID
+  --system-prompt <text>         System prompt
+  --mode <mode>                  Output mode: text, json, or rpc
+  --thinking <level>             Set thinking level
+  [... 20+ other flags ...]
+  
+  # NO --temperature FLAG!
+```
+
+### Current Behavior
+
+```go
+// internal/llm/pi.go:56
+// For now, pi CLI doesn't seem to have a temperature flag in this mock implementation
+// but we could add it if it did.
+
+args := []string{"-p", "--no-tools"}
+args = append(args, "--model", p.Model)  // ✅ Passed
+
+// Temperature WOULD go here:
+// args = append(args, "--temperature", strconv.FormatFloat(p.Temperature, 'f', -1, 64))
+// BUT there's no p.Temperature field in PiLLM struct!
+```
+
+### Why Store It If Unused?
+
+1. **Future-proofing:** When/if pi CLI adds `--temperature` support
+2. **Per-agent tuning:** Document intended behavior (Lisa at 0.3, Ralph at 0.6)
+3. **Test coverage:** Verify config loading works correctly
+4. **Alternative implementations:** If we switch from pi to direct API calls
+
+### What DOES Control Temperature?
+
+Temperature in Anthropic models is controlled **via the API directly**, not CLI parameters. Options:
+
+#### Option A: Bypass pi CLI (Direct API)
+```go
+// Use anthropic Go SDK directly
+client := anthropic.NewClient(apiKey)
+response, _ := client.Messages.New(ctx, &anthropic.MessageNewParams{
+    Model: "claude-3-5-sonnet-20241022",
+    Temperature: anthropic.Float(0.6),  // ✅ Now we can control it!
+    Messages: messages,
+})
+```
+
+#### Option B: Extend pi CLI
+```bash
+# Open PR to pi to add --temperature support
+# Then use:
+pi --model anthropic/claude-3-5-sonnet --temperature 0.6
+```
+
+#### Option C: Use pi Session Config
+```bash
+# Store temperature in ~/.pi/agent/config.json
+# pi CLI reads it automatically
+cat ~/.pi/agent/config.json
+{
+  "claude-3-5-sonnet": {
+    "temperature": 0.6,
+    "max_tokens": 4096
+  }
+}
+```
+
+### Impact Assessment
+
+**Current Impact:** None - Temperature isn't affecting model behavior
+- All agents use pi CLI defaults (likely temperature ~0.7 or unset)
+- Different agents intended to have different temperatures aren't getting them
+- Lisa (planning, 0.3) behaves same as Ralph (building, 0.6)
+
+**Severity:** Low - Behavioral difference not critical for current MVP
+- Agents work correctly even with default temperatures
+- Semantic differences between 0.3 and 0.6 are subtle
+- Cost and latency unaffected
+
+**Priority:** Medium - Should address before production scaling
+- Intentional per-agent tuning shows we care about quality
+- Lisa really should have lower temperature for consistent planning
+- Bart really should have lower temperature for rigorous QA
+
+### Recommendation
+
+**Add to TODO for EPIC-010:**
+```
+- [ ] Investigate pi CLI temperature support
+  - Check if pi v3.1+ supports --temperature
+  - If not, propose feature request to pi project
+  - Fallback: Direct Anthropic API integration for temp control
+  
+- [ ] Update PiLLM struct to store temperature
+  PiLLM struct {
+    Model: string
+    Temperature: float64  // ← Add this
+  }
+  
+- [ ] Pass temperature to pi when CLI supports it
+  args = append(args, "--temperature", strconv.FormatFloat(p.Temperature, 'f', 1, 64))
+  
+- [ ] Test that temperature differences work
+  Test with temperature 0.1 (deterministic) vs 0.9 (creative)
+```
+
+---
+
 ## Future Enhancements
 
 ### 1. Environment Variable Overrides
@@ -547,4 +675,44 @@ Currently only supports 2 models (Primary + Fallback). Could extend to chain of 
 | **Fallback Chain** | `internal/llm/llm.go:FallbackLLM` | Try fallback on primary failure |
 | **Quota Detection** | `internal/llm/pi.go:isQuotaExceeded()` | Halt on quota errors |
 | **Agent Runners** | `internal/agent/runner.go` | Use LLMClient.Chat() |
+
+---
+
+## What Gets Passed to pi CLI vs What Doesn't
+
+### ✅ PASSED to pi CLI
+
+| Parameter | Format | Example |
+|-----------|--------|---------|
+| **Model** | `--model` | `--model anthropic/claude-haiku-4-5` |
+| **System Prompt** | `--system-prompt` | `--system-prompt "You are Ralph..."` |
+| **No Tools** | `--no-tools` | Disables read/bash/edit/write |
+| **Print Mode** | `-p` | Non-interactive, exit after response |
+| **Mode** | `--mode` | `--mode text` (text, json, or rpc) |
+
+### ❌ NOT PASSED (Configured but Unused)
+
+| Parameter | Reason | Status |
+|-----------|--------|--------|
+| **Temperature** | pi CLI has no `--temperature` parameter | ⚠️ Issue tracked |
+| **Budget** | Not a pi CLI concept (Springfield concept) | ⚠️ Enforced by Ralph loop |
+| **Max Iterations** | Not a pi CLI concept | ⚠️ Enforced by agent runners |
+| **Primary/Fallback Model** | Different LLM instances (not pi flag) | ✅ Handled by FallbackLLM |
+
+### pi CLI Command Constructed
+
+```bash
+# What Springfield actually runs:
+pi -p --no-tools \
+   --model anthropic/claude-haiku-4-5 \
+   --system-prompt "You are Ralph the Build Agent..." \
+   "Work on epic td-3cc3c3"
+
+# What it WOULD run (if temperature supported):
+pi -p --no-tools \
+   --model anthropic/claude-haiku-4-5 \
+   --temperature 0.6 \
+   --system-prompt "You are Ralph the Build Agent..." \
+   "Work on epic td-3cc3c3"
+```
 
