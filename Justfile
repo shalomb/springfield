@@ -24,8 +24,8 @@ help:
     @printf "🌸 Springfield - AI Agent Orchestration (Go Migration)\n"
     @printf "===================================================\n\n"
     @printf "🚀 CORE COMMANDS:\n"
-    @printf "  %-20s %s\n" "build" "Build the application (bin/springfield)"
-    @printf "  %-20s %s\n" "run" "Build and run the application"
+    @printf "  %-20s %s\n" "build" "Build the application"
+    @printf "  %-20s %s\n" "run" "Build and run the local application"
     @printf "  %-20s %s\n" "clean" "Clean build artifacts"
     @printf "\n🧪 GRADUATED TEST LADDER:\n"
     @printf "  %-20s %s\n" "test" "Run full graduated test ladder"
@@ -132,17 +132,19 @@ install-tools:
 # AGENTS
 # =============================================================================
 
-install:
+install: build
+    @printf "Installing %s to %s/bin...\n" "{{BINARY_NAME}}" "$(go env GOPATH)"
+    go install ./cmd/springfield
     @printf "Installing Springfield agents...\n"
     @mkdir -p ~/.pi/agent/skills
     @cp -r .pi/agent/skills/* ~/.pi/agent/skills/
-    @printf "Installed agents to ~/.pi/agent/skills/\n"
+    @printf "✅ Installation complete\n"
 
 # Generic agent runner
 agent name task:
     #!/usr/bin/env bash
     set -euo pipefail
-    ./bin/springfield --agent "$1" --task "$2"
+    springfield --agent "$1" --task "$2"
 
 # Ralph: The Builder
 ralph *args:
@@ -157,7 +159,7 @@ ralph *args:
     fi
 
     # Use the Go-based Springfield binary instead of npm/pi-coding-agent
-    ./bin/springfield --agent ralph --task "$task_instruction"
+    springfield --agent ralph --task "$task_instruction"
 
 # Lisa: The Planner
 lisa *args:
@@ -172,7 +174,7 @@ lisa *args:
     fi
 
     # Use the Go-based Springfield binary instead of npm/pi-coding-agent
-    ./bin/springfield --agent lisa --task "$task_instruction"
+    springfield --agent lisa --task "$task_instruction"
 
 # Aliases
 plan *args:
@@ -180,7 +182,7 @@ plan *args:
 
 # Orchestrator
 do *args:
-    @./bin/springfield orchestrate {{args}}
+    @springfield orchestrate {{args}}
 
 # Reviewers
 bart *args:
@@ -195,7 +197,7 @@ bart *args:
     fi
 
     # Use the Go-based Springfield binary instead of npm/pi-coding-agent
-    ./bin/springfield --agent bart --task "$task_instruction"
+    springfield --agent bart --task "$task_instruction"
 
     # Post-Execution Assertion: Fail if Bart found critical issues
     if [[ -f FEEDBACK.md ]] && grep -qE "Status:.*(REJECTED|BLOCKED)|❌.*Verdict" FEEDBACK.md; then
@@ -215,7 +217,7 @@ lovejoy *args:
     fi
 
     # Use the Go-based Springfield binary instead of npm/pi-coding-agent
-    ./bin/springfield --agent lovejoy --task "$task_instruction"
+    springfield --agent lovejoy --task "$task_instruction"
 
     # Post-Execution Assertion: Fail if release blocked
     if [[ -f TODO.md ]]; then

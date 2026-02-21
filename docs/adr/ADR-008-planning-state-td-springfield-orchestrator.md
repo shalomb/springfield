@@ -220,7 +220,7 @@ const (
 ```bash
 # just do — delegates entirely to the binary
 do *args:
-    ./bin/springfield orchestrate {{args}}
+    springfield orchestrate {{args}}
 ```
 
 The binary reads td for state, invokes agents, manages worktrees, and drives

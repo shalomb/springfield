@@ -10,7 +10,7 @@ Springfield uses [sirupsen/logrus](https://github.com/sirupsen/logrus) for struc
 
 ```bash
 # Run with debug output
-DEBUG=1 ./bin/springfield --agent ralph
+DEBUG=1 springfield --agent ralph
 
 # Or via Justfile
 DEBUG=1 just ralph
@@ -81,7 +81,7 @@ When you enable `DEBUG=1`, you'll see:
 
 **Diagnosis:**
 ```bash
-DEBUG=1 timeout 10 ./bin/springfield --agent ralph
+DEBUG=1 timeout 10 springfield --agent ralph
 ```
 
 **Expected sequence:**
@@ -103,7 +103,7 @@ DEBUG=1 timeout 10 ./bin/springfield --agent ralph
 
 **Diagnosis:**
 ```bash
-DEBUG=1 ./bin/springfield --agent bart --task "test" 2>&1 | grep "Response:"
+DEBUG=1 springfield --agent bart --task "test" 2>&1 | grep "Response:"
 ```
 
 **Look for:**
@@ -122,7 +122,7 @@ msg="LLM call completed. Response: 0 chars"  # Response is empty
 
 **Diagnosis:**
 ```bash
-DEBUG=1 ./bin/springfield --agent ralph 2>&1 | grep -E "fallback|npm"
+DEBUG=1 springfield --agent ralph 2>&1 | grep -E "fallback|npm"
 ```
 
 **Expected:**
@@ -155,23 +155,23 @@ func init() {
 
 Then use with aggregation tools:
 ```bash
-DEBUG=1 ./bin/springfield --agent ralph 2>&1 | jq .
+DEBUG=1 springfield --agent ralph 2>&1 | jq .
 ```
 
 ### Filtering Logs
 
 ```bash
 # Only debug logs
-DEBUG=1 ./bin/springfield ... 2>&1 | grep 'level=debug'
+DEBUG=1 springfield ... 2>&1 | grep 'level=debug'
 
 # Only errors
-DEBUG=1 ./bin/springfield ... 2>&1 | grep 'level=error'
+DEBUG=1 springfield ... 2>&1 | grep 'level=error'
 
 # Specific module
-DEBUG=1 ./bin/springfield ... 2>&1 | grep 'ctx=executorWithFallback'
+DEBUG=1 springfield ... 2>&1 | grep 'ctx=executorWithFallback'
 
 # Time range
-DEBUG=1 ./bin/springfield ... 2>&1 | grep '21:5[3-9]'
+DEBUG=1 springfield ... 2>&1 | grep '21:5[3-9]'
 ```
 
 ## What's NOT Logged Yet

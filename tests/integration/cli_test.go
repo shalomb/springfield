@@ -30,9 +30,7 @@ func (t *cliTest) iRun(command string) error {
 		return err
 	}
 
-	if len(args) > 0 && args[0] == "springfield" {
-		args[0] = "../../bin/springfield"
-	}
+	// args[0] is already "springfield", which should be in PATH
 
 	cmd := exec.Command(args[0], args[1:]...)
 	cmd.Env = append(cmd.Environ(), "USE_MOCK_LLM=true")
