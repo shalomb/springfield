@@ -6,6 +6,9 @@ import (
 )
 
 func TestOrchestrateCommandExists(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping in short mode")
+	}
 	buf := new(bytes.Buffer)
 	rootCmd.SetOut(buf)
 	rootCmd.SetArgs([]string{"orchestrate", "--help"})

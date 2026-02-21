@@ -29,8 +29,23 @@ func TestRootCmd_NoArgs(t *testing.T) {
 	}
 }
 
+func setupPromptFiles(t *testing.T, tmpDir string) {
+	agents := []string{"ralph", "lisa", "bart", "lovejoy", "marge"}
+	for _, a := range agents {
+		path := filepath.Join(tmpDir, ".github", "agents")
+		_ = os.MkdirAll(path, 0755)
+		_ = os.WriteFile(filepath.Join(path, "prompt_"+a+".md"), []byte("You are "+a), 0644)
+	}
+}
+
 func TestRootCmd_RunMock(t *testing.T) {
 	tmpDir := t.TempDir()
+	origDir, _ := os.Getwd()
+	defer func() { _ = os.Chdir(origDir) }()
+	_ = os.Chdir(tmpDir)
+
+	setupPromptFiles(t, tmpDir)
+
 	confPath := filepath.Join(tmpDir, "config.toml")
 	_ = os.WriteFile(confPath, []byte("[axon]\nversion=\"1.0.0\"\n"), 0644)
 
@@ -52,6 +67,12 @@ func TestRootCmd_RunMock(t *testing.T) {
 func TestRootCmd_Roles(t *testing.T) {
 	t.Setenv("USE_MOCK_LLM", "true")
 	tmpDir := t.TempDir()
+	origDir, _ := os.Getwd()
+	defer func() { _ = os.Chdir(origDir) }()
+	_ = os.Chdir(tmpDir)
+
+	setupPromptFiles(t, tmpDir)
+
 	confPath := filepath.Join(tmpDir, "config.toml")
 	_ = os.WriteFile(confPath, []byte("[axon]\nversion=\"1.0.0\"\n"), 0644)
 	t.Setenv("SPRINGFIELD_CONFIG", confPath)
@@ -92,6 +113,13 @@ func TestRootCmd_MissingAgent(t *testing.T) {
 }
 
 func TestRootCmd_RunError(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, _ := os.Getwd()
+	defer func() { _ = os.Chdir(origDir) }()
+	_ = os.Chdir(tmpDir)
+
+	setupPromptFiles(t, tmpDir)
+
 	t.Setenv("USE_MOCK_LLM", "true")
 	t.Setenv("MOCK_LLM_ERROR", "true")
 

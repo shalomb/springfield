@@ -24,10 +24,11 @@ func TestAgent_Run_InfiniteLoopGuard(t *testing.T) {
 		mSB.results[i] = &types.Result{ExitCode: 0}
 	}
 
-	a := New("agent", "role", mLLM, mSB)
+	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+	a.Task = "loop forever"
 	a.MaxIterations = 5 // Set a small limit for testing
 
-	err := a.Run(context.Background(), "loop forever")
+	err := a.Run(context.Background())
 
 	if err == nil {
 		t.Fatal("expected error from infinite loop guard, got nil")

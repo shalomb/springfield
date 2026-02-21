@@ -42,7 +42,7 @@ func (p *PiLLM) Chat(ctx context.Context, messages []Message) (Response, error) 
 		logger.Debugf("  Message %d (role=%s): %d chars", i, msg.Role, len(msg.Content))
 	}
 
-	args := []string{"-p", "--no-tools"}
+	args := []string{"-p"}
 
 	// Pass the model if configured
 	// The pi CLI does recognize "provider/model" format
@@ -125,8 +125,8 @@ func (p *PiLLM) executorWithFallback(ctx context.Context, name string, arg ...st
 
 		npmErr := cmd.Run()
 		// Flush output streams to ensure they display immediately
-		os.Stdout.Sync()
-		os.Stderr.Sync()
+		_ = os.Stdout.Sync()
+		_ = os.Stderr.Sync()
 
 		stdoutBytes := stdout.Bytes()
 		stderrBytes := stderr.Bytes()

@@ -144,6 +144,9 @@ func TestOrchestrator_Tick(t *testing.T) {
 }
 
 func TestOrchestrator_StrictHandoff(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping in short mode")
+	}
 	tempDir, err := os.MkdirTemp("", "orchestrator-handoff-test")
 	if err != nil {
 		t.Fatal(err)

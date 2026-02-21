@@ -28,6 +28,28 @@
 
 ---
 
+## 📋 Next: EPIC-2e90ba - Unified Agent Runner Architecture ✅ COMPLETE
+
+### Planned (High Priority)
+
+#### Task: Define AgentProfile and update Agent struct for parameterization
+**Status:** ✅ COMPLETE (td-2b0e28)
+**Details:** Consolidate specialized runners into a single, data-driven agent model.
+
+#### Task: Implement file-based context injection in unified Agent.Run
+**Status:** ✅ COMPLETE (td-892fb7)
+**Details:** Allow agents to automatically load source files and state into their context.
+
+#### Task: Implement output parsing and file persistence
+**Status:** ✅ COMPLETE (td-64973c)
+**Details:** Extract [[FINISH]] markers and write agent results to target files (PLAN.md, FEEDBACK.md).
+
+#### Task: Migrate all Agents to Unified Runner
+**Status:** ✅ COMPLETE (td-61289a, td-97bf7f)
+**Details:** Switch Lisa, Ralph, Bart, and Lovejoy to the autonomous loop.
+
+---
+
 ## 📋 Next: EPIC-005 Phase 2 - Agent Governance & Autonomy
 
 ### Planned (High Priority)

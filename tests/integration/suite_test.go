@@ -19,6 +19,9 @@ func init() {
 }
 
 func TestFeatures(t *testing.T) {
+	tmpDir := t.TempDir()
+	t.Setenv("SPRINGFIELD_LOG_DIR", tmpDir)
+
 	opts.TestingT = t
 	opts.Output = colors.Colored(os.Stdout)
 	suite := godog.TestSuite{

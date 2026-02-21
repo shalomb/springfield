@@ -57,7 +57,7 @@ func (m *bddMockSB) Execute(ctx context.Context, command string) (*types.Result,
 func (t *agentLoopTest) anAgentNamedWithRole(name, role string) error {
 	t.mockLLM = &bddMockLLM{}
 	t.mockSB = &bddMockSB{outputs: []string{"hello from sandbox\n"}}
-	t.agent = agent.New(name, role, t.mockLLM, t.mockSB)
+	t.agent = agent.New(agent.AgentProfile{Name: name, Role: role}, t.mockLLM, t.mockSB)
 	return nil
 }
 
@@ -75,7 +75,8 @@ func (t *agentLoopTest) theLLMIsConfiguredWithResponses(table *godog.Table) erro
 }
 
 func (t *agentLoopTest) theAgentRunsTheTask(task string) error {
-	t.err = t.agent.Run(context.Background(), task)
+	t.agent.Task = task
+	t.err = t.agent.Run(context.Background())
 	return nil
 }
 

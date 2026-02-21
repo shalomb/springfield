@@ -29,6 +29,7 @@ help:
     @printf "  %-20s %s\n" "clean" "Clean build artifacts"
     @printf "\n🧪 GRADUATED TEST LADDER:\n"
     @printf "  %-20s %s\n" "test" "Run full graduated test ladder"
+    @printf "  %-20s %s\n" "test-deps" "Verify Go module integrity"
     @printf "  %-20s %s\n" "test-structure" "Go syntax validation (fmt, vet)"
     @printf "  %-20s %s\n" "test-lint" "Code quality (golangci-lint)"
     @printf "  %-20s %s\n" "test-unit" "Fast unit tests"
@@ -67,15 +68,25 @@ clean:
 
 test:
     @printf "🚀 Starting Graduated Test Ladder...\n"
+    @just test-deps
     @just test-structure
     @just test-lint
     @just test-unit
     @just test-integration
     @printf "✅ COMPLETE: All test levels passed!\n"
 
+test-deps:
+    @printf "🔍 Verifying Go module integrity...\n"
+    go mod verify
+    @printf "✅ Modules verified\n"
+
 test-structure:
     @printf "🔍 Validating Go structure (Phase 1)...\n"
-    go fmt ./...
+    @# Fail if files are not formatted
+    @if [ -n "$(gofmt -l .)" ]; then \
+        printf "❌ The following files are not formatted (run 'go fmt ./...'):\n$(gofmt -l .)\n"; \
+        exit 1; \
+    fi
     go vet ./...
     @printf "✅ Structure validation passed\n"
 
@@ -83,24 +94,25 @@ test-lint:
     @printf "🔍 Checking code quality (Phase 2)...\n"
     @if command -v golangci-lint &>/dev/null; then \
         golangci-lint run ./...; \
-        printf "✅ Lint check passed\n"; \
     else \
-        printf "⚠️  golangci-lint not found. Skipping.\n"; \
+        printf "❌ golangci-lint not found. Please install it.\n"; \
+        exit 1; \
     fi
 
 test-unit:
     @printf "🧪 Running unit tests (Phase 3)...\n"
-    go test -v -short -race ./internal/... ./pkg/...
+    @SPRINGFIELD_LOG_DIR=$(mktemp -d) go test -v -short -race ./...
     @printf "✅ Unit tests passed\n"
 
 test-integration:
     @printf "🧪 Running integration tests (Phase 4)...\n"
     @# Check if podman is available (required by axon library)
     @if command -v podman &>/dev/null; then \
-        go test -v ./tests/integration; \
+        SPRINGFIELD_LOG_DIR=$(mktemp -d) go test -v ./tests/integration; \
         printf "✅ Integration tests passed\n"; \
     else \
-        printf "⚠️  podman not found. Skipping integration tests (Axon library requires podman).\n"; \
+        printf "❌ podman not found. Integration tests REQUIRE podman for Axon sandboxing.\n"; \
+        exit 1; \
     fi
 
 test-coverage:

@@ -15,10 +15,27 @@ import (
 
 const FinishMarker = "[[FINISH]]"
 
-// Agent represents an autonomous agent.
-type Agent struct {
+// Runner defines the interface for agent runners.
+type Runner interface {
+	Run(ctx context.Context) error
+}
+
+// AgentProfile defines the personality and behavior constraints for an agent.
+type AgentProfile struct {
 	Name          string
 	Role          string
+	SystemPrompt  string
+	ContextFiles  []string
+	OutputTarget  string
+	ToolsEnabled  []string
+	FinishMarker  string
+	MaxIterations int
+}
+
+// Agent represents an autonomous agent.
+type Agent struct {
+	Profile       AgentProfile
+	Task          string
 	LLM           llm.LLMClient
 	Sandbox       sandbox.Sandbox
 	MaxRetries    int
@@ -28,30 +45,50 @@ type Agent struct {
 }
 
 // New creates a new Agent with default settings.
-func New(name, role string, l llm.LLMClient, s sandbox.Sandbox) *Agent {
+func New(profile AgentProfile, l llm.LLMClient, s sandbox.Sandbox) *Agent {
+	maxIterations := profile.MaxIterations
+	if maxIterations == 0 {
+		maxIterations = 20
+	}
 	return &Agent{
-		Name:          name,
-		Role:          role,
+		Profile:       profile,
 		LLM:           l,
 		Sandbox:       s,
 		MaxRetries:    3,
-		MaxIterations: 20,
+		MaxIterations: maxIterations,
 	}
 }
 
 func (a *Agent) log(message, level string, tokenUsage interface{}, cost float64) {
-	if err := logger.Log(message, level, a.Name, "", "", tokenUsage, cost, nil); err != nil {
+	if err := logger.Log(message, level, a.Profile.Name, "", "", tokenUsage, cost, nil); err != nil {
 		fmt.Fprintf(os.Stderr, "CRITICAL: Logger failed: %v\nMessage was: %s\n", err, message)
 	}
 }
 
-// Run executes a task.
-func (a *Agent) Run(ctx context.Context, task string) error {
+// Run executes the agent's task.
+// It implements the Runner interface.
+func (a *Agent) Run(ctx context.Context) error {
+	task := a.Task
 	a.log(fmt.Sprintf("Starting task: %s", task), "INFO", nil, 0)
-	messages := []llm.Message{
-		{Role: "system", Content: fmt.Sprintf("You are %s, a %s.", a.Name, a.Role)},
-		{Role: "user", Content: task},
+
+	systemPrompt := a.Profile.SystemPrompt
+	if systemPrompt == "" {
+		systemPrompt = fmt.Sprintf("You are %s, a %s.", a.Profile.Name, a.Profile.Role)
 	}
+
+	messages := []llm.Message{
+		{Role: "system", Content: systemPrompt},
+	}
+
+	// Load context files if specified
+	if len(a.Profile.ContextFiles) > 0 {
+		fileContext := a.loadFilesContext()
+		if fileContext != "" {
+			messages = append(messages, llm.Message{Role: "user", Content: fileContext})
+		}
+	}
+
+	messages = append(messages, llm.Message{Role: "user", Content: task})
 
 	for iteration := 0; iteration < a.MaxIterations; iteration++ {
 		var resp llm.Response
@@ -78,8 +115,16 @@ func (a *Agent) Run(ctx context.Context, task string) error {
 		a.log(fmt.Sprintf("LLM response: %s", resp.Content), "DEBUG", resp.TokenUsage, cost)
 		messages = append(messages, llm.Message{Role: "assistant", Content: resp.Content})
 
-		if isFinished(resp.Content) {
+		if a.isFinished(resp.Content) {
 			a.log("Task complete.", "INFO", nil, 0)
+
+			// Persist output if target is specified
+			if a.Profile.OutputTarget != "" {
+				if err := a.persistOutput(resp.Content); err != nil {
+					a.log(fmt.Sprintf("Error persisting output to %s: %v", a.Profile.OutputTarget, err), "ERROR", nil, 0)
+					return err
+				}
+			}
 			return nil
 		}
 
@@ -135,8 +180,41 @@ func (a *Agent) calculateCost(usage llm.TokenUsage) float64 {
 	return float64(usage.PromptTokens)*promptPrice + float64(usage.CompletionTokens)*completionPrice
 }
 
-func isFinished(resp string) bool {
-	return strings.HasSuffix(strings.TrimSpace(resp), FinishMarker)
+func (a *Agent) persistOutput(content string) error {
+	// Strip finish marker
+	marker := a.Profile.FinishMarker
+	if marker == "" {
+		marker = FinishMarker
+	}
+	content = strings.Replace(content, marker, "", -1)
+	content = strings.TrimSpace(content)
+
+	a.log(fmt.Sprintf("Persisting output to %s", a.Profile.OutputTarget), "INFO", nil, 0)
+	return os.WriteFile(a.Profile.OutputTarget, []byte(content), 0644)
+}
+
+func (a *Agent) loadFilesContext() string {
+	var parts []string
+	for _, file := range a.Profile.ContextFiles {
+		content, err := os.ReadFile(file)
+		if err != nil {
+			a.log(fmt.Sprintf("Warning: Could not read context file %s: %v", file, err), "WARNING", nil, 0)
+			continue
+		}
+		parts = append(parts, fmt.Sprintf("FILE: %s\nCONTENT:\n%s\n---", file, string(content)))
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return "CURRENT CONTEXT FILES:\n\n" + strings.Join(parts, "\n\n")
+}
+
+func (a *Agent) isFinished(resp string) bool {
+	marker := a.Profile.FinishMarker
+	if marker == "" {
+		marker = FinishMarker
+	}
+	return strings.HasSuffix(strings.TrimSpace(resp), marker)
 }
 
 func formatContext(c types.ContextMetadata) string {

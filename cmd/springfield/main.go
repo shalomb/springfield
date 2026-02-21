@@ -74,17 +74,16 @@ var rootCmd = &cobra.Command{
 				l = primary
 			}
 		}
-		// Note: Sandbox initialization kept for potential future use,
-		// but runners currently only interact with the LLM, not the sandbox.
-		_, err = sandbox.NewAxonSandbox(configPath)
+		// Initialize sandbox
+		sandboxInst, err := sandbox.NewAxonSandbox(configPath)
 		if err != nil {
 			return fmt.Errorf("error initializing sandbox: %w", err)
 		}
 
 		ctx := context.Background()
 
-		// Create a specialized runner based on the agent type, with budget
-		runner, err := agent.NewRunnerWithBudget(agentName, task, l, agentCfg.Budget)
+		// Create a specialized runner based on the agent type, with budget and sandbox
+		runner, err := agent.NewRunnerWithBudget(agentName, task, l, sandboxInst, agentCfg.Budget)
 		if err != nil {
 			return fmt.Errorf("error creating runner for agent %s: %w", agentName, err)
 		}

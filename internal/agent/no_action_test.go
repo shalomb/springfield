@@ -10,9 +10,10 @@ func TestAgent_Run_NoActionOrFinish(t *testing.T) {
 		responses: []string{"Just talking...", "[[FINISH]]"},
 	}
 	mSB := &mockSandbox{}
-	a := New("agent", "role", mLLM, mSB)
+	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+	a.Task = "talk"
 
-	err := a.Run(context.Background(), "talk")
+	err := a.Run(context.Background())
 	if err != nil {
 		t.Fatalf("Run() unexpected error: %v", err)
 	}

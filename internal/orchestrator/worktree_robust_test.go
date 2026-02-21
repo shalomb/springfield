@@ -7,6 +7,9 @@ import (
 )
 
 func TestWorktreeManager_RobustVerification(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping in short mode")
+	}
 	tempDir, err := os.MkdirTemp("", "worktree-robust-test")
 	if err != nil {
 		t.Fatal(err)
@@ -64,7 +67,7 @@ func TestWorktreeManager_RobustVerification(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	path, err = wm.EnsureWorktree(epicID)
+	_, err = wm.EnsureWorktree(epicID)
 	if err != nil {
 		t.Fatalf("EnsureWorktree failed with manually initialized .git: %v", err)
 	}

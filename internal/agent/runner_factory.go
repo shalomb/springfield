@@ -4,53 +4,77 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/shalomb/springfield/internal/config"
 	"github.com/shalomb/springfield/internal/llm"
+	"github.com/shalomb/springfield/internal/sandbox"
 )
 
 // NewRunner creates a specialized runner based on the agent name.
-// It returns a Runner interface implementation tailored to the agent's role.
 func NewRunner(agentName string, task string, llmClient llm.LLMClient) (Runner, error) {
-	return NewRunnerWithBudget(agentName, task, llmClient, 0)
+	return NewRunnerWithBudget(agentName, task, llmClient, nil, 0)
 }
 
-// NewRunnerWithBudget creates a specialized runner with a specified budget.
-func NewRunnerWithBudget(agentName string, task string, llmClient llm.LLMClient, budget int) (Runner, error) {
-	// Normalize agent name to lowercase for case-insensitive matching
+// NewRunnerWithBudget creates a specialized runner with a specified budget and optional sandbox.
+func NewRunnerWithBudget(agentName string, task string, llmClient llm.LLMClient, sb sandbox.Sandbox, budget int) (Runner, error) {
 	normalizedAgent := strings.ToLower(agentName)
 
-	baseRunner := &BaseRunner{
-		Agent:     normalizedAgent,
-		Task:      task,
-		LLMClient: llmClient,
-		Budget:    budget,
+	profile, err := GetAgentProfile(normalizedAgent)
+	if err != nil {
+		return nil, err
 	}
 
-	switch normalizedAgent {
-	case "ralph":
-		return &RalphRunner{
-			BaseRunner: baseRunner,
-		}, nil
+	// We'll transition to using the unified Agent as the primary Runner
+	// For now, we keep the specialized ones for compatibility if needed,
+	// but the goal is to migrate all to the Agent struct.
 
+	a := New(profile, llmClient, sb)
+	a.Task = task
+	a.Budget = budget
+
+	return a, nil
+}
+
+// GetAgentProfile returns the profile for a given agent name.
+func GetAgentProfile(agentName string) (AgentProfile, error) {
+	roles := map[string]string{
+		"marge":   "Product Agent",
+		"lisa":    "Planning Agent",
+		"ralph":   "Build Agent",
+		"bart":    "Quality Agent",
+		"lovejoy": "Release Agent",
+	}
+
+	role, ok := roles[agentName]
+	if !ok {
+		return AgentProfile{}, fmt.Errorf("unknown agent: %s", agentName)
+	}
+
+	promptPath := config.GetPromptPath(agentName)
+	prompt, err := config.LoadPrompt(promptPath)
+	if err != nil {
+		return AgentProfile{}, fmt.Errorf("failed to load prompt for %s: %w", agentName, err)
+	}
+
+	profile := AgentProfile{
+		Name:         agentName,
+		Role:         role,
+		SystemPrompt: prompt,
+	}
+
+	// Specialized profile settings
+	switch agentName {
 	case "lisa":
-		return &LisaRunner{
-			BaseRunner: baseRunner,
-		}, nil
-
+		profile.ContextFiles = []string{"PLAN.md", "FEEDBACK.md"}
+		profile.OutputTarget = "PLAN.md"
+	case "ralph":
+		profile.ContextFiles = []string{"TODO.md", "Justfile"}
+		// Ralph handles his own persistence via git/filesystem actions
 	case "bart":
-		return &BartRunner{
-			BaseRunner: baseRunner,
-		}, nil
-
+		profile.ContextFiles = []string{"FEEDBACK.md"}
+		profile.OutputTarget = "FEEDBACK.md"
 	case "lovejoy":
-		return &LovejoyRunner{
-			BaseRunner: baseRunner,
-		}, nil
-
-	case "marge", "":
-		// For marge or default, use BaseRunner (simple single-call agent)
-		return baseRunner, nil
-
-	default:
-		return nil, fmt.Errorf("unknown agent: %s", agentName)
+		profile.ContextFiles = []string{"CHANGELOG.md", "TODO.md", "FEEDBACK.md"}
 	}
+
+	return profile, nil
 }

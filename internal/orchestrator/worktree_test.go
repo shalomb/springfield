@@ -7,6 +7,9 @@ import (
 )
 
 func TestWorktreeManager(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping in short mode")
+	}
 	tempDir, err := os.MkdirTemp("", "worktree-test")
 	if err != nil {
 		t.Fatal(err)
@@ -59,6 +62,9 @@ func TestWorktreeManager(t *testing.T) {
 }
 
 func TestWorktreeManager_ExistingBranch(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping in short mode")
+	}
 	tempDir, err := os.MkdirTemp("", "worktree-existing-branch-test")
 	if err != nil {
 		t.Fatal(err)

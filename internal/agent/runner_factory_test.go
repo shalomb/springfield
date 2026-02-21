@@ -1,84 +1,52 @@
 package agent
 
 import (
-	"context"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
-// TestNewRunnerCreatesRalphRunner verifies the factory creates RalphRunner.
-func TestNewRunnerCreatesRalphRunner(t *testing.T) {
-	mock := &mockLLMClient{responses: []string{"response"}}
-	runner, err := NewRunner("ralph", "test task", mock)
-	if err != nil {
-		t.Fatalf("NewRunner() returned error: %v", err)
-	}
-
-	if _, ok := runner.(*RalphRunner); !ok {
-		t.Errorf("Expected *RalphRunner, got %T", runner)
+func setupPromptFiles(t *testing.T, tmpDir string) {
+	agents := []string{"ralph", "lisa", "bart", "lovejoy", "marge"}
+	for _, a := range agents {
+		path := filepath.Join(tmpDir, ".github", "agents")
+		_ = os.MkdirAll(path, 0755)
+		_ = os.WriteFile(filepath.Join(path, "prompt_"+a+".md"), []byte("You are "+a), 0644)
 	}
 }
 
-// TestNewRunnerCreatesLisaRunner verifies the factory creates LisaRunner.
-func TestNewRunnerCreatesLisaRunner(t *testing.T) {
-	mock := &mockLLMClient{responses: []string{"response"}}
-	runner, err := NewRunner("lisa", "test task", mock)
-	if err != nil {
-		t.Fatalf("NewRunner() returned error: %v", err)
-	}
+// TestNewRunnerCreatesAgent verifies the factory creates Agent instances.
+func TestNewRunnerCreatesAgent(t *testing.T) {
+	tmpDir := t.TempDir()
+	origDir, _ := os.Getwd()
+	defer func() { _ = os.Chdir(origDir) }()
+	_ = os.Chdir(tmpDir)
+	setupPromptFiles(t, tmpDir)
 
-	if _, ok := runner.(*LisaRunner); !ok {
-		t.Errorf("Expected *LisaRunner, got %T", runner)
-	}
-}
+	mock := &mockLLM{responses: []string{"response"}}
+	agents := []string{"ralph", "lisa", "bart", "lovejoy", "marge"}
 
-// TestNewRunnerCreatesBartRunner verifies the factory creates BartRunner.
-func TestNewRunnerCreatesBartRunner(t *testing.T) {
-	mock := &mockLLMClient{responses: []string{"response"}}
-	runner, err := NewRunner("bart", "test task", mock)
-	if err != nil {
-		t.Fatalf("NewRunner() returned error: %v", err)
-	}
+	for _, name := range agents {
+		runner, err := NewRunner(name, "test task", mock)
+		if err != nil {
+			t.Fatalf("NewRunner(%s) returned error: %v", name, err)
+		}
 
-	if _, ok := runner.(*BartRunner); !ok {
-		t.Errorf("Expected *BartRunner, got %T", runner)
-	}
-}
+		a, ok := runner.(*Agent)
+		if !ok {
+			t.Errorf("Expected *Agent for %s, got %T", name, runner)
+			continue
+		}
 
-// TestNewRunnerCreatesLovejoyRunner verifies the factory creates LovejoyRunner.
-func TestNewRunnerCreatesLovejoyRunner(t *testing.T) {
-	mock := &mockLLMClient{responses: []string{"response"}}
-	runner, err := NewRunner("lovejoy", "test task", mock)
-	if err != nil {
-		t.Fatalf("NewRunner() returned error: %v", err)
-	}
-
-	if _, ok := runner.(*LovejoyRunner); !ok {
-		t.Errorf("Expected *LovejoyRunner, got %T", runner)
-	}
-}
-
-// TestNewRunnerCreatesBaseRunnerForMarge verifies Marge uses BaseRunner.
-func TestNewRunnerCreatesBaseRunnerForMarge(t *testing.T) {
-	mock := &mockLLMClient{responses: []string{"response"}}
-	runner, err := NewRunner("marge", "test task", mock)
-	if err != nil {
-		t.Fatalf("NewRunner() returned error: %v", err)
-	}
-
-	if _, ok := runner.(*BaseRunner); !ok {
-		t.Errorf("Expected *BaseRunner, got %T", runner)
-	}
-
-	// Verify it's not a specialized runner
-	if _, ok := runner.(*RalphRunner); ok {
-		t.Errorf("Expected BaseRunner, not RalphRunner")
+		if a.Profile.Name != name {
+			t.Errorf("Expected agent name %s, got %s", name, a.Profile.Name)
+		}
 	}
 }
 
 // TestNewRunnerRejectsUnknownAgent verifies factory rejects unknown agents.
 func TestNewRunnerRejectsUnknownAgent(t *testing.T) {
-	mock := &mockLLMClient{responses: []string{"response"}}
+	mock := &mockLLM{responses: []string{"response"}}
 	_, err := NewRunner("unknown-agent", "test task", mock)
 	if err == nil {
 		t.Errorf("Expected error for unknown agent, got nil")
@@ -87,87 +55,42 @@ func TestNewRunnerRejectsUnknownAgent(t *testing.T) {
 
 // TestNewRunnerTaskIsSet verifies the task is passed to runners.
 func TestNewRunnerTaskIsSet(t *testing.T) {
-	mock := &mockLLMClient{responses: []string{"response"}}
+	tmpDir := t.TempDir()
+	origDir, _ := os.Getwd()
+	defer func() { _ = os.Chdir(origDir) }()
+	_ = os.Chdir(tmpDir)
+	setupPromptFiles(t, tmpDir)
+
+	mock := &mockLLM{responses: []string{"response"}}
 	taskText := "important task"
 	runner, err := NewRunner("ralph", taskText, mock)
 	if err != nil {
 		t.Fatalf("NewRunner() returned error: %v", err)
 	}
 
-	br := runner.(*RalphRunner).BaseRunner
-	if br.Task != taskText {
-		t.Errorf("Expected task %q, got %q", taskText, br.Task)
-	}
-}
-
-// TestNewRunnerLLMClientIsSet verifies the LLM client is set.
-func TestNewRunnerLLMClientIsSet(t *testing.T) {
-	mock := &mockLLMClient{responses: []string{"response"}}
-	runner, err := NewRunner("ralph", "task", mock)
-	if err != nil {
-		t.Fatalf("NewRunner() returned error: %v", err)
-	}
-
-	br := runner.(*RalphRunner).BaseRunner
-	if br.LLMClient != mock {
-		t.Errorf("Expected LLM client to be set")
-	}
-}
-
-// TestNewRunnerImplementsRunner verifies all created runners satisfy Runner.
-func TestNewRunnerImplementsRunner(t *testing.T) {
-	tests := []string{"ralph", "lisa", "bart", "lovejoy", "marge"}
-	mock := &mockLLMClient{responses: []string{"response"}}
-
-	// Run in a clean tmpdir with a committed git repo so ralph's
-	// exit condition (no TODO.md, no uncommitted changes) is satisfied.
-	tmpDir := t.TempDir()
-	origDir, _ := os.Getwd()
-	defer os.Chdir(origDir)
-	os.Chdir(tmpDir)
-	initGitRepo(t, tmpDir)
-
-	for _, agentName := range tests {
-		t.Run(agentName, func(t *testing.T) {
-			runner, err := NewRunner(agentName, "task", mock)
-			if err != nil {
-				t.Fatalf("NewRunner() returned error: %v", err)
-			}
-
-			// Verify it can be called as a Runner
-			ctx := context.Background()
-			_ = runner.Run(ctx)
-			// We don't check error here because mocks may fail; we just
-			// verify the method exists and is callable.
-		})
+	a := runner.(*Agent)
+	if a.Task != taskText {
+		t.Errorf("Expected task %q, got %q", taskText, a.Task)
 	}
 }
 
 // TestNewRunnerWithBudgetSetsBudget verifies budget is properly set.
 func TestNewRunnerWithBudgetSetsBudget(t *testing.T) {
-	mock := &mockLLMClient{responses: []string{"response"}}
+	tmpDir := t.TempDir()
+	origDir, _ := os.Getwd()
+	defer func() { _ = os.Chdir(origDir) }()
+	_ = os.Chdir(tmpDir)
+	setupPromptFiles(t, tmpDir)
+
+	mock := &mockLLM{responses: []string{"response"}}
 	budget := 1000
-	runner, err := NewRunnerWithBudget("ralph", "task", mock, budget)
+	runner, err := NewRunnerWithBudget("ralph", "task", mock, nil, budget)
 	if err != nil {
 		t.Fatalf("NewRunnerWithBudget() returned error: %v", err)
 	}
 
-	br := runner.(*RalphRunner).BaseRunner
-	if br.Budget != budget {
-		t.Errorf("Expected budget %d, got %d", budget, br.Budget)
-	}
-}
-
-// TestNewRunnerWithBudgetZeroBudgetAllowed verifies zero budget is allowed.
-func TestNewRunnerWithBudgetZeroBudgetAllowed(t *testing.T) {
-	mock := &mockLLMClient{responses: []string{"response"}}
-	runner, err := NewRunnerWithBudget("lisa", "task", mock, 0)
-	if err != nil {
-		t.Fatalf("NewRunnerWithBudget(0) returned error: %v", err)
-	}
-
-	br := runner.(*LisaRunner).BaseRunner
-	if br.Budget != 0 {
-		t.Errorf("Expected budget 0, got %d", br.Budget)
+	a := runner.(*Agent)
+	if a.Budget != budget {
+		t.Errorf("Expected budget %d, got %d", budget, a.Budget)
 	}
 }

@@ -66,9 +66,10 @@ func TestAgent_Run_RobustFinishDetection(t *testing.T) {
 			mSB := &mockSandbox{
 				results: []*types.Result{{Stdout: "file.txt", ExitCode: 0}},
 			}
-			a := New("agent", "role", mLLM, mSB)
+			a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+			a.Task = "task"
 
-			err := a.Run(context.Background(), "task")
+			err := a.Run(context.Background())
 
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Run() error = %v, wantErr %v", err, tt.wantErr)

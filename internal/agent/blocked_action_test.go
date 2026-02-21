@@ -12,9 +12,10 @@ func TestAgent_Run_BlockedAction(t *testing.T) {
 		responses: []string{"ACTION: rm -rf / ; echo hi", "[[FINISH]]"},
 	}
 	mSB := &mockSandbox{}
-	a := New("agent", "role", mLLM, mSB)
+	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+	a.Task = "do something bad"
 
-	err := a.Run(context.Background(), "do something bad")
+	err := a.Run(context.Background())
 	if err != nil {
 		t.Fatalf("Run() unexpected error: %v", err)
 	}
@@ -41,9 +42,10 @@ func TestAgent_Run_AllowedAction_Redirection(t *testing.T) {
 	mSB := &mockSandbox{
 		results: []*types.Result{{Stdout: "", ExitCode: 0}},
 	}
-	a := New("agent", "role", mLLM, mSB)
+	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
+	a.Task = "write to file"
 
-	err := a.Run(context.Background(), "write to file")
+	err := a.Run(context.Background())
 	if err != nil {
 		t.Fatalf("Run() unexpected error: %v", err)
 	}
