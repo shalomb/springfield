@@ -1,8 +1,8 @@
 # PLAN.md - Springfield Product Backlog
 
-**Last Updated:** 2026-02-20 22:55 GMT+1  
-**Status:** EPIC-009 (Orchestrator) Complete & Shipped  
-**Next:** EPIC-005 Phase 2 (Governance & Agent Autonomy)
+**Last Updated:** 2026-02-21 16:30 GMT+1  
+**Status:** EPIC-009 Complete & Shipped; EPIC-005 Phase 2 (Structured Output) Active  
+**Next:** EPIC-005 Phase 2 - Ralph Ready
 
 ---
 
@@ -90,6 +90,31 @@
 - Lovejoy → claude-opus-4-6 (releases, high-stakes decisions)
 **Acceptance:** Production config reflects agent capabilities
 
+### **EPIC-005 Phase 2: Robust Structured Output Parsing (Active)** ⭐ HIGH PRIORITY
+**Status:** 🟢 READY FOR RALPH (TODO.md Complete, Handoff Prepared)
+**Epic Branch:** `feat/epic-005-structured-output`
+**Context Note for @Lisa**: When creating the execution context for @Ralph, include the sample output and error patterns found in `/tmp/pi-bash-f03f80a26e532ad4.log`. This log contains the baseline for "Phase 1" XML tag extraction and the successful test results for thought/action recovery.
+
+**Objective**: Move from regex-based "grepping" to a formal Lexical Parser that handles nested context (Markdown code blocks) and Semantic Contracts (`<promise>`).
+
+#### Task 1: Implement Lexical Sanitizer (Markdown Stripping)
+**Status:** ⏳ TODO (Ready for Ralph)
+**Details**: Create a parser that identifies and ignores triple-backtick blocks to prevent accidental execution of "mentioned" tags.
+**Estimated Effort:** 3-4 hours | **Priority:** HIGH
+**Test Strategy:** Sanitizer unit tests (10+ cases) + integration with action extraction
+
+#### Task 2: Semantic Contract Implementation (`<promise>`)
+**Status:** ⏳ TODO (Depends on Task 1)
+**Details**: Replace `[[FINISH]]` with `<promise>COMPLETE</promise>` and `<promise>FAILED</promise>`. Update agent loop to require a promise before state transition. Maintain backward compatibility with `[[FINISH]]`.
+**Estimated Effort:** 5-6 hours | **Priority:** HIGH
+**Test Strategy:** Promise unit tests (15+ cases) + BDD scenarios + agent loop integration
+
+#### Task 3: Native JSON Stream Integration
+**Status:** ⏳ TODO (Can parallel with Task 1, finalize after Tasks 1-2)
+**Details**: Switch `llm/pi.go` to use `pi --mode json`. Parse the event stream to capture deterministic token usage and cost metadata. Implement graceful fallback.
+**Estimated Effort:** 6-8 hours | **Priority:** MEDIUM
+**Test Strategy:** JSON parsing unit tests + cost calculation verification
+
 ---
 
 ## 🗂️ Backlog (Lower Priority)
@@ -145,15 +170,6 @@
 
 **Decision:** Keep configuration in place for documentation, skip implementation.
 
-### Streaming Output (ADR-011)
-
-Investigated but rejected for v0.5.0:
-- pi CLI outputs via JSON events (no text_delta events)
-- Real-time streaming adds complexity without MVP value
-- Post-execution analysis sufficient
-
-**Decision:** Defer to future iteration when pi CLI adds streaming support.
-
 ---
 
 ## 🎯 Definition of Done for v0.5.0
@@ -166,6 +182,53 @@ Investigated but rejected for v0.5.0:
 - [ ] CHANGELOG.md entry written (Lovejoy task)
 - [ ] v0.5.0 tag created on main (Lovejoy task)
 - [ ] Release notes published (Lovejoy task)
+
+---
+
+## 📚 Retrospective: EPIC-009 Learnings
+
+**Completed:** 2026-02-21  
+**Duration:** v0.4.0 → v0.5.0 (102 commits)  
+**Team:** Ralph (Build), Bart (Quality), Lovejoy (Release), Lisa (Planning)
+
+### What Went Well ✅
+
+1. **Orchestrator Design**
+   - Type-safe Go CLI simplified agent coordination
+   - Clean Agent interface made runner consolidation straightforward
+   - Worktree isolation prevented branch conflicts (zero conflicts reported)
+
+2. **Error Handling**
+   - Anthropic rate limit detection working correctly
+   - Graceful halt on quota exceeded (no infinite loops)
+   - User-friendly error messages show actual API responses
+
+3. **Test Coverage**
+   - 90%+ coverage achieved (41 unit + 16 BDD tests)
+   - All tests passing locally
+   - Atomic commit protocol maintained throughout
+
+### What We Learned 📖
+
+1. **Configuration Debt is Acceptable**
+   - Temperature stored in config but not used (pi CLI limitation)
+   - This is OK for MVP; revisit when pi adds `--temperature` support
+   - Lesson: Don't over-engineer for future features; document intent instead
+
+2. **External Dependencies Matter**
+   - pi CLI version determines feature availability
+   - Graceful degradation is more valuable than feature flags
+   - Lock version constraints explicitly to avoid surprises
+
+3. **Quota/Rate Limiting is Critical**
+   - Detecting API errors early prevents wasted cycles
+   - Showing actual error messages helps debugging
+   - Always add rate limit detection early in integrations
+
+4. **Worktree Isolation Works**
+   - Zero branch conflicts across parallel work
+   - Feature branches stay independent effectively
+   - Parallel agent work (Lisa/Ralph/Bart/Lovejoy) enabled by this
 
 ---
 
