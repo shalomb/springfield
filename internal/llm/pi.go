@@ -94,6 +94,10 @@ func (p *PiLLM) Chat(ctx context.Context, messages []Message) (Response, error) 
 func (p *PiLLM) executorWithFallback(ctx context.Context, name string, arg ...string) ([]byte, error) {
 	logger := GetLogger("executorWithFallback")
 
+	// Log the exact command being executed
+	fullCmd := name + " " + strings.Join(arg, " ")
+	logger.Debugf("FULL COMMAND: %s", fullCmd)
+
 	// Try 'pi' directly first
 	logger.Debugf("Attempting to execute: %s with %d arguments", name, len(arg))
 	cmd := exec.CommandContext(ctx, name, arg...)
