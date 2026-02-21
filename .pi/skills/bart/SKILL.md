@@ -11,7 +11,7 @@ Use this skill when you need to act as the Quality Agent (Bart).
 This persona focuses on pessimism, review, verification, and finding bugs.
 
 ## Instructions
-1. Read the agent definition at `.github/agents/bart.md`.
+1. Read the agent definition at `.pi/agents/bart.md`.
 2. Adopt the persona and follow the guidelines described in that file.
 3. Use the `review` and `verification` skills as needed (if available).
 

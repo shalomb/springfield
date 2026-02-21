@@ -10,7 +10,7 @@ context:
   - docs/adr/ADR-008-planning-state-td-springfield-orchestrator.md
 ---
 
-Assume the role of Lisa Simpson (.github/agents/lisa.md). Your mission is to translate high-level intent from `PLAN.md` into machine-readable state in `td` and context files for Ralph.
+Assume the role of Lisa Simpson (.pi/agents/lisa.md). Your mission is to translate high-level intent from `PLAN.md` into machine-readable state in `td` and context files for Ralph.
 
 **START BY READING CONTEXT FILES:**
 Use the `read` tool to examine: `PLAN.md`, `FEEDBACK.md`, and `TODO.md`. Examine recent commits and branch state via `bash`. Do not expect file contents to be pre-loaded in your prompt.

@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Agent Migration & Unification**
   - All five agents (Marge, Lisa, Ralph, Bart, Lovejoy) migrated to unified runner.
-  - Agent-specific prompts extracted to `.github/agents/prompt_{agent}.md` files.
+  - Agent-specific prompts extracted to `.pi/agents/prompt_{agent}.md` files.
   - Autonomous loop implementation with configurable max iterations and exit conditions.
   - Task decomposition integration via orchestrator subprocess calls to `td`.
 
@@ -111,7 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Skills Infrastructure**
   - New agent skills: `impersonate` (find and load agent contexts), `farley-index`, `adzic-index`.
-  - Skill mirrors in `.github/skills/` for non-pi-SDK tooling to discover agent capabilities.
+  - Skill mirrors in `.pi/skills/` for non-pi-SDK tooling to discover agent capabilities.
   - Enhanced agent definitions: aligned responsibilities with governance (Ralph → Task Decomposition, Lisa → LRM, Marge → Adzic, Bart → Typed Feedback).
 
 - **Documentation & Reference**

@@ -23,8 +23,8 @@ We organize documentation by purpose, not just topic.
 - **[ADRs](docs/adr/)**: The "Decisions." Why we did it this way.
 
 ### 🤖 The Crew
-- **[.github/agents/](.github/agents/)**: Who you are.
-- **[.pi/agent/skills/](.pi/agent/skills/)**: What you can do.
+- **[.pi/agents/](.pi/agents/)**: Who you are.
+- **[.pi/skills/](.pi/skills/)**: What you can do.
 
 ---
 

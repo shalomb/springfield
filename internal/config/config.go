@@ -31,12 +31,25 @@ func LoadPrompt(path string) (string, error) {
 }
 
 // GetPromptPath returns the path to a prompt markdown file for the given agent.
-// It searches in .github/prompts/ first, then .github/agents/.
+// It prioritizes global (~/.pi/) then local (.pi/) directories.
 func GetPromptPath(agent string) string {
+	home, _ := os.UserHomeDir()
 	cwd, _ := os.Getwd()
-	projectRoot := cwd
 
+	// Define search directories in order of priority
+	searchDirs := []string{}
+
+	// 1. Global User Directory (~/.pi)
+	if home != "" {
+		searchDirs = append(searchDirs,
+			filepath.Join(home, ".pi", "prompts"),
+			filepath.Join(home, ".pi", "agents"),
+		)
+	}
+
+	// 2. Project Local Directory (.pi)
 	// Try to find project root by looking for .git
+	projectRoot := cwd
 	tempDir := cwd
 	for {
 		if _, err := os.Stat(filepath.Join(tempDir, ".git")); err == nil {
@@ -49,12 +62,10 @@ func GetPromptPath(agent string) string {
 		}
 		tempDir = parent
 	}
-
-	// Define search locations and patterns
-	searchDirs := []string{
-		filepath.Join(projectRoot, ".github", "prompts"),
-		filepath.Join(projectRoot, ".github", "agents"),
-	}
+	searchDirs = append(searchDirs,
+		filepath.Join(projectRoot, ".pi", "prompts"),
+		filepath.Join(projectRoot, ".pi", "agents"),
+	)
 
 	// Try specific patterns
 	patterns := []string{
@@ -73,8 +84,8 @@ func GetPromptPath(agent string) string {
 		}
 	}
 
-	// Fallback
-	return filepath.Join(projectRoot, ".github", "agents", "prompt_"+agent+".md")
+	// Fallback to local .pi/agents
+	return filepath.Join(projectRoot, ".pi", "agents", "prompt_"+agent+".md")
 }
 
 // Config holds the Springfield configuration.
@@ -106,6 +117,7 @@ type SandboxConfig struct {
 }
 
 // LoadConfig loads the configuration from a .springfield.toml or config.toml file in the given directory.
+// It searches in the specified directory, then in XDG config paths.
 func LoadConfig(dir string) (*Config, error) {
 	cfg := &Config{
 		Agent: AgentConfig{
@@ -138,16 +150,26 @@ func LoadConfig(dir string) (*Config, error) {
 		},
 	}
 
-	// Try .springfield.toml first, then fall back to config.toml
-	paths := []string{
-		filepath.Join(dir, ".springfield.toml"),
-		filepath.Join(dir, "config.toml"),
+	// Define search paths in order of priority
+	home, _ := os.UserHomeDir()
+	configDirs := []string{dir}
+	if home != "" {
+		configDirs = append(configDirs, filepath.Join(home, ".config", "springfield"))
 	}
 
+	// Configuration file names to look for
+	configNames := []string{".springfield.toml", "config.toml", "config.yaml", "config.yml"}
+
 	var path string
-	for _, p := range paths {
-		if _, err := os.Stat(p); err == nil {
-			path = p
+	for _, d := range configDirs {
+		for _, name := range configNames {
+			p := filepath.Join(d, name)
+			if _, err := os.Stat(p); err == nil {
+				path = p
+				break
+			}
+		}
+		if path != "" {
 			break
 		}
 	}

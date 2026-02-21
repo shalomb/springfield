@@ -32,7 +32,7 @@ func TestRootCmd_NoArgs(t *testing.T) {
 func setupPromptFiles(t *testing.T, tmpDir string) {
 	agents := []string{"ralph", "lisa", "bart", "lovejoy", "marge"}
 	for _, a := range agents {
-		path := filepath.Join(tmpDir, ".github", "agents")
+		path := filepath.Join(tmpDir, ".pi", "agents")
 		_ = os.MkdirAll(path, 0755)
 		_ = os.WriteFile(filepath.Join(path, "prompt_"+a+".md"), []byte("You are "+a), 0644)
 	}

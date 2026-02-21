@@ -39,4 +39,4 @@ We will formally adopt **The Atomic Commit Protocol (ACP) 1.0.0** as the standar
 ## Implementation Plan
 1.  Create `docs/standards/atomic-commit-protocol.md` containing the spec.
 2.  Update `Justfile` recipes (e.g., `ralph`) to include ACP instructions in the system prompt.
-3.  Update Agent definitions in `.github/agents/`.
+3.  Update Agent definitions in `.pi/agents/`.

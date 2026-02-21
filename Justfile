@@ -133,12 +133,24 @@ install-tools:
 # =============================================================================
 
 install: build
-    @printf "Installing %s to %s/bin...\n" "{{BINARY_NAME}}" "$(go env GOPATH)"
+    #!/usr/bin/env bash
+    set -euo pipefail
+    printf "Installing %s to %s/bin...\n" "{{BINARY_NAME}}" "$(go env GOPATH)"
     go install ./cmd/springfield
-    @printf "Installing Springfield agents...\n"
-    @mkdir -p ~/.pi/agent/skills
-    @cp -r .pi/agent/skills/* ~/.pi/agent/skills/
-    @printf "✅ Installation complete\n"
+    printf "Installing Springfield resources to ~/.pi/...\n"
+    # Install all files from .pi/ to ~/.pi/ with read-only permissions
+    mkdir -p ~/.pi
+    find .pi -type f | while read -r file; do
+        target="$HOME/.pi/${file#.pi/}"
+        mkdir -p "$(dirname "$target")"
+        install -m 444 "$file" "$target"
+    done
+    printf "Installing default configuration to ~/.config/springfield/...\n"
+    mkdir -p ~/.config/springfield
+    if [ ! -f ~/.config/springfield/config.toml ]; then
+        install -m 644 config.toml ~/.config/springfield/config.toml
+    fi
+    printf "✅ Installation complete\n"
 
 # Generic agent runner
 agent name task:

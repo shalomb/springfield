@@ -311,9 +311,9 @@ which this ADR motivates and which will be specified in
   predictively by Lisa during option evaluation)
 - `docs/standards/atomic-commit-protocol.md` — Commit atomicity standard
   (constraint on Ralph's working layer)
-- `.github/agents/lisa.md` — Lisa's agent definition (to be updated)
-- `.github/agents/ralph.md` — Ralph's agent definition (to be updated)
-- `.github/agents/bart.md` — Bart's agent definition (to be updated)
+- `.pi/agents/lisa.md` — Lisa's agent definition (to be updated)
+- `.pi/agents/ralph.md` — Ralph's agent definition (to be updated)
+- `.pi/agents/bart.md` — Bart's agent definition (to be updated)
 - Adzic, G. — *Specification by Example*
 - Farley, D. — *Modern Software Engineering*
 - Last Responsible Moment:

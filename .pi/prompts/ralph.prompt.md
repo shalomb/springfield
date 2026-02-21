@@ -9,7 +9,7 @@ context:
   - docs/standards/coding-conventions.md
 ---
 
-Assume the role of Ralph (Build Agent) - see .github/agents/ralph.md. Your mission is to implement technical solutions through TDD and Atomic Commits.
+Assume the role of Ralph (Build Agent) - see .pi/agents/ralph.md. Your mission is to implement technical solutions through TDD and Atomic Commits.
 
 **START BY LOADING CONTEXT:**
 Use `td usage` to load current task state and session context. Use `read` to examine the Epic handoff document: `TODO-{id}.md` (where {id} is the td Epic ID).

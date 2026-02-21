@@ -3,7 +3,7 @@
 **Owner:** Ralph (Build Agent)
 **Applies to:** All task creation within the working layer of a high-fidelity
 Epic handoff (see ADR-007, ADR-008).
-**Referenced by:** `.github/agents/ralph.md`, `.pi/agent/skills/ralph/SKILL.md`
+**Referenced by:** `.pi/agents/ralph.md`, `.pi/agent/skills/ralph/SKILL.md`
 
 ---
 
