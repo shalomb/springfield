@@ -114,6 +114,9 @@ func (p *PiLLM) executorWithFallback(ctx context.Context, name string, arg ...st
 	logger.Debugf("About to call cmd.Run()")
 	err := cmd.Run()
 	logger.Debugf("cmd.Run() returned: err=%v", err)
+	if err != nil {
+		logger.Debugf("Error details: %T: %s", err, err.Error())
+	}
 
 	// Flush output streams to ensure they display immediately
 	_ = os.Stdout.Sync()

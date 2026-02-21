@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/shalomb/springfield/internal/agent"
 	"github.com/shalomb/springfield/internal/config"
@@ -80,7 +81,9 @@ var rootCmd = &cobra.Command{
 			return fmt.Errorf("error initializing sandbox: %w", err)
 		}
 
-		ctx := context.Background()
+		// Use a 60-second timeout for agent execution
+		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+		defer cancel()
 
 		// Create a specialized runner based on the agent type, with budget and sandbox
 		runner, err := agent.NewRunnerWithBudget(agentName, task, l, sandboxInst, agentCfg.Budget)
