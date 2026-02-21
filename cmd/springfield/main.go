@@ -120,7 +120,7 @@ var orchestrateCmd = &cobra.Command{
 		fmt.Println("Orchestration loop starting...")
 		tdClient := orchestrator.NewTDClient("")
 		worktreeManager := &orchestrator.WorktreeManager{BaseDir: "."}
-		agentRunner := &orchestrator.CommandAgentRunner{BinaryPath: os.Args[0]}
+		agentRunner := &orchestrator.CommandAgentRunner{BinaryPath: "springfield"}
 		orch := orchestrator.NewOrchestrator(tdClient, agentRunner, worktreeManager)
 
 		return orch.Tick()
