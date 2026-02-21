@@ -102,12 +102,20 @@ func (p *PiLLM) executorWithFallback(ctx context.Context, name string, arg ...st
 	logger.Debugf("Attempting to execute: %s with %d arguments", name, len(arg))
 	cmd := exec.CommandContext(ctx, name, arg...)
 
+	// CRITICAL: pi -p still waits for stdin to reach EOF, even in non-interactive mode.
+	// Create a pipe with closed writer so pi gets immediate EOF.
+	stdinReader, stdinWriter := io.Pipe()
+	_ = stdinWriter.Close() // Close immediately so pi sees EOF on first read
+	cmd.Stdin = stdinReader
+
 	var stdout, stderr bytes.Buffer
 	// Pipe stdout and stderr to both buffer and console for real-time visibility
 	cmd.Stdout = io.MultiWriter(&stdout, os.Stdout)
 	cmd.Stderr = io.MultiWriter(&stderr, os.Stderr)
 
+	logger.Debugf("About to call cmd.Run()")
 	err := cmd.Run()
+	logger.Debugf("cmd.Run() returned: err=%v", err)
 
 	// Flush output streams to ensure they display immediately
 	_ = os.Stdout.Sync()
