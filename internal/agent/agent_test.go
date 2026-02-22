@@ -479,17 +479,19 @@ func TestAgent_Run_SystemPromptTemplate(t *testing.T) {
 	mLLM := &mockLLM{responses: []string{"[[FINISH]]"}}
 	mSB := &mockSandbox{}
 	a := New(AgentProfile{
-		Name:         "agent",
-		Role:         "role",
+		Name:         "marge",
+		Role:         "product",
 		Sentinel:     validSentinel,
-		SystemPrompt: "Hello, your token is {{.Sentinel}}",
+		EpicID:       "epic-456",
+		SystemPrompt: "Hello {{.Name}}, your token is {{.Sentinel}} for epic {{.EpicID}}",
 	}, mLLM, mSB)
 	a.Task = "task"
 
 	_ = a.Run(context.Background())
 
 	sys := mLLM.received[0][0]
-	if !strings.Contains(sys.Content, "Hello, your token is session-123") {
+	expected := "Hello marge, your token is session-123 for epic epic-456"
+	if !strings.Contains(sys.Content, expected) {
 		t.Errorf("system prompt template replacement failed: %q", sys.Content)
 	}
 }

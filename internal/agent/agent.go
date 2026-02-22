@@ -1,11 +1,13 @@
 package agent
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
 	"regexp"
 	"strings"
+	"text/template"
 
 	"github.com/shalomb/axon/pkg/types"
 	"github.com/shalomb/springfield/internal/llm"
@@ -79,13 +81,33 @@ func (a *Agent) Run(ctx context.Context) error {
 		systemPrompt = fmt.Sprintf("You are %s, a %s.", a.Profile.Name, a.Profile.Role)
 	}
 
-	// Inject sentinel into system prompt if present
-	if a.Profile.Sentinel != "" {
-		systemPrompt = strings.Replace(systemPrompt, "{{.Sentinel}}", a.Profile.Sentinel, -1)
-		// Also ensure the agent knows how to use it if not explicitly in the template
-		if !strings.Contains(systemPrompt, a.Profile.Sentinel) {
-			systemPrompt += fmt.Sprintf("\n\nYour session sentinel is: %s\nTo exit, use: ACTION: springfield signal --sentinel %s --status <success|failed|blocked> --reason \"...\"", a.Profile.Sentinel, a.Profile.Sentinel)
+	// Template injection for system prompt
+	tmpl, err := template.New("systemPrompt").Parse(systemPrompt)
+	if err != nil {
+		a.log(fmt.Sprintf("Warning: Template parse error: %v. Using raw prompt.", err), "WARNING", nil, 0)
+	} else {
+		var buf bytes.Buffer
+		data := struct {
+			Name     string
+			Role     string
+			Sentinel string
+			EpicID   string
+		}{
+			Name:     a.Profile.Name,
+			Role:     a.Profile.Role,
+			Sentinel: a.Profile.Sentinel,
+			EpicID:   a.Profile.EpicID,
 		}
+		if err := tmpl.Execute(&buf, data); err != nil {
+			a.log(fmt.Sprintf("Warning: Template execution error: %v. Using raw prompt.", err), "WARNING", nil, 0)
+		} else {
+			systemPrompt = buf.String()
+		}
+	}
+
+	// Always ensure the agent knows its sentinel if it's set
+	if a.Profile.Sentinel != "" && !strings.Contains(systemPrompt, a.Profile.Sentinel) {
+		systemPrompt += fmt.Sprintf("\n\nYour session sentinel is: %s\nTo exit, use: ACTION: springfield signal --sentinel %s --status <success|failed|blocked> --reason \"...\"", a.Profile.Sentinel, a.Profile.Sentinel)
 	}
 
 	messages := []llm.Message{
