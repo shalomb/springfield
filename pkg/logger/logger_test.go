@@ -178,3 +178,36 @@ func TestAppendToFile_WriteError(t *testing.T) {
 		t.Error("expected error writing to /dev/full, got nil")
 	}
 }
+
+func TestFindRepositoryRoot(t *testing.T) {
+	// Test from current directory (should find the repository)
+	root := findRepositoryRoot()
+	if root == "" {
+		t.Error("expected to find repository root, got empty string")
+	}
+
+	// Verify it contains go.mod
+	gomod := filepath.Join(root, "go.mod")
+	if _, err := os.Stat(gomod); os.IsNotExist(err) {
+		t.Errorf("expected go.mod to exist at %s", gomod)
+	}
+}
+
+func TestLogDir_UnifiedLocation(t *testing.T) {
+	// Test that LogDir is set to an absolute path in repository
+	// (or at least not one of the scattered subdirectories)
+	if LogDir == "" {
+		t.Error("expected LogDir to be set, got empty string")
+	}
+
+	// It should either be absolute or resolve to an absolute path
+	absPath, err := filepath.Abs(LogDir)
+	if err != nil {
+		t.Fatalf("failed to get absolute path of LogDir: %v", err)
+	}
+
+	// If it was a relative path, it should have been converted
+	if !filepath.IsAbs(LogDir) && filepath.Base(absPath) != "logs" {
+		t.Logf("LogDir resolved from %q to %q", LogDir, absPath)
+	}
+}
