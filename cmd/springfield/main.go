@@ -21,8 +21,6 @@ var (
 	task       string
 	configPath string
 	sentinel   string
-	status     string
-	reason     string
 	epicID     string
 	daemon     bool
 )
@@ -159,84 +157,13 @@ var orchestrateCmd = &cobra.Command{
 	},
 }
 
-var signalCmd = &cobra.Command{
-	Use:   "signal",
-	Short: "Signal a state transition for an agent session",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if sentinel == "" || status == "" {
-			return fmt.Errorf("sentinel and status are required")
-		}
-
-		// Validate Sentinel
-		expectedSentinel := os.Getenv("SPRINGFIELD_SENTINEL")
-		if expectedSentinel != "" && sentinel != expectedSentinel {
-			return fmt.Errorf("invalid sentinel token")
-		}
-
-		// Valid statuses as per signaling-protocol.md
-		validStatuses := map[string]bool{
-			"success":  true,
-			"failed":   true,
-			"blocked":  true,
-			"complete": true,
-			"released": true,
-		}
-
-		statusLower := strings.ToLower(status)
-		if !validStatuses[statusLower] {
-			return fmt.Errorf("invalid status: %s", status)
-		}
-
-		cmd.Printf("Signaling status: %s\n", status)
-		if reason != "" {
-			cmd.Printf("Reason: %s\n", reason)
-		}
-
-		// Perform state transition via td if epicID is available
-		if epicID == "" {
-			epicID = os.Getenv("SPRINGFIELD_EPIC")
-		}
-
-		if epicID != "" {
-			tdClient := orchestrator.NewTDClient("")
-			// Map status to decision
-
-			agent := os.Getenv("SPRINGFIELD_AGENT")
-			decision := fmt.Sprintf("signal:%s", statusLower)
-
-			// Compatibility mapping for existing orchestrator
-			if agent == "ralph" && statusLower == "success" {
-				decision = "ralph_done"
-			} else if agent == "bart" {
-				if statusLower == "success" {
-					decision = "bart_ok"
-				} else if statusLower == "failed" {
-					decision = "bart_fail_implementation"
-				}
-			}
-
-			if err := tdClient.LogDecision(epicID, decision); err != nil {
-				return fmt.Errorf("failed to log decision to td: %w", err)
-			}
-			cmd.Printf("Logged decision to td: %s for epic %s\n", decision, epicID)
-		}
-
-		return nil
-	},
-}
-
 func init() {
 	rootCmd.AddCommand(orchestrateCmd)
-	rootCmd.AddCommand(signalCmd)
 	rootCmd.Flags().StringVarP(&agentName, "agent", "a", "", "Name of the agent (marge/lisa/ralph/bart/lovejoy)")
 	rootCmd.Flags().StringVarP(&task, "task", "t", "", "Task to execute")
 	rootCmd.Flags().StringVarP(&configPath, "config", "c", "", "Path to axon config.toml")
 	rootCmd.Flags().StringVar(&epicID, "epic", "", "Epic ID being worked on")
-
-	signalCmd.Flags().StringVar(&sentinel, "sentinel", "", "Session sentinel token")
-	signalCmd.Flags().StringVar(&status, "status", "", "Outcome status")
-	signalCmd.Flags().StringVar(&reason, "reason", "", "Optional reason for the signal")
-	signalCmd.Flags().StringVar(&epicID, "epic", "", "Epic ID being signaled")
+	rootCmd.Flags().StringVar(&sentinel, "sentinel", "", "Session sentinel token (injected by orchestrator)")
 
 	orchestrateCmd.Flags().BoolVarP(&daemon, "daemon", "d", false, "Run in daemon mode (persistent polling)")
 }

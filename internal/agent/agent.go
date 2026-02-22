@@ -3,6 +3,8 @@ package agent
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"regexp"
@@ -47,6 +49,7 @@ type Agent struct {
 	MaxIterations int
 	Budget        int // Max tokens per session (0 = unlimited)
 	TotalUsage    int // Track total tokens used
+	Sentinel      string
 }
 
 // New creates a new Agent with default settings.
@@ -55,12 +58,25 @@ func New(profile AgentProfile, l llm.LLMClient, s sandbox.Sandbox) *Agent {
 	if maxIterations == 0 {
 		maxIterations = 20
 	}
+
+	// Use provided sentinel or generate session sentinel
+	sentinel := profile.Sentinel
+	if sentinel == "" {
+		bytes := make([]byte, 4)
+		if _, err := rand.Read(bytes); err != nil {
+			// Fallback if rand fails (unlikely)
+			copy(bytes, []byte("fail"))
+		}
+		sentinel = hex.EncodeToString(bytes)
+	}
+
 	return &Agent{
 		Profile:       profile,
 		LLM:           l,
 		Sandbox:       s,
 		MaxRetries:    3,
 		MaxIterations: maxIterations,
+		Sentinel:      sentinel,
 	}
 }
 
@@ -95,7 +111,7 @@ func (a *Agent) Run(ctx context.Context) error {
 		}{
 			Name:     a.Profile.Name,
 			Role:     a.Profile.Role,
-			Sentinel: a.Profile.Sentinel,
+			Sentinel: a.Sentinel,
 			EpicID:   a.Profile.EpicID,
 		}
 		if err := tmpl.Execute(&buf, data); err != nil {
@@ -106,8 +122,8 @@ func (a *Agent) Run(ctx context.Context) error {
 	}
 
 	// Always ensure the agent knows its sentinel if it's set
-	if a.Profile.Sentinel != "" && !strings.Contains(systemPrompt, a.Profile.Sentinel) {
-		systemPrompt += fmt.Sprintf("\n\nYour session sentinel is: %s\nTo exit, use: ACTION: springfield signal --sentinel %s --status <success|failed|blocked> --reason \"...\"", a.Profile.Sentinel, a.Profile.Sentinel)
+	if a.Sentinel != "" && !strings.Contains(systemPrompt, a.Sentinel) {
+		systemPrompt += fmt.Sprintf("\n\nYour session sentinel is: %s\nTo exit, use: ACTION: springfield signal --sentinel %s --status <success|failed|blocked> --reason \"...\"", a.Sentinel, a.Sentinel)
 	}
 
 	messages := []llm.Message{
