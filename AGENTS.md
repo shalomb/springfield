@@ -48,6 +48,21 @@ We organize documentation by purpose, not just topic.
 4.  **Trust the TODO.** If `TODO.md` says one thing and the docs say another, follow the TODO.
 5.  **Follow the rules.** The [Atomic Commit Protocol](docs/standards/atomic-commit-protocol.md) isn't a suggestion.
 6.  **Test first.** Ralph, if you write code without a failing test, you're doing it wrong.
+7.  **No Littering.** Do NOT write status reports, analysis logs, or "thinking" files to the repository. Use `/tmp/` for scratchpads. If a finding is critical, summarize it in `PLAN.md` or `td` logs. Only code, tests, and permanent documentation belong in git.
 
 ---
-*Last Updated: 2026-02-19*
+
+## ⚠️ Important Technical Notes
+
+### Git Commits Must Be Signed
+- All commits must be GPG-signed: `git commit -S`
+- Signing is enforced by pre-commit hooks
+- If you encounter "gpg: cannot open '/dev/tty'" errors, the GPG key needs a passphrase in an interactive environment
+
+### Interactive Git Operations Require Non-Editor Execution
+- **Problem:** `git rebase -i` and similar commands launch `vim` by default, which will hang
+- **Solution:** Use environment variable to avoid editor: `GIT_SEQUENCE_EDITOR=true git rebase -i HEAD~N`
+- **Alternative:** Use `git reset --soft` and recommit for safer operations
+
+---
+*Last Updated: 2026-02-22*

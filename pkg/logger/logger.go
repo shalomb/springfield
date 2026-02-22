@@ -21,12 +21,49 @@ type Entry struct {
 	Data       map[string]interface{} `json:"data,omitempty"`
 }
 
-var LogDir = "logs"
+var LogDir string
 
 func init() {
+	// Priority:
+	// 1. Explicit environment variable
+	// 2. Use absolute path to repository logs directory (for test/cmd invocations)
+	// 3. Fall back to relative "logs" directory
 	if dir := os.Getenv("SPRINGFIELD_LOG_DIR"); dir != "" {
 		LogDir = dir
+	} else {
+		// Try to find the repository root by looking for go.mod
+		repoRoot := findRepositoryRoot()
+		if repoRoot != "" {
+			LogDir = filepath.Join(repoRoot, "logs")
+		} else {
+			// Fallback to relative path
+			LogDir = "logs"
+		}
 	}
+}
+
+// findRepositoryRoot searches upward from the current directory to find go.mod
+func findRepositoryRoot() string {
+	wd, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+
+	current := wd
+	for {
+		// Check if go.mod exists in this directory
+		if _, err := os.Stat(filepath.Join(current, "go.mod")); err == nil {
+			return current
+		}
+
+		parent := filepath.Dir(current)
+		if parent == current {
+			// Reached the root directory
+			break
+		}
+		current = parent
+	}
+	return ""
 }
 
 // Log writes a message to the agent's log file and the central springfield log file.
