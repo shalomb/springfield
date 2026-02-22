@@ -17,6 +17,11 @@ cmd/springfield/logs/
 tests/integration/logs/
 internal/agent/logs/
 
+# Integration test artifacts
+tests/integration/main.go
+tests/integration/PLAN.md
+tests/integration/sandbox_test.txt
+
 # Coverage
 coverage/
 *.out
@@ -38,3 +43,4 @@ REFINEMENT_*.md
 # Project
 logs
 worktrees
+tests/integration/main.go
