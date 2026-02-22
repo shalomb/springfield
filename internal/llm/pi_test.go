@@ -3,6 +3,7 @@ package llm
 import (
 	"context"
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -34,7 +35,24 @@ func TestPiLLM_Chat(t *testing.T) {
 			t.Error("user message not found in args")
 		}
 
-		return []byte("response from pi"), nil
+		foundMode := false
+		for i, arg := range args {
+			if arg == "--mode" {
+				if i+1 < len(args) && args[i+1] == "json" {
+					foundMode = true
+				}
+			}
+		}
+		if !foundMode {
+			t.Error("--mode json not found in args")
+		}
+
+		jsonOutput := `
+{"type":"message_start","message":{"role":"assistant","content":[]}}
+{"type":"message_update","assistantMessageEvent":{"type":"text_delta","delta":"response from pi"}}
+{"type":"turn_end","message":{"role":"assistant","content":[{"type":"text","text":"response from pi"}],"usage":{"input":10,"output":20,"totalTokens":30,"cost":{"total":0.00000375}}}}
+`
+		return []byte(jsonOutput), nil
 	}
 
 	p := &PiLLM{executor: mockExec}
@@ -50,6 +68,41 @@ func TestPiLLM_Chat(t *testing.T) {
 
 	if resp.Content != "response from pi" {
 		t.Errorf("expected 'response from pi', got %q", resp.Content)
+	}
+
+	if resp.TokenUsage.PromptTokens != 10 {
+		t.Errorf("expected PromptTokens 10, got %d", resp.TokenUsage.PromptTokens)
+	}
+	if resp.TokenUsage.CompletionTokens != 20 {
+		t.Errorf("expected CompletionTokens 20, got %d", resp.TokenUsage.CompletionTokens)
+	}
+	if resp.TokenUsage.TotalTokens != 30 {
+		t.Errorf("expected TotalTokens 30, got %d", resp.TokenUsage.TotalTokens)
+	}
+	if resp.TokenUsage.CostNanoDollars != 3750 {
+		t.Errorf("expected CostNanoDollars 3750, got %d", resp.TokenUsage.CostNanoDollars)
+	}
+}
+
+func TestPiLLM_Chat_JSONError(t *testing.T) {
+	mockExec := func(ctx context.Context, name string, args ...string) ([]byte, error) {
+		jsonOutput := `
+{"type":"agent_start"}
+{"type":"turn_start"}
+{"type":"turn_end","message":{"role":"assistant","content":[],"errorMessage":"Some API error"},"toolResults":[]}
+{"type":"agent_end"}
+`
+		return []byte(jsonOutput), nil
+	}
+
+	p := &PiLLM{executor: mockExec}
+	_, err := p.Chat(context.Background(), []Message{{Role: "user", Content: "hi"}})
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+
+	if !strings.Contains(err.Error(), "pi CLI error: Some API error") {
+		t.Errorf("expected error message to contain 'pi CLI error: Some API error', got %v", err)
 	}
 }
 

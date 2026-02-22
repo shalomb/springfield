@@ -33,6 +33,35 @@ type PiLLM struct {
 	executor func(ctx context.Context, name string, arg ...string) ([]byte, error)
 }
 
+// Structures for parsing JSON output from pi --mode json
+type piEvent struct {
+	Type    string    `json:"type"`
+	Message piMessage `json:"message"`
+}
+
+type piMessage struct {
+	Role         string      `json:"role"`
+	Content      []piContent `json:"content"`
+	Usage        piUsage     `json:"usage"`
+	ErrorMessage string      `json:"errorMessage"`
+}
+
+type piContent struct {
+	Type string `json:"type"`
+	Text string `json:"text"`
+}
+
+type piUsage struct {
+	Input       int    `json:"input"`
+	Output      int    `json:"output"`
+	TotalTokens int    `json:"totalTokens"`
+	Cost        piCost `json:"cost"`
+}
+
+type piCost struct {
+	Total float64 `json:"total"`
+}
+
 func (p *PiLLM) Chat(ctx context.Context, messages []Message) (Response, error) {
 	logger := GetLogger("PiLLM.Chat")
 
@@ -42,7 +71,8 @@ func (p *PiLLM) Chat(ctx context.Context, messages []Message) (Response, error) 
 		logger.Debugf("  Message %d (role=%s): %d chars", i, msg.Role, len(msg.Content))
 	}
 
-	args := []string{"-p", "--no-session"}
+	// Use --mode json to get structured output including token usage
+	args := []string{"-p", "--no-session", "--mode", "json"}
 
 	// Pass the model if configured
 	// The pi CLI does recognize "provider/model" format
@@ -83,9 +113,48 @@ func (p *PiLLM) Chat(ctx context.Context, messages []Message) (Response, error) 
 		return Response{}, err
 	}
 
-	// For now, pi CLI doesn't return token usage, so we'll leave it at zero.
-	response := Response{Content: string(out)}
-	logger.Debugf("LLM call completed. Response: %d chars", len(response.Content))
+	// Parse the output line-by-line as JSON
+	var response Response
+	lines := strings.Split(string(out), "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+
+		var event piEvent
+		if err := json.Unmarshal([]byte(line), &event); err != nil {
+			logger.Debugf("Failed to parse JSON line: %v (line: %s)", err, line)
+			continue
+		}
+
+		// Look for 'turn_end' which contains full content and usage
+		if event.Type == "turn_end" {
+			// Check for error in message
+			if event.Message.ErrorMessage != "" {
+				return Response{}, fmt.Errorf("pi CLI error: %s", event.Message.ErrorMessage)
+			}
+
+			// Extract content
+			for _, content := range event.Message.Content {
+				if content.Type == "text" {
+					response.Content += content.Text
+				}
+			}
+
+			// Extract usage
+			response.TokenUsage.PromptTokens = event.Message.Usage.Input
+			response.TokenUsage.CompletionTokens = event.Message.Usage.Output
+			response.TokenUsage.TotalTokens = event.Message.Usage.TotalTokens
+			response.TokenUsage.CostNanoDollars = int64(event.Message.Usage.Cost.Total * 1000000000.0)
+		}
+	}
+
+	logger.Debugf("LLM call completed. Response: %d chars. Usage: %d/%d/%d",
+		len(response.Content),
+		response.TokenUsage.PromptTokens,
+		response.TokenUsage.CompletionTokens,
+		response.TokenUsage.TotalTokens)
 	return response, nil
 }
 

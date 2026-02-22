@@ -2,11 +2,12 @@ package llm
 
 import "context"
 
-// TokenUsage represents the token counts for an LLM response.
+// TokenUsage represents the token counts and cost for an LLM response.
 type TokenUsage struct {
 	PromptTokens     int
 	CompletionTokens int
 	TotalTokens      int
+	CostNanoDollars  int64 // Cost in 1/1,000,000,000 of a dollar
 }
 
 // Response represents a full response from an LLM.
