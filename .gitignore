@@ -38,3 +38,5 @@ REFINEMENT_*.md
 # Project
 logs
 worktrees
+.td
+.sidecar
