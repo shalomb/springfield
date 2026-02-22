@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+
+	"github.com/gofrs/uuid"
 )
 
 // AgentRunner provides an interface for running agents.
@@ -30,11 +32,29 @@ type CommandAgentRunner struct {
 }
 
 func (r *CommandAgentRunner) Run(agent string, epicID string, worktreeDir string) error {
-	log.Printf("INVOKING AGENT: %s for Epic %s (binary: %s) in worktree %s", agent, epicID, r.BinaryPath, worktreeDir)
-	cmd := exec.Command(r.BinaryPath, "--agent", agent, "--task", fmt.Sprintf("Work on epic %s", epicID))
+	sentinel, _ := uuid.NewV4()
+	sentinelStr := sentinel.String()
+
+	log.Printf("INVOKING AGENT: %s for Epic %s (binary: %s) in worktree %s [sentinel: %s]",
+		agent, epicID, r.BinaryPath, worktreeDir, sentinelStr)
+
+	cmd := exec.Command(r.BinaryPath,
+		"--agent", agent,
+		"--task", fmt.Sprintf("Work on epic %s", epicID),
+		"--sentinel", sentinelStr,
+		"--epic", epicID,
+	)
 	cmd.Dir = worktreeDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+
+	// Inject environment variables for the agent and its signal command
+	cmd.Env = append(os.Environ(),
+		fmt.Sprintf("SPRINGFIELD_SENTINEL=%s", sentinelStr),
+		fmt.Sprintf("SPRINGFIELD_EPIC=%s", epicID),
+		fmt.Sprintf("SPRINGFIELD_AGENT=%s", agent),
+	)
+
 	return cmd.Run()
 }
 
