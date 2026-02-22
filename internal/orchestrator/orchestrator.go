@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 
 	"sync"
 	"time"
@@ -45,8 +46,8 @@ func (r *CommandAgentRunner) Run(agent string, epicID string, worktreeDir string
 	sentinel, _ := uuid.NewV4()
 	sentinelStr := sentinel.String()
 
-	log.Printf("INVOKING AGENT: %s for Epic %s (binary: %s) in worktree %s [sentinel: %s]",
-		agent, epicID, r.BinaryPath, worktreeDir, sentinelStr)
+	log.Printf("INVOKING AGENT: %s for Epic %s (binary: %s) in worktree %s",
+		agent, epicID, r.BinaryPath, worktreeDir)
 
 	cmd := exec.Command(r.BinaryPath,
 		"--agent", agent,
@@ -58,12 +59,32 @@ func (r *CommandAgentRunner) Run(agent string, epicID string, worktreeDir string
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	// Inject environment variables for the agent and its signal command
-	cmd.Env = append(os.Environ(),
+	// Build a clean environment to avoid duplicate variables
+	// First, remove any existing Springfield control plane variables
+	varNames := map[string]bool{
+		"SPRINGFIELD_SENTINEL": true,
+		"SPRINGFIELD_EPIC":     true,
+		"SPRINGFIELD_AGENT":    true,
+	}
+
+	cleanEnv := []string{}
+	for _, e := range os.Environ() {
+		if idx := strings.Index(e, "="); idx >= 0 {
+			name := e[:idx]
+			if !varNames[name] {
+				cleanEnv = append(cleanEnv, e)
+			}
+		}
+	}
+
+	// Now inject fresh Springfield variables
+	cleanEnv = append(cleanEnv,
 		fmt.Sprintf("SPRINGFIELD_SENTINEL=%s", sentinelStr),
 		fmt.Sprintf("SPRINGFIELD_EPIC=%s", epicID),
 		fmt.Sprintf("SPRINGFIELD_AGENT=%s", agent),
 	)
+
+	cmd.Env = cleanEnv
 
 	return cmd.Run()
 }
