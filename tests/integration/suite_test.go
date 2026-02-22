@@ -32,6 +32,7 @@ func TestFeatures(t *testing.T) {
 			InitializeFeedbackLoopScenario(ctx)
 			InitializeGovernanceScenario(ctx)
 			InitializePromiseScenario(ctx)
+			InitializeUnifiedRunnerScenario(ctx)
 		},
 		Options: &opts,
 	}

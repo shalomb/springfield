@@ -62,7 +62,7 @@ func (t *governanceTest) aProjectConfigurationWithABudgetOfTokens(budget int) er
 func (t *governanceTest) anAgentIsConfiguredWithAModelThatUsesTokensPerCall(tokens int) error {
 	t.mockLLM = &govMockLLM{}
 	t.agent = agent.New(agent.AgentProfile{Name: "ralph", Role: "Build Agent"}, t.mockLLM, &simpleMockSB{})
-	t.agent.Budget = t.cfg.Agent.Budget
+	t.agent.BudgetTokens = t.cfg.Agent.Budget
 	return nil
 }
 
