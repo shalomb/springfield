@@ -24,6 +24,7 @@ var (
 	status     string
 	reason     string
 	epicID     string
+	daemon     bool
 )
 
 var rootCmd = &cobra.Command{
@@ -144,7 +145,17 @@ var orchestrateCmd = &cobra.Command{
 		agentRunner := &orchestrator.CommandAgentRunner{BinaryPath: "springfield"}
 		orch := orchestrator.NewOrchestrator(tdClient, agentRunner, worktreeManager)
 
-		return orch.Tick()
+		if !daemon {
+			return orch.Tick()
+		}
+
+		fmt.Println("Daemon mode active. Polling td...")
+		for {
+			if err := orch.Tick(); err != nil {
+				fmt.Fprintf(os.Stderr, "Orchestration error: %v\n", err)
+			}
+			time.Sleep(5 * time.Second)
+		}
 	},
 }
 
@@ -226,6 +237,8 @@ func init() {
 	signalCmd.Flags().StringVar(&status, "status", "", "Outcome status")
 	signalCmd.Flags().StringVar(&reason, "reason", "", "Optional reason for the signal")
 	signalCmd.Flags().StringVar(&epicID, "epic", "", "Epic ID being signaled")
+
+	orchestrateCmd.Flags().BoolVarP(&daemon, "daemon", "d", false, "Run in daemon mode (persistent polling)")
 }
 
 func main() {
