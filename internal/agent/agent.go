@@ -31,6 +31,8 @@ type AgentProfile struct {
 	ToolsEnabled  []string
 	FinishMarker  string
 	MaxIterations int
+	Sentinel      string
+	EpicID        string
 }
 
 // Agent represents an autonomous agent.
@@ -75,6 +77,15 @@ func (a *Agent) Run(ctx context.Context) error {
 	systemPrompt := a.Profile.SystemPrompt
 	if systemPrompt == "" {
 		systemPrompt = fmt.Sprintf("You are %s, a %s.", a.Profile.Name, a.Profile.Role)
+	}
+
+	// Inject sentinel into system prompt if present
+	if a.Profile.Sentinel != "" {
+		systemPrompt = strings.Replace(systemPrompt, "{{.Sentinel}}", a.Profile.Sentinel, -1)
+		// Also ensure the agent knows how to use it if not explicitly in the template
+		if !strings.Contains(systemPrompt, a.Profile.Sentinel) {
+			systemPrompt += fmt.Sprintf("\n\nYour session sentinel is: %s\nTo exit, use: ACTION: springfield signal --sentinel %s --status <success|failed|blocked> --reason \"...\"", a.Profile.Sentinel, a.Profile.Sentinel)
+		}
 	}
 
 	messages := []llm.Message{
@@ -169,6 +180,15 @@ func (a *Agent) Run(ctx context.Context) error {
 				if i == a.MaxRetries {
 					a.log("Max retries reached for Sandbox execution.", "ERROR", nil, 0)
 					return err
+				}
+			}
+
+			// Intercept signal command *after* sandbox execution to decide if we exit
+			if isSignalAction(action) && result.ExitCode == 0 {
+				sentinel, ok := extractSentinel(action)
+				if ok && sentinel == a.Profile.Sentinel {
+					a.log("Intercepted successful signal, exiting loop.", "INFO", nil, 0)
+					return a.finish(resp.Content, thought)
 				}
 			}
 
@@ -317,4 +337,18 @@ func isUnsafeAction(action string) bool {
 	}
 
 	return false
+}
+
+func isSignalAction(action string) bool {
+	return strings.HasPrefix(action, "springfield signal")
+}
+
+func extractSentinel(action string) (string, bool) {
+	// Simple regex to find --sentinel value
+	re := regexp.MustCompile(`--sentinel\s+([^\s]+)`)
+	matches := re.FindStringSubmatch(action)
+	if len(matches) < 2 {
+		return "", false
+	}
+	return matches[1], true
 }
