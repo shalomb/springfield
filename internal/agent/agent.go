@@ -378,12 +378,18 @@ func isUnsafeAction(action string) bool {
 }
 
 func isSignalAction(action string) bool {
-	return strings.HasPrefix(action, "springfield signal")
+	// Must be a signal command at the start AND must not contain newlines
+	// (signals are single-line commands; multiline indicates a malformed action)
+	if !strings.HasPrefix(action, "springfield signal") {
+		return false
+	}
+	return !strings.Contains(action, "\n")
 }
 
 func extractSentinel(action string) (string, bool) {
-	// Simple regex to find --sentinel value
-	re := regexp.MustCompile(`--sentinel\s+([^\s]+)`)
+	// Extract sentinel only if it matches UUIDv4 format (8-4-4-4-12 hex chars)
+	// This prevents injection of arbitrary values like flags, paths, or command substitutions
+	re := regexp.MustCompile(`--sentinel\s+([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})`)
 	matches := re.FindStringSubmatch(action)
 	if len(matches) < 2 {
 		return "", false
