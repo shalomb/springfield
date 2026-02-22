@@ -88,12 +88,18 @@ func GetPromptPath(agent string) string {
 	return filepath.Join(projectRoot, ".pi", "agents", "prompt_"+agent+".md")
 }
 
-// Config holds the Springfield configuration.
 type Config struct {
 	Agent   AgentConfig            `toml:"agent"`
 	Agents  map[string]AgentConfig `toml:"agents"`
 	Sandbox SandboxConfig          `toml:"sandbox"`
 	Env     map[string]string      `toml:"env"`
+	Budget  GlobalBudgetConfig     `toml:"budget"`
+}
+
+// GlobalBudgetConfig holds global budget limits.
+type GlobalBudgetConfig struct {
+	DailyBudgetTokens int     `toml:"daily_budget_tokens"`
+	DailyMaxCost      float64 `toml:"daily_max_cost"`
 }
 
 // AgentConfig holds agent-specific settings.
@@ -103,11 +109,12 @@ type AgentConfig struct {
 	// - "anthropic/claude-opus-4-1" (explicit provider)
 	// - "openai/gpt-4o" (explicit provider)
 	// - "google-gemini-cli/gemini-2.0-flash" (explicit provider)
-	Model         string `toml:"model"`          // Default model or primary model
-	PrimaryModel  string `toml:"primary_model"`  // Override for primary model (can include provider)
-	FallbackModel string `toml:"fallback_model"` // Fallback model (can include provider)
-	MaxIterations int    `toml:"max_iterations"`
-	Budget        int    `toml:"budget"`
+	Model         string  `toml:"model"`          // Default model or primary model
+	PrimaryModel  string  `toml:"primary_model"`  // Override for primary model (can include provider)
+	FallbackModel string  `toml:"fallback_model"` // Fallback model (can include provider)
+	MaxIterations int     `toml:"max_iterations"`
+	Budget        int     `toml:"budget"`   // Max tokens per session
+	MaxCost       float64 `toml:"max_cost"` // Max cost in dollars per session
 }
 
 // SandboxConfig holds sandbox/Axon-specific settings.
@@ -212,6 +219,9 @@ func (c *Config) mergeWithDefaults(agentConfig AgentConfig) AgentConfig {
 	}
 	if agentConfig.Budget == 0 {
 		agentConfig.Budget = c.Agent.Budget
+	}
+	if agentConfig.MaxCost == 0 {
+		agentConfig.MaxCost = c.Agent.MaxCost
 	}
 	return agentConfig
 }

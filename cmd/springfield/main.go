@@ -9,6 +9,7 @@ import (
 
 	"github.com/shalomb/springfield/internal/agent"
 	"github.com/shalomb/springfield/internal/config"
+	"github.com/shalomb/springfield/internal/governance"
 	"github.com/shalomb/springfield/internal/llm"
 	"github.com/shalomb/springfield/internal/orchestrator"
 	"github.com/shalomb/springfield/internal/sandbox"
@@ -85,8 +86,17 @@ var rootCmd = &cobra.Command{
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 		defer cancel()
 
+		// Initialize usage tracker for daily budgets
+		logDir := os.Getenv("SPRINGFIELD_LOG_DIR")
+		if logDir == "" {
+			logDir = "logs"
+		}
+		tracker := governance.NewUsageTracker(logDir)
+
 		// Create a specialized runner based on the agent type, with budget and sandbox
-		runner, err := agent.NewRunnerWithBudget(agentName, task, l, sandboxInst, agentCfg.Budget)
+		runner, err := agent.NewRunnerWithBudget(agentName, task, l, sandboxInst,
+			agentCfg.Budget, agentCfg.MaxCost,
+			cfg.Budget.DailyBudgetTokens, cfg.Budget.DailyMaxCost, tracker)
 		if err != nil {
 			return fmt.Errorf("error creating runner for agent %s: %w", agentName, err)
 		}
