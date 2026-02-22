@@ -6,6 +6,9 @@ import (
 	"os"
 	"os/exec"
 
+	"sync"
+	"time"
+
 	"github.com/gofrs/uuid"
 )
 
@@ -19,11 +22,18 @@ type Orchestrator struct {
 	TD       *TDClient
 	Agent    AgentRunner
 	Worktree *WorktreeManager
+	workers  map[string]bool
+	mu       sync.Mutex
 }
 
 // NewOrchestrator creates a new Orchestrator.
 func NewOrchestrator(td *TDClient, agent AgentRunner, worktree *WorktreeManager) *Orchestrator {
-	return &Orchestrator{TD: td, Agent: agent, Worktree: worktree}
+	return &Orchestrator{
+		TD:       td,
+		Agent:    agent,
+		Worktree: worktree,
+		workers:  make(map[string]bool),
+	}
 }
 
 // CommandAgentRunner runs agents by executing the springfield binary.
@@ -67,14 +77,42 @@ func (o *Orchestrator) Tick() error {
 	}
 
 	for _, id := range ids {
-		log.Printf("Processing Epic %s", id)
-		if err := o.processEpic(id); err != nil {
-			log.Printf("Error processing Epic %s: %v", id, err)
-			return err // Return error to stop Tick if an epic fails
+		o.mu.Lock()
+		if o.workers[id] {
+			o.mu.Unlock()
+			continue // Already processing
 		}
+		o.workers[id] = true
+		o.mu.Unlock()
+
+		go func(epicID string) {
+			defer func() {
+				o.mu.Lock()
+				delete(o.workers, epicID)
+				o.mu.Unlock()
+			}()
+
+			log.Printf("Processing Epic %s", epicID)
+			if err := o.processEpic(epicID); err != nil {
+				log.Printf("Error processing Epic %s: %v", epicID, err)
+			}
+		}(id)
 	}
 
 	return nil
+}
+
+// Wait blocks until all active worker goroutines have finished.
+func (o *Orchestrator) Wait() {
+	for {
+		o.mu.Lock()
+		count := len(o.workers)
+		o.mu.Unlock()
+		if count == 0 {
+			return
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
 }
 
 func (o *Orchestrator) processEpic(id string) error {

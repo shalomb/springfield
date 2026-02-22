@@ -42,6 +42,7 @@ func TestOrchestrator_Tick(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	orch.Wait()
 	ids, _ := client.QueryIDs("status = in_progress")
 	if len(ids) != 1 {
 		t.Fatalf("expected 1 in_progress epic, got %d", len(ids))
@@ -61,6 +62,7 @@ func TestOrchestrator_Tick(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	orch.Wait()
 	epic, _ := client.GetEpic(id)
 	if epic.Status != "in_review" {
 		t.Errorf("expected in_review status, got %s", epic.Status)
@@ -79,6 +81,7 @@ func TestOrchestrator_Tick(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	orch.Wait()
 	epic, _ = client.GetEpic(id) // Re-fetch HERE
 	if epic.Status != "blocked" {
 		t.Errorf("expected blocked status after failure, got %s", epic.Status)
@@ -98,6 +101,7 @@ func TestOrchestrator_Tick(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	orch.Wait()
 	epic, _ = client.GetEpic(id)
 	if epic.Status != "in_progress" {
 		t.Errorf("expected in_progress status after Lisa fix, got %s", epic.Status)
@@ -116,6 +120,7 @@ func TestOrchestrator_Tick(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	orch.Wait()
 	epic, _ = client.GetEpic(id)
 	if epic.Status != "in_review" {
 		t.Errorf("expected in_review status after retry, got %s", epic.Status)
@@ -134,6 +139,7 @@ func TestOrchestrator_Tick(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	orch.Wait()
 	epic, _ = client.GetEpic(id)
 	if epic.Status != "blocked" {
 		t.Errorf("expected blocked status, got %s", epic.Status)
@@ -180,11 +186,12 @@ func TestOrchestrator_StrictHandoff(t *testing.T) {
 	agentRunner := &mockAgentRunner{}
 	orch := NewOrchestrator(client, agentRunner, wm)
 
-	// Tick should fail because handoff file is missing
+	// Tick should NOT fail directly (async), but status should NOT change
 	err = orch.Tick()
-	if err == nil {
-		t.Error("expected Tick to fail due to missing handoff file, but it succeeded")
+	if err != nil {
+		t.Fatal(err)
 	}
+	orch.Wait()
 
 	// Verify it's still 'open' (or at least not in_progress if it failed early)
 	epic, _ := client.GetEpic(id)
