@@ -84,13 +84,13 @@ func TestNewRunnerWithBudgetSetsBudget(t *testing.T) {
 
 	mock := &mockLLM{responses: []string{"response"}}
 	budget := 1000
-	runner, err := NewRunnerWithBudget("ralph", "task", mock, nil, budget)
+	runner, err := NewRunnerWithBudget("ralph", "task", mock, nil, budget, 0, 0, 0, nil)
 	if err != nil {
 		t.Fatalf("NewRunnerWithBudget() returned error: %v", err)
 	}
 
 	a := runner.(*Agent)
-	if a.Budget != budget {
-		t.Errorf("Expected budget %d, got %d", budget, a.Budget)
+	if a.BudgetTokens != budget {
+		t.Errorf("Expected budget %d, got %d", budget, a.BudgetTokens)
 	}
 }

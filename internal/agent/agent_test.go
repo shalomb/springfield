@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/shalomb/axon/pkg/types"
+	"github.com/shalomb/springfield/internal/governance"
 	"github.com/shalomb/springfield/internal/llm"
 )
 
@@ -442,7 +443,7 @@ func TestAgent_Run_BudgetExceeded(t *testing.T) {
 	}
 	a := New(AgentProfile{Name: "agent", Role: "role"}, mLLM, mSB)
 	a.Task = "list files"
-	a.Budget = 30 // Initial budget is 30 tokens
+	a.BudgetTokens = 30 // Initial budget is 30 tokens
 	// In mockLLM, each call consumes 20 tokens.
 	// First call: 20 tokens used. Remaining: 10.
 	// Second call should fail because it would exceed budget (20 > 10).
@@ -476,5 +477,92 @@ func TestIsUnsafeAction(t *testing.T) {
 		if got != tt.unsafe {
 			t.Errorf("isUnsafeAction(%q) = %v, want %v", tt.action, got, tt.unsafe)
 		}
+	}
+}
+
+func TestAgent_CostAggregation(t *testing.T) {
+	mockLLMClient := &mockLLM{
+		responses: []string{"ACTION: ls", "[[FINISH]]"},
+	}
+	mockSandboxClient := &mockSandbox{
+		results: []*types.Result{{ExitCode: 0, Stdout: "file.txt"}},
+	}
+	a := New(AgentProfile{Name: "test"}, mockLLMClient, mockSandboxClient)
+
+	ctx := context.Background()
+	if err := a.Run(ctx); err != nil {
+		t.Fatalf("Run failed: %v", err)
+	}
+
+	// 2 LLM calls, each with 10 prompt + 10 completion tokens = 20 total.
+	// Total tokens: 40.
+	if a.TotalUsage != 40 {
+		t.Errorf("expected 40 total tokens, got %d", a.TotalUsage)
+	}
+
+	// Cost per call (fallback):
+	// 10 tokens * 75 nano + 10 tokens * 300 nano = 750 + 3000 = 3750 nano-dollars per call.
+	// Total for 2 calls: 7500 nano-dollars.
+
+	if a.TotalCostNanoDollars != 7500 {
+		t.Errorf("expected 7500 nano-dollars total cost, got %d", a.TotalCostNanoDollars)
+	}
+}
+
+func TestAgent_Run_CostBudgetExceeded(t *testing.T) {
+	mockLLMClient := &mockLLM{
+		responses: []string{"ACTION: ls", "[[FINISH]]"},
+	}
+	mockSandboxClient := &mockSandbox{
+		results: []*types.Result{{ExitCode: 0, Stdout: "file.txt"}},
+	}
+	a := New(AgentProfile{Name: "test"}, mockLLMClient, mockSandboxClient)
+
+	// Set a very low cost budget: 1000 nano-dollars (/bin/bash.000001)
+	// Each mock LLM call uses 10+10=20 tokens.
+	// Fallback cost: 10*75 + 10*300 = 3750 nano-dollars per call.
+	a.MaxCostNanoDollars = 1000
+
+	ctx := context.Background()
+	err := a.Run(ctx)
+	if err == nil {
+		t.Fatal("expected error due to cost budget exceed, got nil")
+	}
+	if !strings.Contains(err.Error(), "cost budget exceeded") {
+		t.Errorf("unexpected error message: %v", err)
+	}
+}
+
+func TestAgent_Run_DailyBudgetExceeded(t *testing.T) {
+	mockLLMClient := &mockLLM{
+		responses: []string{"ACTION: ls", "[[FINISH]]"},
+	}
+	mockSandboxClient := &mockSandbox{
+		results: []*types.Result{{ExitCode: 0, Stdout: "file.txt"}},
+	}
+	a := New(AgentProfile{Name: "test"}, mockLLMClient, mockSandboxClient)
+
+	tmpDir := t.TempDir()
+	tracker := governance.NewUsageTracker(tmpDir)
+
+	// Pre-record some usage to exceed daily budget
+	// Budget is 50 tokens today.
+	a.DailyBudgetTokens = 50
+	a.Tracker = tracker
+
+	// Record 40 tokens already used today
+	err := tracker.RecordUsage(40, 0)
+	if err != nil {
+		t.Fatalf("RecordUsage failed: %v", err)
+	}
+
+	ctx := context.Background()
+	// Next call will use 20 tokens, making total 60, which exceeds 50.
+	err = a.Run(ctx)
+	if err == nil {
+		t.Fatal("expected error due to daily budget exceed, got nil")
+	}
+	if !strings.Contains(err.Error(), "daily token budget exceeded") {
+		t.Errorf("unexpected error message: %v", err)
 	}
 }

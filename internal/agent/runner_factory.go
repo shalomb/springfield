@@ -5,17 +5,19 @@ import (
 	"strings"
 
 	"github.com/shalomb/springfield/internal/config"
+	"github.com/shalomb/springfield/internal/governance"
 	"github.com/shalomb/springfield/internal/llm"
 	"github.com/shalomb/springfield/internal/sandbox"
 )
 
 // NewRunner creates a specialized runner based on the agent name.
 func NewRunner(agentName string, task string, llmClient llm.LLMClient) (Runner, error) {
-	return NewRunnerWithBudget(agentName, task, llmClient, nil, 0)
+	return NewRunnerWithBudget(agentName, task, llmClient, nil, 0, 0, 0, 0, nil)
 }
 
 // NewRunnerWithBudget creates a specialized runner with a specified budget and optional sandbox.
-func NewRunnerWithBudget(agentName string, task string, llmClient llm.LLMClient, sb sandbox.Sandbox, budget int) (Runner, error) {
+func NewRunnerWithBudget(agentName string, task string, llmClient llm.LLMClient, sb sandbox.Sandbox,
+	budget int, maxCost float64, dailyBudget int, dailyMaxCost float64, tracker *governance.UsageTracker) (Runner, error) {
 	normalizedAgent := strings.ToLower(agentName)
 
 	profile, err := GetAgentProfile(normalizedAgent)
@@ -23,13 +25,13 @@ func NewRunnerWithBudget(agentName string, task string, llmClient llm.LLMClient,
 		return nil, err
 	}
 
-	// We'll transition to using the unified Agent as the primary Runner
-	// For now, we keep the specialized ones for compatibility if needed,
-	// but the goal is to migrate all to the Agent struct.
-
 	a := New(profile, llmClient, sb)
 	a.Task = task
-	a.Budget = budget
+	a.BudgetTokens = budget
+	a.MaxCostNanoDollars = int64(maxCost * 1000000000.0)
+	a.DailyBudgetTokens = dailyBudget
+	a.DailyMaxCostNano = int64(dailyMaxCost * 1000000000.0)
+	a.Tracker = tracker
 
 	return a, nil
 }

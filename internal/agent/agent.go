@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/shalomb/axon/pkg/types"
+	"github.com/shalomb/springfield/internal/governance"
 	"github.com/shalomb/springfield/internal/llm"
 	"github.com/shalomb/springfield/internal/parser"
 	"github.com/shalomb/springfield/internal/sandbox"
@@ -35,14 +36,19 @@ type AgentProfile struct {
 
 // Agent represents an autonomous agent.
 type Agent struct {
-	Profile       AgentProfile
-	Task          string
-	LLM           llm.LLMClient
-	Sandbox       sandbox.Sandbox
-	MaxRetries    int
-	MaxIterations int
-	Budget        int // Max tokens per session (0 = unlimited)
-	TotalUsage    int // Track total tokens used
+	Profile              AgentProfile
+	Task                 string
+	LLM                  llm.LLMClient
+	Sandbox              sandbox.Sandbox
+	MaxRetries           int
+	MaxIterations        int
+	BudgetTokens         int   // Max tokens per session (0 = unlimited)
+	MaxCostNanoDollars   int64 // Max cost per session in nano-dollars (0 = unlimited)
+	DailyBudgetTokens    int   // Max tokens per day (0 = unlimited)
+	DailyMaxCostNano     int64 // Max cost per day in nano-dollars (0 = unlimited)
+	TotalUsage           int   // Track total tokens used
+	TotalCostNanoDollars int64 // Track total cost in nano-dollars
+	Tracker              *governance.UsageTracker
 }
 
 // New creates a new Agent with default settings.
@@ -60,8 +66,9 @@ func New(profile AgentProfile, l llm.LLMClient, s sandbox.Sandbox) *Agent {
 	}
 }
 
-func (a *Agent) log(message, level string, tokenUsage interface{}, cost float64) {
-	if err := logger.Log(message, level, a.Profile.Name, "", "", tokenUsage, cost, nil); err != nil {
+func (a *Agent) log(message, level string, tokenUsage interface{}, costNanoDollars int64) {
+	costDollars := float64(costNanoDollars) / 1000000000.0
+	if err := logger.Log(message, level, a.Profile.Name, "", "", tokenUsage, costDollars, nil); err != nil {
 		fmt.Fprintf(os.Stderr, "CRITICAL: Logger failed: %v\nMessage was: %s\n", err, message)
 	}
 }
@@ -107,12 +114,46 @@ func (a *Agent) Run(ctx context.Context) error {
 		}
 
 		a.TotalUsage += resp.TokenUsage.TotalTokens
-		if a.Budget > 0 && a.TotalUsage > a.Budget {
-			a.log(fmt.Sprintf("Budget exceeded: %d > %d", a.TotalUsage, a.Budget), "ERROR", nil, 0)
-			return fmt.Errorf("session budget exceeded: %d tokens used", a.TotalUsage)
+		cost := a.calculateCost(resp.TokenUsage)
+		a.TotalCostNanoDollars += cost
+
+		// Record usage if tracker is provided
+		if a.Tracker != nil {
+			if err := a.Tracker.RecordUsage(resp.TokenUsage.TotalTokens, cost); err != nil {
+				a.log(fmt.Sprintf("Warning: Failed to record usage: %v", err), "WARNING", nil, 0)
+			}
 		}
 
-		cost := a.calculateCost(resp.TokenUsage)
+		// Enforce session budgets
+		if a.BudgetTokens > 0 && a.TotalUsage > a.BudgetTokens {
+			a.log(fmt.Sprintf("Token budget exceeded: %d > %d", a.TotalUsage, a.BudgetTokens), "ERROR", nil, 0)
+			return fmt.Errorf("session token budget exceeded: %d tokens used", a.TotalUsage)
+		}
+
+		if a.MaxCostNanoDollars > 0 && a.TotalCostNanoDollars > a.MaxCostNanoDollars {
+			a.log(fmt.Sprintf("Cost budget exceeded: %.6f > %.6f",
+				float64(a.TotalCostNanoDollars)/1000000000.0,
+				float64(a.MaxCostNanoDollars)/1000000000.0), "ERROR", nil, 0)
+			return fmt.Errorf("session cost budget exceeded: $%.6f used", float64(a.TotalCostNanoDollars)/1000000000.0)
+		}
+
+		// Enforce daily budgets if tracker is provided
+		if a.Tracker != nil {
+			daily, err := a.Tracker.GetDailyUsage()
+			if err == nil {
+				if a.DailyBudgetTokens > 0 && daily.TotalTokens > a.DailyBudgetTokens {
+					a.log(fmt.Sprintf("Daily token budget exceeded: %d > %d", daily.TotalTokens, a.DailyBudgetTokens), "ERROR", nil, 0)
+					return fmt.Errorf("daily token budget exceeded: %d tokens used today", daily.TotalTokens)
+				}
+				if a.DailyMaxCostNano > 0 && daily.TotalCostNano > a.DailyMaxCostNano {
+					a.log(fmt.Sprintf("Daily cost budget exceeded: %.6f > %.6f",
+						float64(daily.TotalCostNano)/1000000000.0,
+						float64(a.DailyMaxCostNano)/1000000000.0), "ERROR", nil, 0)
+					return fmt.Errorf("daily cost budget exceeded: $%.6f used today", float64(daily.TotalCostNano)/1000000000.0)
+				}
+			}
+		}
+
 		a.log(fmt.Sprintf("LLM response: %s", resp.Content), "DEBUG", resp.TokenUsage, cost)
 
 		// Extract thought if present
@@ -207,12 +248,17 @@ func (a *Agent) finish(content, thought string) error {
 	return nil
 }
 
-func (a *Agent) calculateCost(usage llm.TokenUsage) float64 {
-	// Simple cost calculation. In the future this should be based on the model from config.
-	// Prices per 1M tokens.
-	const promptPrice = 0.075 / 1000000.0    // $0.075 / 1M
-	const completionPrice = 0.30 / 1000000.0 // $0.30 / 1M
-	return float64(usage.PromptTokens)*promptPrice + float64(usage.CompletionTokens)*completionPrice
+func (a *Agent) calculateCost(usage llm.TokenUsage) int64 {
+	if usage.CostNanoDollars > 0 {
+		return usage.CostNanoDollars
+	}
+
+	// Simple fallback cost calculation using nano-dollars for precision ($1.00 = 1,000,000,000 nano-dollars)
+	// Prices per token in nano-dollars:
+	const promptPricePerTokenNano = 75      // $0.075 / 1M = 75 nano-dollars per token
+	const completionPricePerTokenNano = 300 // $0.30 / 1M = 300 nano-dollars per token
+
+	return int64(usage.PromptTokens)*promptPricePerTokenNano + int64(usage.CompletionTokens)*completionPricePerTokenNano
 }
 
 func (a *Agent) persistOutput(content string) error {
