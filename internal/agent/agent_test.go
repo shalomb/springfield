@@ -497,9 +497,9 @@ func TestAgent_Run_SystemPromptTemplate(t *testing.T) {
 }
 
 func TestAgent_Run_Signal(t *testing.T) {
-	const validSentinel = "session-123"
+	const validSentinel = "d330877b-7f7b-4e3a-ac5d-2e8c3f9a1b2c"
 	mLLM := &mockLLM{responses: []string{
-		"ACTION: springfield signal --sentinel session-123 --status success --reason 'I am done'",
+		"ACTION: springfield signal --sentinel d330877b-7f7b-4e3a-ac5d-2e8c3f9a1b2c --status success --reason 'I am done'",
 		"SHOULD NOT REACH THIS",
 	}}
 	mSB := &mockSandbox{results: []*types.Result{
@@ -527,9 +527,9 @@ func TestAgent_Run_Signal(t *testing.T) {
 }
 
 func TestAgent_Run_Signal_InvalidSentinel(t *testing.T) {
-	const validSentinel = "session-123"
+	const validSentinel = "d330877b-7f7b-4e3a-ac5d-2e8c3f9a1b2c"
 	mLLM := &mockLLM{responses: []string{
-		"ACTION: springfield signal --sentinel WRONG --status success",
+		"ACTION: springfield signal --sentinel 00000000-0000-0000-0000-000000000000 --status success",
 		"[[FINISH]]",
 	}}
 	mSB := &mockSandbox{results: []*types.Result{
