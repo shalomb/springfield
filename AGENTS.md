@@ -54,15 +54,16 @@ We organize documentation by purpose, not just topic.
 
 ## ⚠️ Important Technical Notes
 
-### Git Commits Must Be Signed
+### Git Commits Must Be Signed  
 - All commits must be GPG-signed: `git commit -S`
 - Signing is enforced by pre-commit hooks
-- If you encounter "gpg: cannot open '/dev/tty'" errors, the GPG key needs a passphrase in an interactive environment
+- **Known Issue:** In non-TTY environments (like CI/CD), GPG signing may fail with "gpg: cannot open '/dev/tty'" 
+- **Workaround:** Temporarily disable with `git config commit.gpgSign false` if needed, then re-enable
 
 ### Interactive Git Operations Require Non-Editor Execution
 - **Problem:** `git rebase -i` and similar commands launch `vim` by default, which will hang
 - **Solution:** Use environment variable to avoid editor: `GIT_SEQUENCE_EDITOR=true git rebase -i HEAD~N`
-- **Alternative:** Use `git reset --soft` and recommit for safer operations
+- **Alternative:** Use `git reset --soft` and recommit for safer operations without vim
 
 ---
 *Last Updated: 2026-02-22*
