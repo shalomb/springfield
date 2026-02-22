@@ -1,94 +1,55 @@
 # PLAN.md - Springfield Product Backlog
 
-**Last Updated:** 2026-02-22 11:15 GMT+1  
-**Status:** EPIC-005 Phase 3 (Cost Controls & Model Optimization) Active; Phase 2 Complete
+**Last Updated:** 2026-02-22 13:00 GMT+1  
+**Status:** EPIC-010 (Autonomous Control Plane) Active  
 
 ---
 
 ## 🚀 Current Release: v0.7.0 (Development Cycle)
 
-### EPIC-005 Phase 3: Agent Cost Controls & Model Optimization ⭐ ACTIVE
-**td:** td-e1fd16
+### EPIC-010: Autonomous Control Plane ⭐ ACTIVE
+**td:** `td-db921a`
 **Status:** In Progress
 **Priority:** P1
 
-**Objective:** Implement budget enforcement and optimize model selection to ensure sustainable autonomous agent operations.
+**Objective:** Transform Springfield from a "Task Runner" into a **Stateful Control Plane** that manages the lifecycle, environment, and state transitions of all agents via a strict signaling protocol.
 
 **Scope:**
-- [ ] **td-7d836a**: Per-Session Budget Enforcement (Hard limits per session)
-- [ ] **td-752039**: Per-Day Budget Tracking (Aggregation and daily caps)
-- [ ] **td-9177a6**: Fix cost calculation precision and aggregation
-- [ ] **td-aa88b1**: Native JSON Stream Integration (Prerequisite for reliable enforcement)
-- [ ] **td-19b078**: Model Selection per Agent (Tuning roles for cost/performance)
+- [ ] **td-b6dae6**: Implement `springfield signal` command and validation logic.
+- [ ] **td-d59930**: Implement Sentinel Token generation and tracking in Agent Runner.
+- [ ] **td-278c10**: Implement Daemon Orchestrator loop (poll `td`, spawn/reap workers).
+- [ ] **td-e53407**: Migrate Prompt Files to Templates (`.tpl`) and inject Sentinel.
 
 **Acceptance Criteria:**
-- [ ] Every LLM call is logged with accurate token count and cost.
-- [ ] Session is terminated gracefully when budget is exceeded.
-- [ ] Users can define budget overrides in `.springfield.yaml`.
+- [ ] Agents terminate sessions *only* via `springfield signal`.
+- [ ] Orchestrator rejects signals with invalid Sentinels.
+- [ ] Ralph is automatically re-spawned in the same worktree if Bart signals failure.
+- [ ] Lisa can signal "Session Complete" without binding to a specific Epic ID.
+- [ ] All environment management (git worktree add/rm) is handled by the Daemon, not the Agent.
+
+**Feature Briefs:**
+- [Features & Architecture](docs/features/EPIC-010-control-plane.md)
+- [Signaling Protocol](docs/standards/signaling-protocol.md)
+- [BDD Specs](tests/integration/features/control_plane.feature)
+
+---
+
+## 📋 Backlog (Prioritized)
+
+### EPIC-005 Phase 3: Agent Cost Controls & Model Optimization
+**td:** `td-e1fd16`
+**Status:** Paused (Pre-requisite for robust scaling, but EPIC-010 architecture comes first)
+- [ ] Per-Session Budget Enforcement
+- [ ] Per-Day Budget Tracking
 
 ---
 
 ## ✅ Completed History
 
 ### EPIC-005 Phase 2: Robust Structured Output Parsing
-**td:** td-7b0cb8
+**td:** `td-7b0cb8`
 - **Status:** ✅ Done (2026-02-21)
-- **Outcome:** Lexical Sanitizer (MarkdownSanitizer) integrated. Promise Semantic Contract enforced. 92%+ test coverage.
-
-### EPIC-009: Springfield Binary Orchestrator & td(1) Integration
-**td:** td-3cc3c3
-- **Status:** ✅ Done (2026-02-21)
-- **Outcome:** Type-safe Go CLI, td(1) integration, multi-agent orchestration.
-
-### EPIC: Unified Agent Runner Architecture
-**td:** td-2e90ba
-- **Status:** ✅ Done (2026-02-21)
-- **Outcome:** Consolidated specialized runners into data-driven Agent struct.
-
----
-
-## 🗂️ Backlog (Lower Priority)
-
-### Phase 4: Production Operations (v0.8.0 Choice Candidate) 🔍 DISCOVERY
-- **Effort:** 3 weeks | **Value:** HIGH
-- **Scope:** Docker-based sandboxing (EPIC-004), observability dashboard, persistent storage for agent state.
-- **Why:** Moving from local execution to a robust, scalable environment.
-
-### Phase 5: Advanced Intelligence & Governance
-- **Option B: Advanced Output Parsing**: Parse DECISION: directives, automated feedback loop.
-- **Option C: Enterprise Governance/Audit**: Audit logging, RBAC, Compliance guardrails.
-- **Option E: Multi-Agent Swarms**: Dynamic agent creation and coordination.
-
----
-
-## 📊 Success Metrics (v0.7.0)
-
-| Metric | Target | Current | Status |
-|--------|--------|---------|--------|
-| **Cost Accuracy** | 100% vs Provider API | 85% (estimate) | ⚠️ |
-| **Budget Enforcement** | 0 violations | Untested | ⏳ |
-| **Test Coverage** | 90%+ | 92%+ | ✅ |
-
----
-
-## 🚦 Release Gating Criteria (v0.7.0)
-
-**BLOCKERS:**
-- [ ] Budget enforcement logic must be unit tested.
-- [ ] JSON stream parsing must handle partial/malformed chunks.
-
----
-
-## 📝 Retrospective: EPIC-005 Phase 2
-
-**Completed Work:**
-- ✅ Integrated MarkdownSanitizer prevents code block tag "leaks"
-- ✅ Promise contract ensures deterministic loop termination
-- ✅ Rebase madness resolved - system stabilized
-
-**Learning:**
-- Rebase operations on complex branches with manual resolutions are high-risk; use atomic commits to minimize merge surface.
-- Agent prompts need explicit mission-critical instructions preserved across refactors.
+- **Outcome:** Lexical Sanitizer (MarkdownSanitizer) integrated. Promise Semantic Contract enforced.
 
 ---
 
