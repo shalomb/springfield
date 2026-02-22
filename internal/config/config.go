@@ -69,6 +69,7 @@ func GetPromptPath(agent string) string {
 
 	// Try specific patterns
 	patterns := []string{
+		agent + ".prompt.md.tpl",
 		agent + ".prompt.md",
 		agent + ".prompt",
 		"prompt_" + agent + ".md",

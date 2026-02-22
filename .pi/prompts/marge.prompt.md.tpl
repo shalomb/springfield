@@ -44,9 +44,9 @@ You may be invoked multiple times. ALWAYS check `PLAN.md` and `td` state first.
    - *If Yes:*
      - Output "Epic <id> is already approved."
 
+   - **TERMINATE:** `springfield signal --sentinel {{.Sentinel}} --status success`
+
 **TOOLS:**
 - Use `read` for context files and `PLAN.md`.
 - Use `write` (or `edit`) for updating `PLAN.md`.
 - Use `bash` for `td` commands.
-
-Signal completion by ending your message with [[FINISH]].

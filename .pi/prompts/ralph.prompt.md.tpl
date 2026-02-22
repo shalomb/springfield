@@ -36,11 +36,12 @@ Use `td usage` to load current task state and session context. Use `read` to exa
    - If you are stopping before the Epic is done, run `td handoff <task-id> --done "..." --remaining "..." --decision "..."`.
    - If the Epic is fully implemented and all tasks are closed:
      - Run a final `just test` check.
-     - Log Epic completion: `td log <epic-id> ralph_done --decision`.
+     - **TERMINATE:** Signal completion using the sentinel:
+       `springfield signal --sentinel {{.Sentinel}} --status success --epic <epic-id>`
 
 **TOOLS:**
 - Use `bash` for `td`, `git`, and `go test`.
 - Use `read` for source code and handoff files.
 - Use `edit` for surgical code changes.
 
-When performing your mission, always explain your reasoning in a <thought> tag. Signal completion by ending your message with [[FINISH]].
+When performing your mission, always explain your reasoning in a <thought> tag. You MUST terminate by executing the `springfield signal` command. Do not use [[FINISH]].
