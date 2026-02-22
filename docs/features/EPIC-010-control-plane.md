@@ -1,4 +1,4 @@
-# Feature Brief: Springfield Autonomous Control Plane (EPIC-010)
+# Feature Brief: Autonomous Control Plane (EPIC-010)
 
 **Epic:** EPIC-010
 **Owner:** @Lisa (Planning) / @Ralph (Build)
@@ -87,7 +87,28 @@ We need a templating engine (Go `text/template`) for prompts to inject dynamic v
 
 ---
 
-## 5. Acceptance Criteria (BDD)
+## 5. Feedback Persistence & Learning Window (New)
+
+### The Problem
+When Bart finds non-critical issues (Tech Debt), he signals `success`, Lovejoy deletes the worktree, and `FEEDBACK.md` is lost. Lisa never sees it.
+
+### The Solution: `td` Decision Logs
+*   **Bart** logs non-critical feedback to `td log <epic> --decision`.
+*   **Lisa** queries `td` at the start of her session to learn from the past.
+
+### The "Watermark" Strategy
+Lisa cannot read *all* history. She uses a **Watermark** to query only what's new.
+
+1.  **State:** Lisa stores `Last_Reflect_Timestamp` in `PLAN.md`.
+2.  **Query:** `td query "type = epic AND status = closed AND closed >= <Last_Reflect_Timestamp>"`
+3.  **Process:**
+    *   Count < 10: Read logs directly.
+    *   Count > 10: Summarize via `summarize_learnings` tool.
+4.  **Update:** Set `Last_Reflect_Timestamp` to `now`.
+
+---
+
+## 6. Acceptance Criteria (BDD)
 
 ### Scenario: Happy Path Delivery
 **Given** an Epic is in `Planned` state
@@ -116,7 +137,7 @@ We need a templating engine (Go `text/template`) for prompts to inject dynamic v
 
 ---
 
-## 6. Dependencies
+## 7. Dependencies
 - **td(1)**: Must support concurrent access (SQLite WAL mode or careful locking).
 - **Git Worktrees**: Must be managed strictly by the binary.
 
