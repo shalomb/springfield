@@ -13,6 +13,9 @@ type TDClient struct {
 	WorkDir string
 }
 
+// Verify TDClient implements TDClientInterface.
+var _ TDClientInterface = (*TDClient)(nil)
+
 // NewTDClient creates a new TDClient.
 func NewTDClient(workDir string) *TDClient {
 	if workDir == "" {

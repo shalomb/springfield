@@ -12,15 +12,23 @@ type AgentRunner interface {
 	Run(agent string, epicID string, worktreeDir string) error
 }
 
+// TDClientInterface defines methods needed by Orchestrator for td client.
+type TDClientInterface interface {
+	QueryIDs(expression string) ([]string, error)
+	GetEpic(id string) (*Issue, error)
+	Update(id string, flags ...string) error
+	LogDecision(id string, decision string) error
+}
+
 // Orchestrator manages the execution of Epics.
 type Orchestrator struct {
-	TD       *TDClient
+	TD       TDClientInterface
 	Agent    AgentRunner
 	Worktree *WorktreeManager
 }
 
 // NewOrchestrator creates a new Orchestrator.
-func NewOrchestrator(td *TDClient, agent AgentRunner, worktree *WorktreeManager) *Orchestrator {
+func NewOrchestrator(td TDClientInterface, agent AgentRunner, worktree *WorktreeManager) *Orchestrator {
 	return &Orchestrator{TD: td, Agent: agent, Worktree: worktree}
 }
 

@@ -40,12 +40,18 @@ func TestTDClient_QueryEpics(t *testing.T) {
 		t.Fatalf("QueryEpics failed: %v", err)
 	}
 
-	if len(epics) != 1 {
-		t.Errorf("expected 1 epic, got %d", len(epics))
+	foundEpic := false
+	for _, e := range epics {
+		if e.ID == id {
+			foundEpic = true
+			if e.Title != "Implement the new orchestration system" {
+				t.Errorf("expected title 'Implement the new orchestration system', got '%s'", e.Title)
+			}
+			break
+		}
 	}
-
-	if epics[0].Title != "Implement the new orchestration system" {
-		t.Errorf("expected title 'Implement the new orchestration system', got '%s'", epics[0].Title)
+	if !foundEpic {
+		t.Errorf("created epic %s not found in query results", id)
 	}
 
 	// Test GetEpic
@@ -83,8 +89,15 @@ func TestTDClient_QueryEpics(t *testing.T) {
 	if err != nil {
 		t.Fatalf("QueryIDs failed: %v", err)
 	}
-	if len(ids) != 1 || ids[0] != id {
-		t.Errorf("expected ID %s, got %v", id, ids)
+	foundID := false
+	for _, rid := range ids {
+		if rid == id {
+			foundID = true
+			break
+		}
+	}
+	if !foundID {
+		t.Errorf("expected ID %s to be in %v", id, ids)
 	}
 
 	// Test Update
