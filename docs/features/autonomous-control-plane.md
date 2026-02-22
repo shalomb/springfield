@@ -1,7 +1,7 @@
-# Feature Brief: Autonomous Control Plane (EPIC-010)
+# Feature Brief: Autonomous Control Plane
 
-**Epic:** EPIC-010
-**Owner:** @Lisa (Planning) / @Ralph (Build)
+**Feature:** Autonomous Control Plane
+**Domain:** Orchestration / DevOps
 **Status:** 🏗️ In Definition
 
 ---

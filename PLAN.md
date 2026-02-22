@@ -7,7 +7,7 @@
 
 ## 🚀 Current Release: v0.7.0 (Development Cycle)
 
-### EPIC-010: Autonomous Control Plane ⭐ ACTIVE
+### Autonomous Control Plane ⭐ ACTIVE
 **td:** `td-db921a`
 **Status:** In Progress
 **Priority:** P1
@@ -28,7 +28,7 @@
 - [ ] All environment management (git worktree add/rm) is handled by the Daemon, not the Agent.
 
 **Feature Briefs:**
-- [Features & Architecture](docs/features/EPIC-010-control-plane.md)
+- [Features & Architecture](docs/features/autonomous-control-plane.md)
 - [Signaling Protocol](docs/standards/signaling-protocol.md)
 - [BDD Specs](tests/integration/features/control_plane.feature)
 

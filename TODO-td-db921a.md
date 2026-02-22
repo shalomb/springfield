@@ -21,6 +21,6 @@ Transform Springfield into a daemonized Control Plane that manages agent lifecyc
 4.  `td-278c10`: Implement Daemon loop.
 
 ## References
-- `docs/features/EPIC-010-control-plane.md`
+- `docs/features/autonomous-control-plane.md`
 - `docs/standards/signaling-protocol.md`
 - `tests/integration/features/control_plane.feature`

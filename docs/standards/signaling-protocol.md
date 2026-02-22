@@ -1,6 +1,6 @@
 # Springfield Signaling Protocol
 
-**Status:** Draft (EPIC-010)
+**Status:** Draft
 **Applies to:** All Agents and the Springfield Orchestrator
 
 ---
