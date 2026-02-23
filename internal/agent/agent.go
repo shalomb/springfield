@@ -59,16 +59,28 @@ func New(profile AgentProfile, l llm.LLMClient, s sandbox.Sandbox) *Agent {
 		maxIterations = 20
 	}
 
-	// Use provided sentinel or generate session sentinel
+	// Use provided sentinel or generate session sentinel as UUIDv4
 	sentinel := profile.Sentinel
 	if sentinel == "" {
-		bytes := make([]byte, 4)
+		// Generate UUIDv4-format sentinel (8-4-4-4-12 hex characters)
+		bytes := make([]byte, 16)
 		if _, err := rand.Read(bytes); err != nil {
 			// Fallback if rand fails (unlikely)
-			copy(bytes, []byte("fail"))
+			copy(bytes, []byte("failsafeguardian"))
 		}
-		sentinel = hex.EncodeToString(bytes)
+		// Set version to 4 and variant to RFC 4122
+		bytes[6] = (bytes[6] & 0x0f) | 0x40
+		bytes[8] = (bytes[8] & 0x3f) | 0x80
+		// Format as UUIDv4: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+		sentinel = hex.EncodeToString(bytes[0:4]) + "-" +
+			hex.EncodeToString(bytes[4:6]) + "-" +
+			hex.EncodeToString(bytes[6:8]) + "-" +
+			hex.EncodeToString(bytes[8:10]) + "-" +
+			hex.EncodeToString(bytes[10:16])
 	}
+
+	// Sync sentinel to profile so Profile.Sentinel matches Agent.Sentinel
+	profile.Sentinel = sentinel
 
 	return &Agent{
 		Profile:       profile,
@@ -224,7 +236,7 @@ func (a *Agent) Run(ctx context.Context) error {
 			// Intercept signal command *after* sandbox execution to decide if we exit
 			if isSignalAction(action) && result.ExitCode == 0 {
 				sentinel, ok := extractSentinel(action)
-				if ok && sentinel == a.Profile.Sentinel {
+				if ok && sentinel == a.Sentinel {
 					a.log("Intercepted successful signal, exiting loop.", "INFO", nil, 0)
 					return a.finish(resp.Content, thought)
 				}
