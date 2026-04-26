@@ -50,8 +50,9 @@
 
 **Phase 2: Lisa's Last Responsible Moment (LRM)**
 - [ ] Update `lisa.prompt.md.tpl` to run Tree of Thoughts (ToT) and Self-Consistency loops before choosing an approach.
-- [ ] Implement `scope.toml` and `guardrails-{id}.sh` generation in Lisa's output.
-- *Bootstrapping impact:* Ralph receives a strict, machine-readable contract and tests, drastically reducing his context window and exploration time.
+- [ ] Implement the `TODO-{id}.md` Context/Constraint Layer handoff.
+- [ ] Update orchestrator to natively enforce structural checks on `springfield signal`.
+- *Bootstrapping impact:* Ralph receives a strict, context-driven boundary and tests, drastically reducing his context window while empowering architectural autonomy.
 
 **Phase 3: Trigger & Escalation Tuning**
 - [ ] Update orchestrator to trigger Lovejoy *only* when `StatusAllEpicsDone` is true for the release.
