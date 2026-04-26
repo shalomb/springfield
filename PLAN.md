@@ -36,6 +36,31 @@
 
 ## 📋 Backlog (Prioritized)
 
+### EPIC-011: Pipeline Redesign Bootstrapping (v0.8.0)
+**Status:** Ready for Lisa
+**Priority:** P0 (Highest)
+
+**Objective:** Use the current Springfield agents (v0.7.0) to implement the deterministic pipeline redesign (v0.8.0), transitioning to strict Inner/Outer loops and LRM (Last Responsible Moment) planning. This epic is sequenced so that early tasks (like Bart's output) unblock the agents' ability to execute later tasks (like Lisa's ToT).
+
+**Phase 1: The Feedback Loop (Bart → Lisa)**
+- [ ] Update `bart.prompt.md.tpl` to output structured `## Retrospective Signal`.
+- [ ] Wire Bart's retrospective output to `td log --decision <epic-id>`.
+- [ ] Author `docs/standards/epic-decomposition-protocol.md`.
+- *Bootstrapping impact:* Lisa can now read cross-iteration learnings via `td` before planning her next task.
+
+**Phase 2: Lisa's Last Responsible Moment (LRM)**
+- [ ] Update `lisa.prompt.md.tpl` to run Tree of Thoughts (ToT) and Self-Consistency loops before choosing an approach.
+- [ ] Implement `scope.toml` and `guardrails-{id}.sh` generation in Lisa's output.
+- *Bootstrapping impact:* Ralph receives a strict, machine-readable contract and tests, drastically reducing his context window and exploration time.
+
+**Phase 3: Trigger & Escalation Tuning**
+- [ ] Update orchestrator to trigger Lovejoy *only* when `StatusAllEpicsDone` is true for the release.
+- [ ] Add OHECI escalation path to `ralph.prompt.md.tpl` for assumption breaks.
+- [ ] Add GECR loop to `marge.prompt.md.tpl` for Feature Brief generation.
+- *Bootstrapping impact:* Eliminates wasted LLM tokens on per-epic changelogs and context-spiral debugging.
+
+---
+
 ### EPIC-005 Phase 3: Agent Cost Controls & Model Optimization
 **td:** `td-e1fd16`
 **Status:** Paused (Pre-requisite for robust scaling, but EPIC-010 architecture comes first)

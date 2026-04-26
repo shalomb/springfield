@@ -142,9 +142,9 @@ This reframe eliminates:
 
 | Agent | Loop level | Cognitive work | Loop assigned |
 |---|---|---|---|
-| Marge | Per release (start) | Problem framing, option exploration, Feature Brief authorship, BDD scenario quality | ToT, GECR, Self-Consistency |
+| Marge | Per release (start) | Problem framing, option exploration, Feature Brief authorship, **BDD scenario writing (`.feature` files)** | ToT, GECR, Self-Consistency |
 | Lisa | Per epic | Option generation, LRM decision, handoff contract production | ToT, Self-Consistency, PAE, OLA |
-| Ralph | Per epic (retry on rejection) | TDD execution against contract | Ralph Wiggum, ReAct, OHECI (escalation) |
+| Ralph | Per epic (retry on rejection) | **TDD execution (inside-out tests) and BDD step definitions (outside-in specs)** against contract | Ralph Wiggum, ReAct, OHECI (escalation) |
 | Bart | Per epic | Quality review, product conformance, retrospective for Lisa | OHECI, TALAR, RDS |
 | Lovejoy | Per release (end) | Release narrative, CHANGELOG, semver, tag, cleanup | GECR, RDS |
 
@@ -580,8 +580,8 @@ ADR links, Farley/Adzic thresholds, ACP requirements,
 tech debt items that must not be worsened.
 
 ## Working Layer (Ralph's — fully owned by him)
-[Empty at deposit. Ralph fills this via TDD bottom-up.]
-His failing tests are his task list.
+[Empty at deposit. Ralph fills this via TDD bottom-up and BDD step definitions.]
+His failing tests (both TDD and BDD) are his task list.
 ```
 
 **`scope.toml` (machine-readable — new):**
