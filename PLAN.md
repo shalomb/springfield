@@ -43,14 +43,14 @@
 **Objective:** Use the current Springfield agents (v0.7.0) to implement the deterministic pipeline redesign (v0.8.0), transitioning to strict Inner/Outer loops and LRM (Last Responsible Moment) planning. This epic is sequenced so that early tasks (like Bart's output) unblock the agents' ability to execute later tasks (like Lisa's ToT).
 
 **Phase 1: The Feedback Loop (Bart → Lisa)**
-- [ ] Update `bart.prompt.md.tpl` to output structured `## Retrospective Signal`.
-- [ ] Wire Bart's retrospective output to `td log --decision <epic-id>`.
-- [ ] Author `docs/standards/epic-decomposition-protocol.md`.
+- [x] Update `bart.prompt.md.tpl` to output structured `## Retrospective Signal`.
+- [x] Wire Bart's retrospective output to `td log --decision <epic-id>`.
+- [x] Author `docs/standards/epic-decomposition-protocol.md`.
 - *Bootstrapping impact:* Lisa can now read cross-iteration learnings via `td` before planning her next task.
 
 **Phase 2: Lisa's Last Responsible Moment (LRM)**
-- [ ] Update `lisa.prompt.md.tpl` to run Tree of Thoughts (ToT) and Self-Consistency loops before choosing an approach.
-- [ ] Implement the `TODO-{id}.md` Context/Constraint Layer handoff.
+- [x] Update `lisa.prompt.md.tpl` to run Tree of Thoughts (ToT) and Self-Consistency loops before choosing an approach.
+- [x] Implement the `TODO-{id}.md` Context/Constraint Layer handoff.
 - [ ] Update orchestrator to natively enforce structural checks on `springfield signal`.
 - *Bootstrapping impact:* Ralph receives a strict, context-driven boundary and tests, drastically reducing his context window while empowering architectural autonomy.
 
