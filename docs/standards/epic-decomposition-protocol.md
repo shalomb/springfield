@@ -49,9 +49,11 @@ Ralph is not a naive executor; he is a Staff-level Archi-Engineer. He receives t
 - If a constraint makes the feature impossible to build, Ralph halts execution and signals `blocked` with the OHECI pattern.
 
 ### 3.3. Baseline Constraints (Orchestrator Enforced)
-Instead of LLM-generated guardrail scripts, the Orchestrator deterministically enforces structural constraints when Ralph calls `springfield signal --status success`:
-1. `just test` must exit 0 (BDD and TDD pass).
-2. Commit messages must follow the Atomic Commit Protocol (ACP).
+The Orchestrator does *not* enforce semantic tests or dictate a definition of done (e.g., `just test`). The Orchestrator strictly handles state routing. The responsibility of catching a false `success` signal from Ralph falls entirely to Bart (The Systemic Quality Gate).
+
+The Orchestrator natively enforces protocol integrity:
+1. Valid Sentinel Tokens.
+2. Valid Epic State Transitions.
 
 ## 4. Lisa's Planning Loop
 

@@ -336,7 +336,7 @@ informed option evaluation. Without Priority 1, Lisa's ToT is uninformed.
 
 ### Priority 3 — The Constraint-Driven Execution Model
 
-**What**: Elevate Ralph to an Archi-Engineer who owns the execution constraints. Lisa provides context, constraints, and ADR hypotheses in `TODO-{id}.md` rather than prescribing step-by-step tasks or restricting Ralph to a subset of files. The orchestrator natively handles baseline testing and commit checks.
+**What**: Elevate Ralph to an Archi-Engineer who owns the execution constraints. Lisa provides context, constraints, and ADR hypotheses in `TODO-{id}.md` rather than prescribing step-by-step tasks or restricting Ralph to a subset of files. Bart provides the systemic checks.
 
 **Why third**: Requires Priority 2 (Lisa's ToT) to be in place. Once Lisa generates high-quality constraint boundaries, Ralph needs to be empowered to navigate them autonomously via TDD.
 
@@ -569,7 +569,7 @@ Rather than dictating files (`scope.toml`) or hallucinating bash scripts (`guard
 
 | | Current | With Constraint-Driven Model |
 |---|---|---|
-| Conventions (prose) | ~500 tokens | Orchestrator natively enforces ACP commits and `just test` before success |
+| Conventions (prose) | ~500 tokens | Enforced systematically by Bart (Systemic Quality Gate) |
 | Task description (prose) | ~300 tokens | ~100 tokens (Intent Layer from Marge) |
 | Approach (to derive) | implicit, ~200 tokens | ~50 tokens (Hypothesis from Lisa) |
 | Where to put things | ~300 tokens exploration | Ralph autonomously explores via TDD |
@@ -723,7 +723,7 @@ the actual code merged → refine into coherent narrative.
 **Q5: Are LLM-generated guardrails an anti-pattern?**
 
 Yes. Having Lisa generate `guardrails.sh` or `scope.toml` introduces extreme fragility. 
-Proposal (Accepted): Remove `guardrails.sh` and `scope.toml`. Lisa provides textual constraints. Ralph executes autonomously. The Go Orchestrator natively handles deterministic checks (like `just test` passing and ACP commit structure) via `springfield signal --status success`.
+Proposal (Accepted): Remove `guardrails.sh` and `scope.toml`. Lisa provides textual constraints. Ralph executes autonomously. Bart is the sole provider of semantic and structural enforcement (Systemic Quality Gate). The Go Orchestrator strictly handles state transitions and protocol integrity.
 
 **Q6: Epic Decomposition Protocol**
 
