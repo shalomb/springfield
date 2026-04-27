@@ -15,17 +15,17 @@
 **Objective:** Transform Springfield from a "Task Runner" into a **Stateful Control Plane** that manages the lifecycle, environment, and state transitions of all agents via a strict signaling protocol.
 
 **Scope:**
-- [ ] **td-b6dae6**: Implement `springfield signal` command and validation logic.
-- [ ] **td-d59930**: Implement Sentinel Token generation and tracking in Agent Runner.
-- [ ] **td-278c10**: Implement Daemon Orchestrator loop (poll `td`, spawn/reap workers).
-- [ ] **td-e53407**: Migrate Prompt Files to Templates (`.tpl`) and inject Sentinel.
+- [x] **td-b6dae6**: Implement `springfield signal` command and validation logic.
+- [x] **td-d59930**: Implement Sentinel Token generation and tracking in Agent Runner.
+- [x] **td-278c10**: Implement Daemon Orchestrator loop (poll `td`, spawn/reap workers).
+- [x] **td-e53407**: Migrate Prompt Files to Templates (`.tpl`) and inject Sentinel.
 
 **Acceptance Criteria:**
-- [ ] Agents terminate sessions *only* via `springfield signal`.
-- [ ] Orchestrator rejects signals with invalid Sentinels.
-- [ ] Ralph is automatically re-spawned in the same worktree if Bart signals failure.
-- [ ] Lisa can signal "Session Complete" without binding to a specific Epic ID.
-- [ ] All environment management (git worktree add/rm) is handled by the Daemon, not the Agent.
+- [x] Agents terminate sessions *only* via `springfield signal`.
+- [x] Orchestrator rejects signals with invalid Sentinels.
+- [x] Ralph is automatically re-spawned in the same worktree if Bart signals failure.
+- [x] Lisa can signal "Session Complete" without binding to a specific Epic ID.
+- [x] All environment management (git worktree add/rm) is handled by the Daemon, not the Agent.
 
 **Feature Briefs:**
 - [Features & Architecture](docs/features/autonomous-control-plane.md)
