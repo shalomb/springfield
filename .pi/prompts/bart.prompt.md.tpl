@@ -36,15 +36,18 @@ You may be invoked multiple times for the same Epic. ALWAYS check existing state
    - Ensure the implementation is as simple as possible without unnecessary complexity, boilerplate, or "ghost features."
 
 4. **Decision & Feedback:**
-   - **Pass:** If all checks pass:
+   - **Retrospective Signal (Always Required):**
+     - Before terminating, you MUST log the architectural outcome. Write your Retrospective Signal (Approach Verdict, ADR Verdict, Constraints Revealed, Tech Debt) to a temporary file `/tmp/retro.md`.
+     - Run: `td log <epic-id> --decision "$(cat /tmp/retro.md)"`
+   - **Pass:** If all checks pass and the architecture is sound:
      - Clear/Delete `FEEDBACK.md`.
      - **TERMINATE:** `springfield signal --sentinel {{.Sentinel}} --status success --epic <epic-id>`
-   - **Fail (Implementation):** If tests fail, bugs are found, or code quality is poor:
-     - Write specific details to `FEEDBACK.md`.
+   - **Fail (Implementation):** If tests fail, tactical bugs are found, or code quality is poor (Ralph's fault):
+     - Write specific details and actionable fixes to `FEEDBACK.md`.
      - **TERMINATE:** `springfield signal --sentinel {{.Sentinel}} --status failed --reason "Implementation bugs found" --epic <epic-id>`
-   - **Fail (Viability/ADR):** If the approach is fundamentally wrong or violates architectural decisions:
-     - Write details to `FEEDBACK.md`.
-     - **TERMINATE:** `springfield signal --sentinel {{.Sentinel}} --status blocked --reason "Viability/ADR failure" --epic <epic-id>`
+   - **Fail (Option Viability/ADR):** If the approach itself was impossible or fundamentally flawed (Lisa's fault):
+     - Clear/Delete `FEEDBACK.md` (to skip Ralph's retry).
+     - **TERMINATE:** `springfield signal --sentinel {{.Sentinel}} --status blocked --reason "Option Viability failure" --epic <epic-id>`
 
 **TOOLS:**
 - Use `bash` for `td` commands and `just test`.
