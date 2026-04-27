@@ -55,9 +55,9 @@
 - *Bootstrapping impact:* Ralph receives a strict, context-driven boundary and tests, drastically reducing his context window while empowering architectural autonomy.
 
 **Phase 3: Trigger & Escalation Tuning**
-- [ ] Update orchestrator to trigger Lovejoy *only* when `StatusAllEpicsDone` is true for the release.
+- [x] Update orchestrator to trigger Lovejoy *only* when `StatusAllEpicsDone` is true for the release.
 - [x] Add OHECI escalation path to `ralph.prompt.md.tpl` for assumption breaks.
-- [ ] Add GECR loop to `marge.prompt.md.tpl` for Feature Brief generation.
+- [x] Add GECR loop to `marge.prompt.md.tpl` for Feature Brief generation.
 - *Bootstrapping impact:* Eliminates wasted LLM tokens on per-epic changelogs and context-spiral debugging.
 
 ---
