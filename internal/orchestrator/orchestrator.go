@@ -198,12 +198,17 @@ func (o *Orchestrator) processEpic(id string) error {
 			if err := o.TD.Update(id, "--labels", "verified"); err != nil {
 				return err
 			}
-			if o.Agent != nil {
-				worktreeDir := ""
-				if o.Worktree != nil {
-					worktreeDir, _ = o.Worktree.EnsureWorktree(id)
-				}
-				return o.Agent.Run("lovejoy", id, worktreeDir)
+			
+			// Deterministic Epic Merge (Per-Epic, no LLM)
+			// TODO(EPIC-011): Execute `gh pr merge` here
+
+			// Check if Lovejoy should fire (Release Boundary)
+			allDone, err := o.checkAllEpicsDone()
+			if err != nil {
+				log.Printf("Warning: Could not check if all epics are done: %v", err)
+			} else if allDone && o.Agent != nil {
+				log.Printf("All Epics in the milestone are verified. Triggering Lovejoy for release synthesis.")
+				return o.Agent.Run("lovejoy", "release", "")
 			}
 			return nil
 		}
@@ -239,6 +244,17 @@ func (o *Orchestrator) processEpic(id string) error {
 	}
 
 	return nil
+}
+
+func (o *Orchestrator) checkAllEpicsDone() (bool, error) {
+	// Query td for any epic that is NOT 'done' or 'closed'
+	epics, err := o.TD.QueryIDs("type = epic AND status != closed")
+	if err != nil {
+		return false, err
+	}
+	
+	// If the query returns nothing, all epics are done.
+	return len(epics) == 0, nil
 }
 
 func (o *Orchestrator) setupWorktree(id string) (string, error) {
