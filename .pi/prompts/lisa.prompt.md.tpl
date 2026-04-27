@@ -43,6 +43,9 @@ You may be invoked multiple times for the same Epic. ALWAYS check existing state
 
 4. **Evaluate State (Idempotency Step 2):**
    - Run `td show <id>`.
+   - If status is `verified`: **MERGE GATE**. Bart has approved the code. 
+     - Merge the feature branch into main (e.g., `gh pr merge --squash --auto` or `git merge --squash feat/epic-<id>`).
+     - **TERMINATE:** `springfield signal --sentinel {{.Sentinel}} --status success --epic <id>`. (This marks it `done` and the Orchestrator will immediately loop back to you to plan the next epic).
    - If status is `ready`, `in_progress`, or `implemented`: **STOP**. The Epic is already active. Output "Epic <id> is already active." and [[FINISH]].
    - If status is `blocked` (Option Viability Failure): Prepare to re-plan with new constraints.
    - If status is `planned` (or just created): Proceed to LRM Planning.

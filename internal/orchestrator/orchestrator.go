@@ -195,20 +195,12 @@ func (o *Orchestrator) processEpic(id string) error {
 	case StatusImplemented:
 		if o.hasDecision(epic, "bart_ok") {
 			log.Printf("Bart approved Epic %s. Transitioning to verified.", id)
-			if err := o.TD.Update(id, "--labels", "verified"); err != nil {
+			// Move to verified state so Lisa can pick it up for merge and planning
+			if err := o.TD.Update(id, "--status", "verified", "--labels", ""); err != nil {
 				return err
 			}
-			
-			// Deterministic Epic Merge (Per-Epic, no LLM)
-			// TODO(EPIC-011): Execute `gh pr merge` here
-
-			// Check if Lovejoy should fire (Release Boundary)
-			allDone, err := o.checkAllEpicsDone()
-			if err != nil {
-				log.Printf("Warning: Could not check if all epics are done: %v", err)
-			} else if allDone && o.Agent != nil {
-				log.Printf("All Epics in the milestone are verified. Triggering Lovejoy for release synthesis.")
-				return o.Agent.Run("lovejoy", "release", "")
+			if o.Agent != nil {
+				return o.Agent.Run("lisa", id, "")
 			}
 			return nil
 		}
@@ -238,6 +230,23 @@ func (o *Orchestrator) processEpic(id string) error {
 			// In a real implementation, we would invoke Lisa here.
 			if o.Agent != nil {
 				return o.Agent.Run("lisa", id, "")
+			}
+			return nil
+		}
+	case StatusVerified:
+		if o.hasDecision(epic, "lisa_merge") {
+			log.Printf("Lisa merged Epic %s. Transitioning to done.", id)
+			if err := o.TD.Update(id, "--status", "done", "--labels", ""); err != nil {
+				return err
+			}
+			
+			// Check if Lovejoy should fire (Release Boundary)
+			allDone, err := o.checkAllEpicsDone()
+			if err != nil {
+				log.Printf("Warning: Could not check if all epics are done: %v", err)
+			} else if allDone && o.Agent != nil {
+				log.Printf("All Epics in the milestone are done. Triggering Lovejoy for release synthesis.")
+				return o.Agent.Run("lovejoy", "release", "")
 			}
 			return nil
 		}

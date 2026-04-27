@@ -53,7 +53,7 @@ func (s EpicStatus) Transition(signal string) (EpicStatus, error) {
 			return StatusBlocked, nil
 		}
 	case StatusVerified:
-		if signal == "lovejoy_merge" {
+		if signal == "lisa_merge" {
 			return StatusDone, nil
 		}
 	case StatusBlocked:

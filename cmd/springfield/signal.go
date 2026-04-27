@@ -68,21 +68,55 @@ var signalCmd = &cobra.Command{
 			// We create a client for the current directory
 			td := orchestrator.NewTDClient("")
 
-			reason := reasonFlag
-			if reason == "" {
-				reason = fmt.Sprintf("Agent signaled %s", statusFlag)
+			agentRole := os.Getenv("SPRINGFIELD_AGENT")
+			
+			// Map (Role, Status) -> Decision Message for Orchestrator
+			decision := ""
+			switch agentRole {
+			case "ralph":
+				if statusFlag == "success" || statusFlag == "implemented" {
+					decision = "ralph_done"
+				} else if statusFlag == "blocked" {
+					decision = "ralph_blocked"
+				}
+			case "bart":
+				if statusFlag == "success" || statusFlag == "verified" {
+					decision = "bart_ok"
+				} else if statusFlag == "failed" {
+					decision = "bart_fail_implementation"
+				} else if statusFlag == "blocked" {
+					// Check reason for more specific failure if possible, 
+					// but default to viability for blocked.
+					decision = "bart_fail_viability"
+				}
+			case "lisa":
+				if statusFlag == "complete" {
+					decision = "lisa_ready"
+				} else if statusFlag == "success" {
+					decision = "lisa_merge"
+				}
+			case "lovejoy":
+				if statusFlag == "released" || statusFlag == "success" {
+					decision = "lovejoy_merge"
+				}
+			}
+
+			// Fallback to legacy or generic format if no specific mapping found
+			if decision == "" {
+				decision = fmt.Sprintf("%s: %s", statusFlag, reasonFlag)
+				if reasonFlag == "" {
+					decision = statusFlag
+				}
 			}
 
 			// Log decision
-			if logErr := td.LogDecision(epicID, fmt.Sprintf("%s: %s", statusFlag, reason)); logErr != nil {
+			if logErr := td.LogDecision(epicID, decision); logErr != nil {
 				cmd.Printf("Warning: Failed to log decision to td: %v\n", logErr)
 			}
 
 			// Update Status based on Signal
 			var nextStatus string
 			var labels []string
-
-			agentRole := os.Getenv("SPRINGFIELD_AGENT")
 
 			switch statusFlag {
 			case "complete":

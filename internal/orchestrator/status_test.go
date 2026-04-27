@@ -17,7 +17,7 @@ func TestEpicStatusTransitions(t *testing.T) {
 		{StatusImplemented, "bart_fail_implementation", StatusInProgress},
 		{StatusImplemented, "bart_fail_viability", StatusBlocked},
 		{StatusImplemented, "bart_fail_adr", StatusBlocked},
-		{StatusVerified, "lovejoy_merge", StatusDone},
+		{StatusVerified, "lisa_merge", StatusDone},
 		{StatusBlocked, "lisa_redecide", StatusReady},
 	}
 

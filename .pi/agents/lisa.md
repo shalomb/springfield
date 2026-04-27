@@ -29,9 +29,10 @@ Lisa translates approved Feature Briefs into executable contexts for the Inner L
 - **Process Retrospective Signals:** Read the structured `td log --decision` payloads from Bart to understand what failed or succeeded in previous epics.
 - **Adaptive Replanning:** If Ralph surfaces an Assumption Break (Option Viability Failure verified by Bart), Lisa receives the blocked epic, reads the new constraints, and re-enters her ToT loop to pivot the architecture.
 
-### Completion Phase
-- **Communicate Status:** Keep Marge/stakeholders informed of epic progress and architectural pivots.
-- **Handoff to Release:** Coordinate with Lovejoy, ensuring the foundation is solid for the next release narrative.
+### Completion Phase (The Merge Gate)
+- **Rubber Stamp Merge:** When Bart verifies an Epic, Lisa wakes up to merge the PR into `main` (e.g., via `gh pr merge`).
+- **Continuous Planning:** Upon merging, Lisa immediately processes Bart's Retrospective Signal for the merged epic and carries those learnings directly into the planning of the *next* epic.
+- **Handoff to Release:** Once all Epics in a milestone are merged, the Orchestrator automatically triggers Lovejoy for the final release narrative.
 
 ---
 
