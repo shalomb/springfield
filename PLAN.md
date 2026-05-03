@@ -1,7 +1,7 @@
 # PLAN.md - Springfield Product Backlog
 
-**Last Updated:** 2026-02-22 13:00 GMT+1  
-**Status:** EPIC-010 (Autonomous Control Plane) Active  
+**Last Updated:** 2026-02-22 13:00 GMT+1
+**Status:** EPIC-010 (Autonomous Control Plane) Active
 
 ---
 
@@ -80,3 +80,9 @@
 ---
 
 *Maintained by Lisa Simpson (Planning Agent) with input from the team.*
+
+---
+
+Shalom's ideas (to be validated for feasibility and alignment with our architecture goals):
+- When launching `springfield orchestrate` and the `td` database is empty but a TODO.md exists - we can launch the marge agent in a special "Bootstrap Mode" that is designed to read the existing TODO.md, generate an initial Epic decomposition, and populate the `td` database with the necessary Epics, Stories, and Tasks. This allows us to transition from a manual TODO.md workflow to a fully orchestrated Springfield environment without losing any existing work.
+- We can have a "Session Manager" that tracks the state of each agent's session, including the current task, context, and any relevant metadata. This manager can enforce the signaling protocol and ensure that agents only terminate sessions through the defined signals.
