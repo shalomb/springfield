@@ -40,3 +40,5 @@ logs
 worktrees
 .td
 .sidecar
+# Springfield runtime artifacts
+worktrees/

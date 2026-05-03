@@ -69,7 +69,7 @@ var signalCmd = &cobra.Command{
 			td := orchestrator.NewTDClient("")
 
 			agentRole := os.Getenv("SPRINGFIELD_AGENT")
-			
+
 			// Map (Role, Status) -> Decision Message for Orchestrator
 			decision := ""
 			switch agentRole {
@@ -85,7 +85,7 @@ var signalCmd = &cobra.Command{
 				} else if statusFlag == "failed" {
 					decision = "bart_fail_implementation"
 				} else if statusFlag == "blocked" {
-					// Check reason for more specific failure if possible, 
+					// Check reason for more specific failure if possible,
 					// but default to viability for blocked.
 					decision = "bart_fail_viability"
 				}

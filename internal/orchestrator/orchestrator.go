@@ -239,7 +239,7 @@ func (o *Orchestrator) processEpic(id string) error {
 			if err := o.TD.Update(id, "--status", "done", "--labels", ""); err != nil {
 				return err
 			}
-			
+
 			// Check if Lovejoy should fire (Release Boundary)
 			allDone, err := o.checkAllEpicsDone()
 			if err != nil {
@@ -261,7 +261,7 @@ func (o *Orchestrator) checkAllEpicsDone() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	
+
 	// If the query returns nothing, all epics are done.
 	return len(epics) == 0, nil
 }
