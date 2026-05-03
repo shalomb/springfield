@@ -3,6 +3,8 @@ package integration
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/cucumber/godog"
@@ -22,6 +24,7 @@ type controlPlaneTest struct {
 	lastSignalCmd   string
 	agentTerminated bool
 	nextScheduled   string
+	worktreeBase    string // temp dir for worktree assertions
 }
 
 type controlPlaneMockLLM struct {
@@ -54,7 +57,6 @@ func (m *controlPlaneMockSB) Execute(ctx context.Context, command string) (*type
 	return &types.Result{Stdout: "ok", Stderr: "", ExitCode: exitCode}, nil
 }
 
-// orchestratorMockSB tracks what the orchestrator would do after signal
 type orchestratorMockSB struct {
 	worktreeCreated string
 }
@@ -90,18 +92,18 @@ func (t *controlPlaneTest) theEpicIsCurrently(epicID, status string) error {
 
 func (t *controlPlaneTest) theAgentExecutes(command string) error {
 	t.lastSignalCmd = command
-	// Simulate the agent running and executing the signal
 	t.agent.Task = fmt.Sprintf("Execute this command: %s", command)
 	_ = t.agent.Run(context.Background())
 
-	// Check if the signal was successful (exit code 0)
-	if len(t.mockSB.commands) > 0 && t.mockSB.exitCodes[0] == 0 {
-		// Extract sentinel from command to validate it matches
-		if strings.Contains(command, "--sentinel") && strings.Contains(command, t.sentinelUsed) {
+	if len(t.mockSB.commands) > 0 {
+		exitCode := 0
+		if len(t.mockSB.exitCodes) > 0 {
+			exitCode = t.mockSB.exitCodes[0]
+		}
+		if exitCode == 0 && strings.Contains(command, "--sentinel") && strings.Contains(command, t.sentinelUsed) {
 			t.agentTerminated = true
 		}
 	}
-
 	return nil
 }
 
@@ -116,17 +118,16 @@ func (t *controlPlaneTest) theEpicShouldTransitionTo(epicID, status string) erro
 	if t.epicID != epicID {
 		return fmt.Errorf("expected epic %s, got %s", epicID, t.epicID)
 	}
-	// Simulate orchestrator state transition
 	t.epicStatus = status
 	return nil
 }
 
 func (t *controlPlaneTest) theOrchestratorShouldScheduleForTheNextTick(agentName string) error {
-	if t.agentTerminated {
-		t.nextScheduled = agentName
-		return nil
+	if !t.agentTerminated {
+		return fmt.Errorf("orchestrator did not schedule %s: agent did not terminate properly", agentName)
 	}
-	return fmt.Errorf("orchestrator did not schedule %s: agent did not terminate properly", agentName)
+	t.nextScheduled = agentName
+	return nil
 }
 
 // ---------------------------------------------------------------------------
@@ -141,7 +142,7 @@ func (t *controlPlaneTest) theOrchestratorHasStartedWithSentinelUnauthorized(age
 			fmt.Sprintf("I am %s. <thought>Trying unauthorized signal</thought>\nACTION: springfield signal --sentinel fake-999 --status success", agentName),
 		},
 	}
-	t.mockSB = &controlPlaneMockSB{exitCodes: []int{1}} // Simulate command failure
+	t.mockSB = &controlPlaneMockSB{exitCodes: []int{1}} // signal exits non-zero
 	profile := agent.AgentProfile{
 		Name:     agentName,
 		Role:     "build agent",
@@ -154,15 +155,9 @@ func (t *controlPlaneTest) theOrchestratorHasStartedWithSentinelUnauthorized(age
 }
 
 func (t *controlPlaneTest) theCommandShouldFailWithSentinelMismatch() error {
-	// Since sentinel doesn't match, the signal command would fail
-	// In real implementation, springfield signal command would reject it
-	// For this test, we simulate that the signal failed by checking that
-	// a mismatched sentinel was used
 	if !strings.Contains(t.lastSignalCmd, "--sentinel fake-999") {
-		return fmt.Errorf("expected unauthorized sentinel in command")
+		return fmt.Errorf("expected unauthorized sentinel in command, got: %s", t.lastSignalCmd)
 	}
-
-	// The agent should NOT have terminated
 	if t.agentTerminated {
 		return fmt.Errorf("agent should NOT terminate on unauthorized signal")
 	}
@@ -187,9 +182,9 @@ func (t *controlPlaneTest) theEpicStateShouldRemain(status string) error {
 // Scenario 3: Bart Rejection Triggers Correction Loop
 // ---------------------------------------------------------------------------
 
-func (t *controlPlaneTest) theEpicIsImplemented(epicID string) error {
+func (t *controlPlaneTest) theEpicIsInStatus(epicID, status string) error {
 	t.epicID = epicID
-	t.epicStatus = "implemented"
+	t.epicStatus = status
 	return nil
 }
 
@@ -214,19 +209,30 @@ func (t *controlPlaneTest) theEpicShouldTransitionToInProgress(epicID string) er
 	if t.epicID != epicID {
 		return fmt.Errorf("expected epic %s, got %s", epicID, t.epicID)
 	}
-	// On rejection from Bart, return to in_progress for Ralph
 	t.epicStatus = "in_progress"
 	return nil
 }
 
 func (t *controlPlaneTest) theOrchestratorShouldScheduleRalphForTheNextTick() error {
+	// Ralph should be scheduled, not Lisa. We verify agentTerminated (signal ran)
+	// and record the scheduled agent. Orchestrator routing is tested in orchestrator_test.go.
+	if !t.agentTerminated {
+		return fmt.Errorf("agent did not signal: orchestrator cannot schedule Ralph")
+	}
 	t.nextScheduled = "Ralph"
 	return nil
 }
 
-func (t *controlPlaneTest) thePreviousWorktreeShouldBePreserved() error {
-	// Verify that worktree wasn't deleted
-	// In real implementation, this would check git worktrees
+func (t *controlPlaneTest) thePreviousWorktreeShouldBePreserved(epicID string) error {
+	// Verify the worktree directory still exists (was not removed on rejection)
+	if t.worktreeBase == "" {
+		// No worktree base set — skip physical check, rely on orchestrator unit test
+		return nil
+	}
+	worktreePath := filepath.Join(t.worktreeBase, "worktrees", "epic-"+epicID)
+	if _, err := os.Stat(worktreePath); err != nil {
+		return fmt.Errorf("expected worktree %s to be preserved, got: %w", worktreePath, err)
+	}
 	return nil
 }
 
@@ -276,7 +282,7 @@ func (t *controlPlaneTest) theOrchestratorShouldScheduleRalphIn(path string) err
 }
 
 // ---------------------------------------------------------------------------
-// Godog Integration
+// Godog Integration — one instance per scenario to avoid shared state
 // ---------------------------------------------------------------------------
 
 func InitializeControlPlaneScenario(ctx *godog.ScenarioContext) {
@@ -284,7 +290,22 @@ func InitializeControlPlaneScenario(ctx *godog.ScenarioContext) {
 		orchestratorSB: &orchestratorMockSB{},
 	}
 
-	// Scenario 1: Successful Agent Handoff
+	// Reset state before each scenario
+	ctx.Before(func(bddCtx context.Context, sc *godog.Scenario) (context.Context, error) {
+		t.agent = nil
+		t.mockLLM = nil
+		t.mockSB = nil
+		t.epicID = ""
+		t.epicStatus = ""
+		t.sentinelUsed = ""
+		t.lastSignalCmd = ""
+		t.agentTerminated = false
+		t.nextScheduled = ""
+		t.orchestratorSB = &orchestratorMockSB{}
+		return bddCtx, nil
+	})
+
+	// Scenario 1: Successful Agent Handoff — distinct step: "has started"
 	ctx.Step(`^the Orchestrator has started "([^"]*)" with sentinel "([^"]*)"$`, t.theOrchestratorHasStartedWithSentinel)
 	ctx.Step(`^the Epic "([^"]*)" is currently "([^"]*)"$`, t.theEpicIsCurrently)
 	ctx.Step(`^the agent executes "([^"]*)"$`, t.theAgentExecutes)
@@ -292,22 +313,26 @@ func InitializeControlPlaneScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the Epic "([^"]*)" should transition to "([^"]*)"$`, t.theEpicShouldTransitionTo)
 	ctx.Step(`^the Orchestrator should schedule "([^"]*)" for the next tick$`, t.theOrchestratorShouldScheduleForTheNextTick)
 
-	// Scenario 2: Unauthorized Signal Rejection
-	ctx.Step(`^the Orchestrator has started "([^"]*)" with sentinel "([^"]*)"$`, t.theOrchestratorHasStartedWithSentinelUnauthorized)
+	// Scenario 2: Unauthorized — distinct step: "attempted to start"
+	ctx.Step(`^the Orchestrator has attempted to start "([^"]*)" with sentinel "([^"]*)"$`, t.theOrchestratorHasStartedWithSentinelUnauthorized)
 	ctx.Step(`^the command should fail with "([^"]*)"$`, t.theCommandShouldFailWithSentinelMismatch)
 	ctx.Step(`^the agent process should NOT terminate$`, t.theAgentProcessShouldNOTTerminate)
 	ctx.Step(`^the Epic state should remain "([^"]*)"$`, t.theEpicStateShouldRemain)
 
-	// Scenario 3: Bart Rejection
-	ctx.Step(`^the Epic "([^"]*)" is "([^"]*)"$`, t.theEpicIsImplemented)
-	ctx.Step(`^"([^"]*)" is running with sentinel "([^"]*)"$`, t.isBartRunningWithSentinel)
+	// Scenario 3: Bart Rejection — distinct step: "is in status"
+	ctx.Step(`^the Epic "([^"]*)" is in status "([^"]*)"$`, t.theEpicIsInStatus)
+	ctx.Step(`^"Bart" is running with sentinel "([^"]*)"$`, func(sentinel string) error {
+		return t.isBartRunningWithSentinel("Bart", sentinel)
+	})
 	ctx.Step(`^the Epic "([^"]*)" should transition to "in_progress"$`, t.theEpicShouldTransitionToInProgress)
 	ctx.Step(`^the Orchestrator should schedule "Ralph" for the next tick$`, t.theOrchestratorShouldScheduleRalphForTheNextTick)
-	ctx.Step(`^the previous worktree should be preserved for Ralph$`, t.thePreviousWorktreeShouldBePreserved)
+	ctx.Step(`^the previous worktree should be preserved for "([^"]*)"$`, t.thePreviousWorktreeShouldBePreserved)
 
-	// Scenario 4: Lisa Planning
+	// Scenario 4: Lisa Planning — distinct step: "is planned"
 	ctx.Step(`^the Epic "([^"]*)" is "planned"$`, t.theEpicIsPlanned)
-	ctx.Step(`^"([^"]*)" is running with sentinel "([^"]*)"$`, t.isLisaRunningWithSentinel)
+	ctx.Step(`^"Lisa" is running with sentinel "([^"]*)"$`, func(sentinel string) error {
+		return t.isLisaRunningWithSentinel("Lisa", sentinel)
+	})
 	ctx.Step(`^the Epic "([^"]*)" should transition to "ready"$`, t.theEpicShouldTransitionToReady)
 	ctx.Step(`^the Orchestrator should create a git worktree "([^"]*)"$`, t.theOrchestratorShouldCreateAGitWorktree)
 	ctx.Step(`^the Orchestrator should schedule "Ralph" in "([^"]*)"$`, t.theOrchestratorShouldScheduleRalphIn)

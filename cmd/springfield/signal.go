@@ -58,7 +58,7 @@ var signalCmd = &cobra.Command{
 		// 3. Resolve Epic ID
 		epicID := epicIDFlag
 		if epicID == "" {
-			epicID = os.Getenv("SPRINGFIELD_EPIC_ID")
+			epicID = os.Getenv("SPRINGFIELD_EPIC")
 		}
 
 		if epicID != "" {

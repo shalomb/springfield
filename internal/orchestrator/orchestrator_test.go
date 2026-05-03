@@ -72,28 +72,8 @@ func TestOrchestrator_Tick(t *testing.T) {
 	}
 	agentRunner.runs = nil // reset
 
-	// 3. Implemented -> Blocked (Failure)
+	// 3. Implemented -> Ready + Ralph re-spawn (implementation failure)
 	err = client.LogDecision(id, "bart_fail_implementation")
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = orch.Tick()
-	if err != nil {
-		t.Fatal(err)
-	}
-	orch.Wait()
-	epic, _ = client.GetEpic(id) // Re-fetch HERE
-	if epic.Status != "blocked" {
-		t.Errorf("expected blocked status after failure, got %s", epic.Status)
-	}
-	if len(agentRunner.runs) != 1 || agentRunner.runs[0] != "lisa:"+id {
-		t.Errorf("expected lisa to be run for epic %s, got %v", id, agentRunner.runs)
-	}
-	agentRunner.runs = nil // reset
-
-	// 4. Blocked -> Ready (Lisa fixes it)
-	// Lisa will set it back to ready
-	err = client.Update(id, "--labels", "ready")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -104,10 +84,10 @@ func TestOrchestrator_Tick(t *testing.T) {
 	orch.Wait()
 	epic, _ = client.GetEpic(id)
 	if epic.Status != "in_progress" {
-		t.Errorf("expected in_progress status after Lisa fix, got %s", epic.Status)
+		t.Errorf("expected in_progress status after bart_fail_implementation, got %s", epic.Status)
 	}
 	if len(agentRunner.runs) != 1 || agentRunner.runs[0] != "ralph:"+id {
-		t.Errorf("expected ralph to be run for epic %s after Lisa fix, got %v", id, agentRunner.runs)
+		t.Errorf("expected ralph to be re-spawned for epic %s, got %v", id, agentRunner.runs)
 	}
 	agentRunner.runs = nil // reset
 

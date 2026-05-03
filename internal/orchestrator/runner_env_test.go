@@ -60,47 +60,60 @@ func TestCommandAgentRunner_EnvVariableInjection(t *testing.T) {
 	}
 }
 
-// TestCommandAgentRunner_EnvVariableNoDuplicates verifies that environment
-// variables don't get duplicated when injected.
+// TestCommandAgentRunner_EnvVariableNoDuplicates verifies that the runner
+// deduplicates Springfield control-plane env vars even when they are already
+// present in the parent environment.
 func TestCommandAgentRunner_EnvVariableNoDuplicates(t *testing.T) {
-	// Save original env
-	origEnv := os.Environ()
-	defer func() {
-		// Note: Can't actually restore os.Environ(), but this documents intent
-		_ = origEnv
-	}()
+	// Pre-seed parent env with stale Springfield vars — simulates a nested invocation.
+	t.Setenv("SPRINGFIELD_SENTINEL", "stale-sentinel")
+	t.Setenv("SPRINGFIELD_EPIC", "stale-epic")
+	t.Setenv("SPRINGFIELD_AGENT", "stale-agent")
 
-	// Set a test env var
-	testVar := "SPRINGFIELD_SENTINEL"
-	testValue := "original-value"
-	if err := os.Setenv(testVar, testValue); err != nil {
-		t.Fatalf("failed to set env var: %v", err)
+	// Use a script that dumps its environment to a file so we can inspect it.
+	dir := t.TempDir()
+	logFile := dir + "/env.txt"
+	script := "#!/bin/sh\nenv > " + logFile + "\nexit 0\n"
+	scriptPath := dir + "/fake_springfield"
+	if err := os.WriteFile(scriptPath, []byte(script), 0755); err != nil {
+		t.Fatalf("failed to write script: %v", err)
 	}
-	defer func() {
-		_ = os.Unsetenv(testVar)
-	}()
 
-	// Manually inspect what env vars would be set
-	// This simulates the behavior inside Run()
-	newEnv := append(os.Environ(),
-		"SPRINGFIELD_SENTINEL=new-value-1",
-		"SPRINGFIELD_EPIC=td-123",
-		"SPRINGFIELD_AGENT=ralph",
-	)
+	runner := &CommandAgentRunner{BinaryPath: scriptPath}
+	if err := runner.Run("ralph", "td-dedup-test", dir); err != nil {
+		t.Fatalf("Run failed: %v", err)
+	}
 
-	// Count occurrences of SPRINGFIELD_SENTINEL
-	count := 0
-	for _, e := range newEnv {
-		if strings.HasPrefix(e, "SPRINGFIELD_SENTINEL=") {
-			count++
+	data, err := os.ReadFile(logFile)
+	if err != nil {
+		t.Fatalf("failed to read env log: %v", err)
+	}
+	childEnv := string(data)
+
+	// Each Springfield var must appear exactly once in the child's environment.
+	for _, prefix := range []string{"SPRINGFIELD_SENTINEL=", "SPRINGFIELD_EPIC=", "SPRINGFIELD_AGENT="} {
+		count := strings.Count(childEnv, "\n"+prefix) + strings.Count(childEnv, prefix+"\n")
+		// A simpler count: split on newlines and count prefix matches.
+		n := 0
+		for _, line := range strings.Split(childEnv, "\n") {
+			if strings.HasPrefix(line, prefix) {
+				n++
+			}
 		}
+		if n != 1 {
+			t.Errorf("expected exactly 1 occurrence of %s in child env, got %d\nenv:\n%s", prefix, n, childEnv)
+		}
+		_ = count
 	}
 
-	// Currently this will find 2 (one from os.Environ(), one appended)
-	// The issue is that duplicates exist - the last one wins
-	if count > 1 {
-		t.Logf("Found %d SPRINGFIELD_SENTINEL entries (duplicates detected)", count)
-		t.Log("This is the issue Bart identified - env var cleanup needed")
+	// The stale values must have been overwritten with fresh ones.
+	if strings.Contains(childEnv, "SPRINGFIELD_SENTINEL=stale-sentinel") {
+		t.Errorf("stale SPRINGFIELD_SENTINEL leaked into child env")
+	}
+	if strings.Contains(childEnv, "SPRINGFIELD_EPIC=stale-epic") {
+		t.Errorf("stale SPRINGFIELD_EPIC leaked into child env")
+	}
+	if strings.Contains(childEnv, "SPRINGFIELD_AGENT=stale-agent") {
+		t.Errorf("stale SPRINGFIELD_AGENT leaked into child env")
 	}
 }
 

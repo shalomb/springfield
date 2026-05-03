@@ -46,7 +46,7 @@ func TestSignalCmd_SentinelValidation(t *testing.T) {
 func TestSignalCmd_DecisionMapping(t *testing.T) {
 	t.Setenv("SPRINGFIELD_AGENT", "ralph")
 	t.Setenv("SPRINGFIELD_SENTINEL", "tok")
-	t.Setenv("SPRINGFIELD_EPIC_ID", "td-123") // Add epic ID
+	t.Setenv("SPRINGFIELD_EPIC", "td-123") // Add epic ID
 
 	b := bytes.NewBufferString("")
 	rootCmd.SetOut(b)
@@ -70,7 +70,7 @@ func TestSignalCmd_Success(t *testing.T) {
 	// For now, we just test it parses correctly and prints what it would do
 	// Since we haven't implemented sentinel validation yet, any token should work
 	// or we mock the validation.
-	t.Setenv("SPRINGFIELD_EPIC_ID", "td-123")
+	t.Setenv("SPRINGFIELD_EPIC", "td-123")
 
 	b := bytes.NewBufferString("")
 	rootCmd.SetOut(b)

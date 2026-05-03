@@ -12,19 +12,19 @@ Feature: Autonomous Control Plane Signaling
     And the Orchestrator should schedule "Bart" for the next tick
 
   Scenario: Unauthorized Signal Rejection
-    Given the Orchestrator has started "Ralph" with sentinel "auth-123"
+    Given the Orchestrator has attempted to start "Ralph" with sentinel "auth-123"
     When the agent executes "springfield signal --sentinel fake-999 --status success"
     Then the command should fail with "Unauthorized: Sentinel mismatch"
     And the agent process should NOT terminate
     And the Epic state should remain "in_progress"
 
   Scenario: Bart Rejection Triggers Correction Loop
-    Given the Epic "td-epic-001" is "implemented"
+    Given the Epic "td-epic-001" is in status "implemented"
     And "Bart" is running with sentinel "bart-auth"
     When the agent executes "springfield signal --sentinel bart-auth --status failed --reason 'Tests failed'"
     Then the Epic "td-epic-001" should transition to "in_progress"
     And the Orchestrator should schedule "Ralph" for the next tick
-    And the previous worktree should be preserved for Ralph
+    And the previous worktree should be preserved for "td-epic-001"
 
   Scenario: Lisa Planning Triggers Environment Provisioning
     Given the Epic "td-epic-002" is "planned"
