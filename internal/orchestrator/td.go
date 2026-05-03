@@ -123,6 +123,7 @@ func (c *TDClient) runTD(args ...string) ([]byte, error) {
 	}
 
 	cmd := exec.Command("td", fullArgs...)
+	cmd.Dir = c.WorkDir
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("td %v failed: %w (output: %s)", args, err, string(output))

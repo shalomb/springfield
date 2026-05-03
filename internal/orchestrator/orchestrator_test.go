@@ -2,19 +2,26 @@ package orchestrator
 
 import (
 	"os"
+	"sync"
 	"testing"
 )
 
 type mockAgentRunner struct {
+	mu   sync.Mutex
 	runs []string
 }
 
 func (m *mockAgentRunner) Run(agent string, epicID string, worktreeDir string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	m.runs = append(m.runs, agent+":"+epicID)
 	return nil
 }
 
 func TestOrchestrator_Tick(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping: spawns real td processes")
+	}
 	tempDir, err := os.MkdirTemp("", "orchestrator-test")
 	if err != nil {
 		t.Fatal(err)
