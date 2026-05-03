@@ -1,7 +1,7 @@
 # ADR-008: Planning State Boundary, td(1) Adoption, and Springfield Binary Orchestration
 
 **Date:** 2026-02-19
-**Status:** Proposed
+**Status:** Accepted
 
 ---
 

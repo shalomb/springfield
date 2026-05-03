@@ -3,19 +3,26 @@ package orchestrator
 import (
 	"fmt"
 	"os"
+	"sync"
 	"testing"
 )
 
 type mockAgentRunner struct {
+	mu   sync.Mutex
 	runs []string
 }
 
 func (m *mockAgentRunner) Run(agent string, epicID string, worktreeDir string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	m.runs = append(m.runs, agent+":"+epicID)
 	return nil
 }
 
 func TestOrchestrator_Tick(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping: spawns real td processes")
+	}
 	tempDir, err := os.MkdirTemp("", "orchestrator-test")
 	if err != nil {
 		t.Fatal(err)
@@ -48,6 +55,7 @@ func TestOrchestrator_Tick(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Verify our specific epic transitioned
+	orch.Wait()
 	ids, _ := client.QueryIDs("status = in_progress")
 	foundID := false
 	var foundIDStr string
@@ -85,6 +93,7 @@ func TestOrchestrator_Tick(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	orch.Wait()
 	epic, _ := client.GetEpic(id)
 	if epic.Status != "in_review" {
 		t.Errorf("expected in_review status, got %s", epic.Status)
@@ -101,7 +110,7 @@ func TestOrchestrator_Tick(t *testing.T) {
 	}
 	agentRunner.runs = nil // reset
 
-	// 3. Implemented -> Blocked (Failure)
+	// 3. Implemented -> Ready + Ralph re-spawn (implementation failure)
 	err = client.LogDecision(id, "bart_fail_implementation")
 	if err != nil {
 		t.Fatal(err)
@@ -110,45 +119,13 @@ func TestOrchestrator_Tick(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	epic, _ = client.GetEpic(id)
-	if epic.Status != "blocked" {
-		t.Errorf("expected blocked status after failure, got %s", epic.Status)
-	}
-	foundLisa := false
-	for _, run := range agentRunner.runs {
-		if run == "lisa:"+id {
-			foundLisa = true
-			break
-		}
-	}
-	if !foundLisa {
-		t.Errorf("expected lisa to be run for epic %s, got %v", id, agentRunner.runs)
-	}
-	agentRunner.runs = nil // reset
-
-	// 4. Blocked -> Ready (Lisa fixes it)
-	// Lisa will set it back to ready
-	err = client.Update(id, "--labels", "ready")
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = orch.Tick()
-	if err != nil {
-		t.Fatal(err)
-	}
+	orch.Wait()
 	epic, _ = client.GetEpic(id)
 	if epic.Status != "in_progress" {
-		t.Errorf("expected in_progress status after Lisa fix, got %s", epic.Status)
+		t.Errorf("expected in_progress status after bart_fail_implementation, got %s", epic.Status)
 	}
-	foundRalphFix := false
-	for _, run := range agentRunner.runs {
-		if run == "ralph:"+id {
-			foundRalphFix = true
-			break
-		}
-	}
-	if !foundRalphFix {
-		t.Errorf("expected ralph to be run for epic %s after Lisa fix, got %v", id, agentRunner.runs)
+	if len(agentRunner.runs) != 1 || agentRunner.runs[0] != "ralph:"+id {
+		t.Errorf("expected ralph to be re-spawned for epic %s, got %v", id, agentRunner.runs)
 	}
 	agentRunner.runs = nil // reset
 
@@ -161,6 +138,7 @@ func TestOrchestrator_Tick(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	orch.Wait()
 	epic, _ = client.GetEpic(id)
 	if epic.Status != "in_review" {
 		t.Errorf("expected in_review status after retry, got %s", epic.Status)
@@ -186,6 +164,7 @@ func TestOrchestrator_Tick(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	orch.Wait()
 	epic, _ = client.GetEpic(id)
 	if epic.Status != "blocked" {
 		t.Errorf("expected blocked status, got %s", epic.Status)
@@ -239,11 +218,12 @@ func TestOrchestrator_StrictHandoff(t *testing.T) {
 	agentRunner := &mockAgentRunner{}
 	orch := NewOrchestrator(client, agentRunner, wm)
 
-	// Tick should fail because handoff file is missing
+	// Tick should NOT fail directly (async), but status should NOT change
 	err = orch.Tick()
-	if err == nil {
-		t.Error("expected Tick to fail due to missing handoff file, but it succeeded")
+	if err != nil {
+		t.Fatal(err)
 	}
+	orch.Wait()
 
 	// Verify it's still 'open' (or at least not in_progress if it failed early)
 	epic, _ := client.GetEpic(id)

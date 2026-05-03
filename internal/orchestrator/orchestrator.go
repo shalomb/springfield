@@ -5,6 +5,12 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
+
+	"sync"
+	"time"
+
+	"github.com/gofrs/uuid"
 )
 
 // AgentRunner provides an interface for running agents.
@@ -25,11 +31,18 @@ type Orchestrator struct {
 	TD       TDClientInterface
 	Agent    AgentRunner
 	Worktree *WorktreeManager
+	workers  map[string]bool
+	mu       sync.Mutex
 }
 
 // NewOrchestrator creates a new Orchestrator.
 func NewOrchestrator(td TDClientInterface, agent AgentRunner, worktree *WorktreeManager) *Orchestrator {
-	return &Orchestrator{TD: td, Agent: agent, Worktree: worktree}
+	return &Orchestrator{
+		TD:       td,
+		Agent:    agent,
+		Worktree: worktree,
+		workers:  make(map[string]bool),
+	}
 }
 
 // CommandAgentRunner runs agents by executing the springfield binary.
@@ -38,11 +51,49 @@ type CommandAgentRunner struct {
 }
 
 func (r *CommandAgentRunner) Run(agent string, epicID string, worktreeDir string) error {
-	log.Printf("INVOKING AGENT: %s for Epic %s (binary: %s) in worktree %s", agent, epicID, r.BinaryPath, worktreeDir)
-	cmd := exec.Command(r.BinaryPath, "--agent", agent, "--task", fmt.Sprintf("Work on epic %s", epicID))
+	sentinel, _ := uuid.NewV4()
+	sentinelStr := sentinel.String()
+
+	log.Printf("INVOKING AGENT: %s for Epic %s (binary: %s) in worktree %s",
+		agent, epicID, r.BinaryPath, worktreeDir)
+
+	cmd := exec.Command(r.BinaryPath,
+		"--agent", agent,
+		"--task", fmt.Sprintf("Work on epic %s", epicID),
+		"--sentinel", sentinelStr,
+		"--epic", epicID,
+	)
 	cmd.Dir = worktreeDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+
+	// Build a clean environment to avoid duplicate variables
+	// First, remove any existing Springfield control plane variables
+	varNames := map[string]bool{
+		"SPRINGFIELD_SENTINEL": true,
+		"SPRINGFIELD_EPIC":     true,
+		"SPRINGFIELD_AGENT":    true,
+	}
+
+	cleanEnv := []string{}
+	for _, e := range os.Environ() {
+		if idx := strings.Index(e, "="); idx >= 0 {
+			name := e[:idx]
+			if !varNames[name] {
+				cleanEnv = append(cleanEnv, e)
+			}
+		}
+	}
+
+	// Now inject fresh Springfield variables
+	cleanEnv = append(cleanEnv,
+		fmt.Sprintf("SPRINGFIELD_SENTINEL=%s", sentinelStr),
+		fmt.Sprintf("SPRINGFIELD_EPIC=%s", epicID),
+		fmt.Sprintf("SPRINGFIELD_AGENT=%s", agent),
+	)
+
+	cmd.Env = cleanEnv
+
 	return cmd.Run()
 }
 
@@ -55,14 +106,42 @@ func (o *Orchestrator) Tick() error {
 	}
 
 	for _, id := range ids {
-		log.Printf("Processing Epic %s", id)
-		if err := o.processEpic(id); err != nil {
-			log.Printf("Error processing Epic %s: %v", id, err)
-			return err // Return error to stop Tick if an epic fails
+		o.mu.Lock()
+		if o.workers[id] {
+			o.mu.Unlock()
+			continue // Already processing
 		}
+		o.workers[id] = true
+		o.mu.Unlock()
+
+		go func(epicID string) {
+			defer func() {
+				o.mu.Lock()
+				delete(o.workers, epicID)
+				o.mu.Unlock()
+			}()
+
+			log.Printf("Processing Epic %s", epicID)
+			if err := o.processEpic(epicID); err != nil {
+				log.Printf("Error processing Epic %s: %v", epicID, err)
+			}
+		}(id)
 	}
 
 	return nil
+}
+
+// Wait blocks until all active worker goroutines have finished.
+func (o *Orchestrator) Wait() {
+	for {
+		o.mu.Lock()
+		count := len(o.workers)
+		o.mu.Unlock()
+		if count == 0 {
+			return
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
 }
 
 func (o *Orchestrator) processEpic(id string) error {
@@ -124,7 +203,19 @@ func (o *Orchestrator) processEpic(id string) error {
 	case StatusImplemented:
 		if o.hasDecision(epic, "bart_ok") {
 			log.Printf("Bart approved Epic %s. Transitioning to verified.", id)
-			if err := o.TD.Update(id, "--labels", "verified"); err != nil {
+			// Move to verified state so Lisa can pick it up for merge and planning
+			if err := o.TD.Update(id, "--status", "verified", "--labels", ""); err != nil {
+				return err
+			}
+			if o.Agent != nil {
+				return o.Agent.Run("lisa", id, "")
+			}
+			return nil
+		}
+		if o.hasDecision(epic, "bart_fail_implementation") {
+			log.Printf("Bart rejected implementation for Epic %s. Re-spawning Ralph in existing worktree.", id)
+			// Clear the implemented label and return to in_progress for Ralph's retry.
+			if err := o.TD.Update(id, "--status", "in_progress", "--labels", ""); err != nil {
 				return err
 			}
 			if o.Agent != nil {
@@ -132,20 +223,7 @@ func (o *Orchestrator) processEpic(id string) error {
 				if o.Worktree != nil {
 					worktreeDir, _ = o.Worktree.EnsureWorktree(id)
 				}
-				return o.Agent.Run("lovejoy", id, worktreeDir)
-			}
-			return nil
-		}
-		if o.hasDecision(epic, "bart_fail_implementation") {
-			log.Printf("Bart rejected implementation for Epic %s. Transitioning to blocked for Lisa review.", id)
-			if err := o.TD.Update(id, "--status", "in_progress"); err != nil {
-				return err
-			}
-			if err := o.TD.Update(id, "--status", "blocked", "--labels", ""); err != nil {
-				return err
-			}
-			if o.Agent != nil {
-				return o.Agent.Run("lisa", id, "")
+				return o.Agent.Run("ralph", id, worktreeDir)
 			}
 			return nil
 		}
@@ -165,9 +243,37 @@ func (o *Orchestrator) processEpic(id string) error {
 			}
 			return nil
 		}
+	case StatusVerified:
+		if o.hasDecision(epic, "lisa_merge") {
+			log.Printf("Lisa merged Epic %s. Transitioning to done.", id)
+			if err := o.TD.Update(id, "--status", "done", "--labels", ""); err != nil {
+				return err
+			}
+
+			// Check if Lovejoy should fire (Release Boundary)
+			allDone, err := o.checkAllEpicsDone()
+			if err != nil {
+				log.Printf("Warning: Could not check if all epics are done: %v", err)
+			} else if allDone && o.Agent != nil {
+				log.Printf("All Epics in the milestone are done. Triggering Lovejoy for release synthesis.")
+				return o.Agent.Run("lovejoy", "release", "")
+			}
+			return nil
+		}
 	}
 
 	return nil
+}
+
+func (o *Orchestrator) checkAllEpicsDone() (bool, error) {
+	// Query td for any epic that is NOT 'done' or 'closed'
+	epics, err := o.TD.QueryIDs("type = epic AND status != closed")
+	if err != nil {
+		return false, err
+	}
+
+	// If the query returns nothing, all epics are done.
+	return len(epics) == 0, nil
 }
 
 func (o *Orchestrator) setupWorktree(id string) (string, error) {

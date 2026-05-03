@@ -13,6 +13,7 @@ import (
 	"github.com/shalomb/springfield/internal/llm"
 	"github.com/shalomb/springfield/internal/orchestrator"
 	"github.com/shalomb/springfield/internal/sandbox"
+	"github.com/shalomb/springfield/internal/setup"
 	"github.com/shalomb/springfield/internal/testutils"
 	"github.com/spf13/cobra"
 )
@@ -21,6 +22,9 @@ var (
 	agentName  string
 	task       string
 	configPath string
+	sentinel   string
+	epicID     string
+	daemon     bool
 )
 
 var rootCmd = &cobra.Command{
@@ -30,7 +34,7 @@ var rootCmd = &cobra.Command{
 	SilenceErrors: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if agentName == "" || task == "" {
-			return cmd.Help()
+			return orchestrateCmd.RunE(cmd, args)
 		}
 
 		roles := map[string]string{
@@ -101,6 +105,13 @@ var rootCmd = &cobra.Command{
 			return fmt.Errorf("error creating runner for agent %s: %w", agentName, err)
 		}
 
+		// Update the runner's profile if it's an Agent
+		if a, ok := runner.(*agent.Agent); ok {
+			a.Profile.Sentinel = sentinel
+			a.Profile.EpicID = epicID
+			a.Task = task // Re-assign task because NewRunnerWithBudget might not have it or use it differently
+		}
+
 		fmt.Println("Starting agent loop...")
 		if err := runner.Run(ctx); err != nil {
 			// Check for quota errors (terminal conditions)
@@ -127,13 +138,47 @@ var orchestrateCmd = &cobra.Command{
 	Use:   "orchestrate",
 	Short: "Run the orchestration loop",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("Orchestration loop starting...")
-		tdClient := orchestrator.NewTDClient("")
-		worktreeManager := &orchestrator.WorktreeManager{BaseDir: "."}
+		cwd, err := os.Getwd()
+		if err != nil {
+			return fmt.Errorf("cannot determine working directory: %w", err)
+		}
+		root, err := setup.GitRoot(cwd)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("Repository: %s\n", root)
+
+		tdClient := orchestrator.NewTDClient(root)
+		worktreeManager := &orchestrator.WorktreeManager{BaseDir: root}
 		agentRunner := &orchestrator.CommandAgentRunner{BinaryPath: "springfield"}
 		orch := orchestrator.NewOrchestrator(tdClient, agentRunner, worktreeManager)
 
-		return orch.Tick()
+		// Give the user an immediate picture of what the orchestrator sees.
+		ids, err := tdClient.QueryIDs("type = epic AND status != closed")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "warning: could not query epics: %v\n", err)
+		} else if len(ids) == 0 {
+			fmt.Println("No active epics found.")
+			fmt.Println("Create one with: td epic add 'Your feature description'")
+			if !daemon {
+				return nil
+			}
+		} else {
+			fmt.Printf("%d active epic(s): %s\n", len(ids), strings.Join(ids, ", "))
+		}
+
+		if !daemon {
+			return orch.Tick()
+		}
+
+		fmt.Println("Daemon mode active. Polling td every 5s...")
+		for {
+			if err := orch.Tick(); err != nil {
+				fmt.Fprintf(os.Stderr, "Orchestration error: %v\n", err)
+			}
+			time.Sleep(5 * time.Second)
+		}
 	},
 }
 
@@ -142,6 +187,10 @@ func init() {
 	rootCmd.Flags().StringVarP(&agentName, "agent", "a", "", "Name of the agent (marge/lisa/ralph/bart/lovejoy)")
 	rootCmd.Flags().StringVarP(&task, "task", "t", "", "Task to execute")
 	rootCmd.Flags().StringVarP(&configPath, "config", "c", "", "Path to axon config.toml")
+	rootCmd.Flags().StringVar(&epicID, "epic", "", "Epic ID being worked on")
+	rootCmd.Flags().StringVar(&sentinel, "sentinel", "", "Session sentinel token (injected by orchestrator)")
+
+	orchestrateCmd.Flags().BoolVarP(&daemon, "daemon", "d", false, "Run in daemon mode (persistent polling)")
 }
 
 func main() {

@@ -1,11 +1,15 @@
 package agent
 
 import (
+	"bytes"
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"regexp"
 	"strings"
+	"text/template"
 
 	"github.com/shalomb/axon/pkg/types"
 	"github.com/shalomb/springfield/internal/governance"
@@ -32,6 +36,8 @@ type AgentProfile struct {
 	ToolsEnabled  []string
 	FinishMarker  string
 	MaxIterations int
+	Sentinel      string
+	EpicID        string
 }
 
 // Agent represents an autonomous agent.
@@ -49,6 +55,7 @@ type Agent struct {
 	TotalUsage           int   // Track total tokens used
 	TotalCostNanoDollars int64 // Track total cost in nano-dollars
 	Tracker              *governance.UsageTracker
+	Sentinel             string
 }
 
 // New creates a new Agent with default settings.
@@ -57,12 +64,37 @@ func New(profile AgentProfile, l llm.LLMClient, s sandbox.Sandbox) *Agent {
 	if maxIterations == 0 {
 		maxIterations = 20
 	}
+
+	// Use provided sentinel or generate session sentinel as UUIDv4
+	sentinel := profile.Sentinel
+	if sentinel == "" {
+		// Generate UUIDv4-format sentinel (8-4-4-4-12 hex characters)
+		bytes := make([]byte, 16)
+		if _, err := rand.Read(bytes); err != nil {
+			// Fallback if rand fails (unlikely)
+			copy(bytes, []byte("failsafeguardian"))
+		}
+		// Set version to 4 and variant to RFC 4122
+		bytes[6] = (bytes[6] & 0x0f) | 0x40
+		bytes[8] = (bytes[8] & 0x3f) | 0x80
+		// Format as UUIDv4: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+		sentinel = hex.EncodeToString(bytes[0:4]) + "-" +
+			hex.EncodeToString(bytes[4:6]) + "-" +
+			hex.EncodeToString(bytes[6:8]) + "-" +
+			hex.EncodeToString(bytes[8:10]) + "-" +
+			hex.EncodeToString(bytes[10:16])
+	}
+
+	// Sync sentinel to profile so Profile.Sentinel matches Agent.Sentinel
+	profile.Sentinel = sentinel
+
 	return &Agent{
 		Profile:       profile,
 		LLM:           l,
 		Sandbox:       s,
 		MaxRetries:    3,
 		MaxIterations: maxIterations,
+		Sentinel:      sentinel,
 	}
 }
 
@@ -82,6 +114,35 @@ func (a *Agent) Run(ctx context.Context) error {
 	systemPrompt := a.Profile.SystemPrompt
 	if systemPrompt == "" {
 		systemPrompt = fmt.Sprintf("You are %s, a %s.", a.Profile.Name, a.Profile.Role)
+	}
+
+	// Template injection for system prompt
+	tmpl, err := template.New("systemPrompt").Parse(systemPrompt)
+	if err != nil {
+		a.log(fmt.Sprintf("Warning: Template parse error: %v. Using raw prompt.", err), "WARNING", nil, 0)
+	} else {
+		var buf bytes.Buffer
+		data := struct {
+			Name     string
+			Role     string
+			Sentinel string
+			EpicID   string
+		}{
+			Name:     a.Profile.Name,
+			Role:     a.Profile.Role,
+			Sentinel: a.Sentinel,
+			EpicID:   a.Profile.EpicID,
+		}
+		if err := tmpl.Execute(&buf, data); err != nil {
+			a.log(fmt.Sprintf("Warning: Template execution error: %v. Using raw prompt.", err), "WARNING", nil, 0)
+		} else {
+			systemPrompt = buf.String()
+		}
+	}
+
+	// Always ensure the agent knows its sentinel if it's set
+	if a.Sentinel != "" && !strings.Contains(systemPrompt, a.Sentinel) {
+		systemPrompt += fmt.Sprintf("\n\nYour session sentinel is: %s\nTo exit, use: ACTION: springfield signal --sentinel %s --status <success|failed|blocked> --reason \"...\"", a.Sentinel, a.Sentinel)
 	}
 
 	messages := []llm.Message{
@@ -210,6 +271,15 @@ func (a *Agent) Run(ctx context.Context) error {
 				if i == a.MaxRetries {
 					a.log("Max retries reached for Sandbox execution.", "ERROR", nil, 0)
 					return err
+				}
+			}
+
+			// Intercept signal command *after* sandbox execution to decide if we exit
+			if isSignalAction(action) && result.ExitCode == 0 {
+				sentinel, ok := extractSentinel(action)
+				if ok && sentinel == a.Sentinel {
+					a.log("Intercepted successful signal, exiting loop.", "INFO", nil, 0)
+					return a.finish(resp.Content, thought)
 				}
 			}
 
@@ -363,4 +433,24 @@ func isUnsafeAction(action string) bool {
 	}
 
 	return false
+}
+
+func isSignalAction(action string) bool {
+	// Must be a signal command at the start AND must not contain newlines
+	// (signals are single-line commands; multiline indicates a malformed action)
+	if !strings.HasPrefix(action, "springfield signal") {
+		return false
+	}
+	return !strings.Contains(action, "\n")
+}
+
+func extractSentinel(action string) (string, bool) {
+	// Extract sentinel only if it matches UUIDv4 format (8-4-4-4-12 hex chars)
+	// This prevents injection of arbitrary values like flags, paths, or command substitutions
+	re := regexp.MustCompile(`--sentinel\s+([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})`)
+	matches := re.FindStringSubmatch(action)
+	if len(matches) < 2 {
+		return "", false
+	}
+	return matches[1], true
 }

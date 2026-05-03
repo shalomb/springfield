@@ -23,3 +23,14 @@ func TestOrchestrateCommandExists(t *testing.T) {
 	}
 	t.Logf("Output: %s", buf.String())
 }
+
+func TestOrchestrateDaemonFlag(t *testing.T) {
+	daemon = false // reset global flag
+	rootCmd.SetArgs([]string{"orchestrate", "--daemon"})
+	// We don't execute it because it would loop forever
+	// but we can check if the flag is registered.
+	f := orchestrateCmd.Flag("daemon")
+	if f == nil {
+		t.Errorf("orchestrate command missing --daemon flag")
+	}
+}

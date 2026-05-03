@@ -33,6 +33,8 @@ func TestFeatures(t *testing.T) {
 			InitializeGovernanceScenario(ctx)
 			InitializePromiseScenario(ctx)
 			InitializeUnifiedRunnerScenario(ctx)
+			InitializeControlPlaneScenario(ctx)
+			InitializeSetupScenario(ctx)
 		},
 		Options: &opts,
 	}

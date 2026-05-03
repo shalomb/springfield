@@ -1,7 +1,7 @@
 # ADR-007: Epic Refinement, Lisa's LRM Role, and the Planning Loop
 
 **Date:** 2026-02-19
-**Status:** Proposed
+**Status:** Accepted
 
 ---
 

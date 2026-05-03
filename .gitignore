@@ -43,4 +43,7 @@ REFINEMENT_*.md
 # Project
 logs
 worktrees
-tests/integration/main.go
+.td
+.sidecar
+# Springfield runtime artifacts
+worktrees/

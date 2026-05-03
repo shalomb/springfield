@@ -16,7 +16,7 @@
 # DEVELOPMENT MODE: Using claude-haiku-4-5 for all agents during development
 # See PLAN.md for model optimization strategy post-MVP
 [agent]
-model = "google-gemini-cli/gemini-3-flash-preview"
+model = "google-gemini-cli/gemini-3.1-pro-preview"
 max_iterations = 20
 budget = 100000
 
@@ -35,7 +35,7 @@ budget = 50000
 # DEVELOPMENT: Using claude-haiku-4-5 (cost-effective during dev)
 # FUTURE: Switch to claude-opus-4-6 for Tree of Thought + Self-Consistency
 [agents.lisa]
-model = "google-gemini-cli/gemini-3-flash-preview"
+model = "google-gemini-cli/gemini-3.1-pro-preview"
 max_iterations = 10
 budget = 200000
 

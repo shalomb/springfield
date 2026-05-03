@@ -457,6 +457,99 @@ func TestAgent_Run_BudgetExceeded(t *testing.T) {
 	}
 }
 
+func TestAgent_Run_SystemPromptContainsSentinel(t *testing.T) {
+	const validSentinel = "session-123"
+	mLLM := &mockLLM{responses: []string{"[[FINISH]]"}}
+	mSB := &mockSandbox{}
+	a := New(AgentProfile{Name: "agent", Role: "role", Sentinel: validSentinel}, mLLM, mSB)
+	a.Task = "task"
+
+	_ = a.Run(context.Background())
+
+	if mLLM.calls == 0 {
+		t.Fatal("LLM was never called")
+	}
+	sys := mLLM.received[0][0]
+	if !strings.Contains(sys.Content, validSentinel) {
+		t.Errorf("system prompt missing sentinel: %q", sys.Content)
+	}
+}
+
+func TestAgent_Run_SystemPromptTemplate(t *testing.T) {
+	const validSentinel = "session-123"
+	mLLM := &mockLLM{responses: []string{"[[FINISH]]"}}
+	mSB := &mockSandbox{}
+	a := New(AgentProfile{
+		Name:         "marge",
+		Role:         "product",
+		Sentinel:     validSentinel,
+		EpicID:       "epic-456",
+		SystemPrompt: "Hello {{.Name}}, your token is {{.Sentinel}} for epic {{.EpicID}}",
+	}, mLLM, mSB)
+	a.Task = "task"
+
+	_ = a.Run(context.Background())
+
+	sys := mLLM.received[0][0]
+	expected := "Hello marge, your token is session-123 for epic epic-456"
+	if !strings.Contains(sys.Content, expected) {
+		t.Errorf("system prompt template replacement failed: %q", sys.Content)
+	}
+}
+
+func TestAgent_Run_Signal(t *testing.T) {
+	const validSentinel = "d330877b-7f7b-4e3a-ac5d-2e8c3f9a1b2c"
+	mLLM := &mockLLM{responses: []string{
+		"ACTION: springfield signal --sentinel d330877b-7f7b-4e3a-ac5d-2e8c3f9a1b2c --status success --reason 'I am done'",
+		"SHOULD NOT REACH THIS",
+	}}
+	mSB := &mockSandbox{results: []*types.Result{
+		{Stdout: "Signaling status: success", ExitCode: 0},
+	}}
+	a := New(AgentProfile{Name: "agent", Role: "role", Sentinel: validSentinel}, mLLM, mSB)
+	a.Task = "task"
+
+	err := a.Run(context.Background())
+	if err != nil {
+		t.Fatalf("Run() unexpected error: %v", err)
+	}
+
+	if mLLM.calls != 1 {
+		t.Errorf("expected 1 LLM call before signal exit, got %d", mLLM.calls)
+	}
+
+	// Check if signal command was executed
+	if len(mSB.commands) == 0 {
+		t.Fatal("expected sandbox execution, got none")
+	}
+	if !strings.Contains(mSB.commands[0], "springfield signal") {
+		t.Errorf("unexpected command: %s", mSB.commands[0])
+	}
+}
+
+func TestAgent_Run_Signal_InvalidSentinel(t *testing.T) {
+	const validSentinel = "d330877b-7f7b-4e3a-ac5d-2e8c3f9a1b2c"
+	mLLM := &mockLLM{responses: []string{
+		"ACTION: springfield signal --sentinel 00000000-0000-0000-0000-000000000000 --status success",
+		"[[FINISH]]",
+	}}
+	mSB := &mockSandbox{results: []*types.Result{
+		{Stdout: "Error: invalid sentinel", ExitCode: 1},
+	}}
+	a := New(AgentProfile{Name: "agent", Role: "role", Sentinel: validSentinel}, mLLM, mSB)
+	a.Task = "task"
+
+	err := a.Run(context.Background())
+	if err != nil {
+		t.Fatalf("Run() unexpected error: %v", err)
+	}
+
+	// Should continue to the second call because signal failed (due to invalid sentinel)
+	if mLLM.calls != 2 {
+		t.Errorf("expected 2 LLM calls because first signal failed, got %d", mLLM.calls)
+	}
+}
+
 func TestIsUnsafeAction(t *testing.T) {
 	tests := []struct {
 		action string

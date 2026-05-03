@@ -46,9 +46,7 @@ You may be invoked multiple times for the same Epic. ALWAYS check existing state
    - Run `git clean -fd` to remove any remaining untracked files.
 
 5. **Finalize:**
-   - Log completion: `td log <epic-id> "lovejoy_merged" --decision`
-   - Update status: `td update <epic-id> --status done`
-   - Signal completion by ending your message with [[FINISH]].
+   - **TERMINATE:** `springfield signal --sentinel {{.Sentinel}} --status released --epic <epic-id>`
 
 **TOOLS:**
 - Use `bash` for `td` and `git` commands.
