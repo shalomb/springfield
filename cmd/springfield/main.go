@@ -12,6 +12,7 @@ import (
 	"github.com/shalomb/springfield/internal/llm"
 	"github.com/shalomb/springfield/internal/orchestrator"
 	"github.com/shalomb/springfield/internal/sandbox"
+	"github.com/shalomb/springfield/internal/setup"
 	"github.com/shalomb/springfield/internal/testutils"
 	"github.com/spf13/cobra"
 )
@@ -32,7 +33,7 @@ var rootCmd = &cobra.Command{
 	SilenceErrors: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if agentName == "" || task == "" {
-			return cmd.Help()
+			return orchestrateCmd.RunE(cmd, args)
 		}
 
 		roles := map[string]string{
@@ -137,17 +138,41 @@ var orchestrateCmd = &cobra.Command{
 	Use:   "orchestrate",
 	Short: "Run the orchestration loop",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("Orchestration loop starting...")
-		tdClient := orchestrator.NewTDClient("")
-		worktreeManager := &orchestrator.WorktreeManager{BaseDir: "."}
+		cwd, err := os.Getwd()
+		if err != nil {
+			return fmt.Errorf("cannot determine working directory: %w", err)
+		}
+		root, err := setup.GitRoot(cwd)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("Repository: %s\n", root)
+
+		tdClient := orchestrator.NewTDClient(root)
+		worktreeManager := &orchestrator.WorktreeManager{BaseDir: root}
 		agentRunner := &orchestrator.CommandAgentRunner{BinaryPath: "springfield"}
 		orch := orchestrator.NewOrchestrator(tdClient, agentRunner, worktreeManager)
+
+		// Give the user an immediate picture of what the orchestrator sees.
+		ids, err := tdClient.QueryIDs("type = epic AND status != closed")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "warning: could not query epics: %v\n", err)
+		} else if len(ids) == 0 {
+			fmt.Println("No active epics found.")
+			fmt.Println("Create one with: td epic add 'Your feature description'")
+			if !daemon {
+				return nil
+			}
+		} else {
+			fmt.Printf("%d active epic(s): %s\n", len(ids), strings.Join(ids, ", "))
+		}
 
 		if !daemon {
 			return orch.Tick()
 		}
 
-		fmt.Println("Daemon mode active. Polling td...")
+		fmt.Println("Daemon mode active. Polling td every 5s...")
 		for {
 			if err := orch.Tick(); err != nil {
 				fmt.Fprintf(os.Stderr, "Orchestration error: %v\n", err)
