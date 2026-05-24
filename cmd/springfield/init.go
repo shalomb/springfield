@@ -72,6 +72,34 @@ func runInit(cmd *cobra.Command, root string) error {
 		return fmt.Errorf("config setup failed")
 	}
 
+	// 4. .pi/agents
+	fmt.Println("\n--- .pi/agents")
+	if err := scaffoldPiAgents(cmd, root); err != nil {
+		warnf(cmd, "  failed: %v", err)
+		return fmt.Errorf(".pi/agents setup failed")
+	}
+
+	// 5. .todos
+	fmt.Println("\n--- .todos")
+	if err := scaffoldTodos(cmd, root); err != nil {
+		warnf(cmd, "  failed: %v", err)
+		return fmt.Errorf(".todos setup failed")
+	}
+
+	// 6. Justfile
+	fmt.Println("\n--- Justfile")
+	if err := scaffoldJustfile(cmd, root); err != nil {
+		warnf(cmd, "  failed: %v", err)
+		return fmt.Errorf("Justfile setup failed")
+	}
+
+	// 7. .codemap/config.json
+	fmt.Println("\n--- .codemap/config.json")
+	if err := scaffoldCodemapConfig(cmd, root); err != nil {
+		warnf(cmd, "  failed: %v", err)
+		return fmt.Errorf(".codemap/config.json setup failed")
+	}
+
 	return nil
 }
 
@@ -209,6 +237,64 @@ budget = 100000
 # [agents.bart]
 # budget = 80000
 `, provider, provider, provider)
+}
+func scaffoldPiAgents(cmd *cobra.Command, root string) error {
+	dir := filepath.Join(root, ".pi", "agents")
+	if _, err := os.Stat(dir); err == nil {
+		fmt.Println("  already initialised")
+		return nil
+	}
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
+	if err := os.WriteFile(filepath.Join(dir, ".gitkeep"), []byte(""), 0644); err != nil {
+		return err
+	}
+	fmt.Println("  initialised")
+	return nil
+}
+
+func scaffoldTodos(cmd *cobra.Command, root string) error {
+	dir := filepath.Join(root, ".todos")
+	if _, err := os.Stat(dir); err != nil {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return err
+		}
+	}
+	fmt.Println("  initialised")
+	return nil
+}
+
+func scaffoldJustfile(cmd *cobra.Command, root string) error {
+	jf := filepath.Join(root, "Justfile")
+	if _, err := os.Stat(jf); err == nil {
+		fmt.Println("  already initialised")
+		return nil
+	}
+	content := []byte("default:\n\t@just --list\n")
+	if err := os.WriteFile(jf, content, 0644); err != nil {
+		return err
+	}
+	fmt.Println("  initialised")
+	return nil
+}
+
+func scaffoldCodemapConfig(cmd *cobra.Command, root string) error {
+	dir := filepath.Join(root, ".codemap")
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
+	cf := filepath.Join(dir, "config.json")
+	if _, err := os.Stat(cf); err == nil {
+		fmt.Println("  already initialised")
+		return nil
+	}
+	content := []byte("{\n  \"ignore\": [\n    \"node_modules\",\n    \"vendor\"\n  ]\n}\n")
+	if err := os.WriteFile(cf, content, 0644); err != nil {
+		return err
+	}
+	fmt.Println("  initialised")
+	return nil
 }
 
 func init() {

@@ -19,6 +19,9 @@ func init() {
 }
 
 func TestFeatures(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration tests in short mode")
+	}
 	tmpDir := t.TempDir()
 	t.Setenv("SPRINGFIELD_LOG_DIR", tmpDir)
 
