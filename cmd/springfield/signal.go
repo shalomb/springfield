@@ -78,6 +78,8 @@ var signalCmd = &cobra.Command{
 					decision = "ralph_done"
 				} else if statusFlag == "blocked" {
 					decision = "ralph_blocked"
+				} else {
+					return fmt.Errorf("agent %s cannot signal '%s'", agentRole, statusFlag)
 				}
 			case "bart":
 				if statusFlag == "success" || statusFlag == "verified" {
@@ -85,19 +87,23 @@ var signalCmd = &cobra.Command{
 				} else if statusFlag == "failed" {
 					decision = "bart_fail_implementation"
 				} else if statusFlag == "blocked" {
-					// Check reason for more specific failure if possible,
-					// but default to viability for blocked.
 					decision = "bart_fail_viability"
+				} else {
+					return fmt.Errorf("agent %s cannot signal '%s'", agentRole, statusFlag)
 				}
 			case "lisa":
 				if statusFlag == "complete" {
 					decision = "lisa_ready"
 				} else if statusFlag == "success" {
 					decision = "lisa_merge"
+				} else {
+					return fmt.Errorf("agent %s cannot signal '%s'", agentRole, statusFlag)
 				}
 			case "lovejoy":
 				if statusFlag == "released" || statusFlag == "success" {
 					decision = "lovejoy_merge"
+				} else {
+					return fmt.Errorf("agent %s cannot signal '%s'", agentRole, statusFlag)
 				}
 			}
 
@@ -107,6 +113,16 @@ var signalCmd = &cobra.Command{
 				if reasonFlag == "" {
 					decision = statusFlag
 				}
+			}
+
+			// State machine validation (if we can fetch the epic)
+			if epic, err := td.GetEpic(epicID); err == nil {
+				currentState := orchestrator.DetermineState(epic)
+				if _, transErr := currentState.Transition(decision); transErr != nil {
+					return fmt.Errorf("state machine violation: %w", transErr)
+				}
+			} else {
+				cmd.Printf("Warning: Could not fetch Epic to validate state machine: %v\n", err)
 			}
 
 			// Log decision

@@ -89,3 +89,74 @@ func TestSignalCmd_Success(t *testing.T) {
 		t.Errorf("unexpected output: %s", output)
 	}
 }
+
+// Test role-status validation: Bart cannot signal 'implemented'
+func TestSignalCmd_BartCannotSignalImplemented(t *testing.T) {
+	t.Setenv("SPRINGFIELD_AGENT", "bart")
+	t.Setenv("SPRINGFIELD_SENTINEL", "tok")
+	t.Setenv("SPRINGFIELD_EPIC", "td-123")
+
+	rootCmd.SetArgs([]string{"signal", "--sentinel", "tok", "--status", "implemented"})
+	err := rootCmd.Execute()
+	if err == nil {
+		t.Error("expected error: Bart cannot signal 'implemented', got nil")
+	}
+	if !strings.Contains(err.Error(), "cannot signal") {
+		t.Errorf("expected 'cannot signal' error, got: %v", err)
+	}
+}
+
+// Test role-status validation: Ralph can signal 'success'
+func TestSignalCmd_RalphCanSignalSuccess(t *testing.T) {
+	t.Setenv("SPRINGFIELD_AGENT", "ralph")
+	t.Setenv("SPRINGFIELD_SENTINEL", "tok")
+	t.Setenv("SPRINGFIELD_EPIC", "td-123")
+
+	rootCmd.SetArgs([]string{"signal", "--sentinel", "tok", "--status", "success"})
+	err := rootCmd.Execute()
+	if err != nil {
+		t.Fatalf("Ralph should be able to signal success, got: %v", err)
+	}
+}
+
+// Test role-status validation: Ralph cannot signal 'complete'
+func TestSignalCmd_RalphCannotSignalComplete(t *testing.T) {
+	t.Setenv("SPRINGFIELD_AGENT", "ralph")
+	t.Setenv("SPRINGFIELD_SENTINEL", "tok")
+	t.Setenv("SPRINGFIELD_EPIC", "td-123")
+
+	rootCmd.SetArgs([]string{"signal", "--sentinel", "tok", "--status", "complete"})
+	err := rootCmd.Execute()
+	if err == nil {
+		t.Error("expected error: Ralph cannot signal 'complete', got nil")
+	}
+	if !strings.Contains(err.Error(), "cannot signal") {
+		t.Errorf("expected 'cannot signal' error, got: %v", err)
+	}
+}
+
+// Test role-status validation: Lisa can signal 'complete'
+func TestSignalCmd_LisaCanSignalComplete(t *testing.T) {
+	t.Setenv("SPRINGFIELD_AGENT", "lisa")
+	t.Setenv("SPRINGFIELD_SENTINEL", "tok")
+	t.Setenv("SPRINGFIELD_EPIC", "td-123")
+
+	rootCmd.SetArgs([]string{"signal", "--sentinel", "tok", "--status", "complete"})
+	err := rootCmd.Execute()
+	if err != nil {
+		t.Fatalf("Lisa should be able to signal complete, got: %v", err)
+	}
+}
+
+// Test role-status validation: Bart can signal 'failed'
+func TestSignalCmd_BartCanSignalFailed(t *testing.T) {
+	t.Setenv("SPRINGFIELD_AGENT", "bart")
+	t.Setenv("SPRINGFIELD_SENTINEL", "tok")
+	t.Setenv("SPRINGFIELD_EPIC", "td-123")
+
+	rootCmd.SetArgs([]string{"signal", "--sentinel", "tok", "--status", "failed"})
+	err := rootCmd.Execute()
+	if err != nil {
+		t.Fatalf("Bart should be able to signal failed, got: %v", err)
+	}
+}
