@@ -150,7 +150,7 @@ func (o *Orchestrator) processEpic(id string) error {
 		return err
 	}
 
-	state := o.determineState(epic)
+	state := DetermineState(epic)
 
 	log.Printf("Epic %s is in state %s", id, state)
 
@@ -305,7 +305,7 @@ func (o *Orchestrator) hasDecision(epic *Issue, decision string) bool {
 	return false
 }
 
-func (o *Orchestrator) determineState(epic *Issue) EpicStatus {
+func DetermineState(epic *Issue) EpicStatus {
 	// Simple mapping for now. ADR-008 states Lisa updates td Epic status.
 	// Since td only supports a few, we use labels to supplement.
 
