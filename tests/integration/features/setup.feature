@@ -11,6 +11,10 @@ Feature: Springfield Setup Commands
     And setup file ".gitignore" should contain ".todos/"
     And setup file ".gitignore" should contain "worktrees/"
     And setup file ".springfield.toml" should exist
+    And setup file ".pi/agents" should exist
+    And setup file ".todos" should exist
+    And setup file "Justfile" should exist
+    And setup file ".codemap/config.json" should exist
     And the setup output should contain "Done."
 
   Scenario: init is idempotent

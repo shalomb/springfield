@@ -72,6 +72,34 @@ func runInit(cmd *cobra.Command, root string) error {
 		return fmt.Errorf("config setup failed")
 	}
 
+	// 4. .pi/agents
+	fmt.Println("\n--- .pi/agents")
+	if err := scaffoldPiAgents(root); err != nil {
+		warnf(cmd, "  failed: %v", err)
+		return fmt.Errorf(".pi/agents setup failed")
+	}
+
+	// 5. .todos
+	fmt.Println("\n--- .todos")
+	if err := scaffoldTodos(root); err != nil {
+		warnf(cmd, "  failed: %v", err)
+		return fmt.Errorf(".todos setup failed")
+	}
+
+	// 6. Justfile
+	fmt.Println("\n--- Justfile")
+	if err := scaffoldJustfile(root); err != nil {
+		warnf(cmd, "  failed: %v", err)
+		return fmt.Errorf("Justfile setup failed")
+	}
+
+	// 7. .codemap/config.json
+	fmt.Println("\n--- .codemap/config.json")
+	if err := scaffoldCodemapConfig(root); err != nil {
+		warnf(cmd, "  failed: %v", err)
+		return fmt.Errorf(".codemap/config.json setup failed")
+	}
+
 	return nil
 }
 
@@ -209,6 +237,48 @@ budget = 100000
 # [agents.bart]
 # budget = 80000
 `, provider, provider, provider)
+}
+func scaffoldFile(path string, content []byte) error {
+	if _, err := os.Stat(path); err == nil {
+		fmt.Println("  already initialised")
+		return nil
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		return err
+	}
+	if err := os.WriteFile(path, content, 0644); err != nil {
+		return err
+	}
+	fmt.Println("  initialised")
+	return nil
+}
+
+func scaffoldDir(path string) error {
+	if _, err := os.Stat(path); err == nil {
+		fmt.Println("  already initialised")
+		return nil
+	}
+	if err := os.MkdirAll(path, 0755); err != nil {
+		return err
+	}
+	fmt.Println("  initialised")
+	return nil
+}
+
+func scaffoldPiAgents(root string) error {
+	return scaffoldFile(filepath.Join(root, ".pi", "agents", ".gitkeep"), nil)
+}
+
+func scaffoldTodos(root string) error {
+	return scaffoldDir(filepath.Join(root, ".todos"))
+}
+
+func scaffoldJustfile(root string) error {
+	return scaffoldFile(filepath.Join(root, "Justfile"), []byte("default:\n\t@just --list\n"))
+}
+
+func scaffoldCodemapConfig(root string) error {
+	return scaffoldFile(filepath.Join(root, ".codemap", "config.json"), []byte("{\n  \"ignore\": [\n    \"node_modules\",\n    \"vendor\"\n  ]\n}\n"))
 }
 
 func init() {
