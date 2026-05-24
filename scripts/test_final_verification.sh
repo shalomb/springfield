@@ -5,7 +5,7 @@ set -euo pipefail
 FILES=(
     "AGENTS.md"
     "README.md"
-    "QUICK_START.md"
+    "docs/tutorials/quick-start.md"
     "docs/standards/atomic-commit-protocol.md"
     "docs/standards/coding-conventions.md"
     "docs/features/README.md"

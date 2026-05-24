@@ -49,4 +49,4 @@ just bdd docs/features/login.feature
 ```
 
 ---
-*Related: [README.md](../../README.md), [QUICK_START.md](../../QUICK_START.md)*
+*Related: [README.md](../../README.md), [quick-start.md](../tutorials/quick-start.md)*

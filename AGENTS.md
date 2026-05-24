@@ -10,7 +10,7 @@ This is your map. You don't need to read the entire documentation tree to do you
 
 ### 📍 Core
 - **[README.md](README.md)**: What this project is.
-- **[QUICK_START.md](QUICK_START.md)**: How to get moving fast.
+- **[quick-start.md](docs/tutorials/quick-start.md)**: How to get moving fast.
 - **[PLAN.md](PLAN.md)**: The roadmap. What we're building right now.
 - **`td`**: The command-line task and state manager.
 

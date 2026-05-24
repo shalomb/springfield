@@ -11,13 +11,13 @@ Springfield Protocol is a document-driven framework that coordinates a **Single 
 1.  **Specialized Agents:** Product, Planning, Build, Quality, and Release.
 2.  **Stateless Engine:** The Ralph Wiggum Loop prevents context rot via ephemeral worktrees.
 3.  **Two Diamonds:** Integrated Design Thinking and Agile Delivery flows.
-4.  **Just CLI:** Simple commands: `just impersonate`, `just utilize`, `just flow`, `just loop`.
+4.  **Just CLI:** Simple commands: `just lisa`, `just ralph`, `just bart`, `just lovejoy`, `just do`.
 
 ---
 
 ## 🚀 Getting Started
 
-1.  **Fast Track:** Read **[QUICK_START.md](QUICK_START.md)** for common workflows and loops.
+1.  **Fast Track:** Read **[quick-start.md](docs/tutorials/quick-start.md)** for common workflows and loops.
 2.  **Setup:** Follow **[Getting Started](docs/how-to/getting-started.md)** to implement the protocol.
 3.  **Master Model:** Understand the **[Concepts & Principles](docs/concepts/model.md)**.
 
@@ -68,5 +68,5 @@ Springfield uses a graduated test ladder:
 1. `just test-structure`: Format and vet.
 2. `just test-lint`: Linters.
 3. `just test-unit`: Unit tests.
-4. `just test-integration`: BDD integration tests (Python).
+4. `just test-integration`: BDD integration tests (Go).
 Run the full ladder with `just test`.

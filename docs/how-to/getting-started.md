@@ -4,14 +4,22 @@ So you've joined the team. Welcome to Springfield.
 
 This guide assumes you have the repository cloned and your environment set up. If not, ask your lead where the coffee machine is.
 
+## 0. Prerequisites: `td` (Task Daemon)
+
+Springfield requires `td` (Task Daemon) to run. It is our decentralized task management system that agents use to read instructions and report progress.
+
+- **What it is:** A lightweight CLI for managing `TODO.md` state.
+- **Why it's required:** The orchestration loops (like `just do`) poll `td` to know what to build next and when to stop.
+- **How to install it:** Run `go install github.com/shalomb/td@latest` (requires Go) or install from the source repository at `https://github.com/shalomb/td`.
+
 ## 1. The Interface: `just`
 
 We use `just` to run everything. It's our command center.
 
 ```bash
-just list       # Show all commands
-just agents     # See who's working
-just skills     # See what they can do
+just help       # Show all commands
+just plan       # Plan tasks with Lisa
+just do         # Run the full agent loop
 ```
 
 ## 2. Your First Feature

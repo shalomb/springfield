@@ -509,4 +509,4 @@ Bart Verification (Dynamic) ✓ Tests passing
 
 ---
 
-**Ready to use these? Start with QUICK_START.md and refer back to this guide as needed!**
+**Ready to use these? Start with [quick-start.md](../tutorials/quick-start.md) and refer back to this guide as needed!**

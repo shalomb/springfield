@@ -11,7 +11,7 @@ fi
 
 grep -q "# Springfield Agent Command Center" "$FILE" || { echo "FAIL: Missing Title"; exit 1; }
 grep -q "README.md" "$FILE" || { echo "FAIL: Missing link to README.md"; exit 1; }
-grep -q "QUICK_START.md" "$FILE" || { echo "FAIL: Missing link to QUICK_START.md"; exit 1; }
+grep -q "quick-start.md" "$FILE" || { echo "FAIL: Missing link to quick-start.md"; exit 1; }
 grep -q "docs/" "$FILE" || { echo "FAIL: Missing link to docs/"; exit 1; }
 grep -q "LLM Guidance" "$FILE" || { echo "FAIL: Missing LLM Guidance section"; exit 1; }
 
